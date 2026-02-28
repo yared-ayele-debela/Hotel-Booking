@@ -7,7 +7,9 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## Hotel Booking Backend
+## Hotel Booking Backend API
+
+Laravel-based backend for hotel booking system.
 
 - **App structure:** See [app/README.md](app/README.md) for folder conventions (Actions, DTOs, Enums, Services, Repositories, etc.).
 - **Infrastructure:** Queue worker and scheduler setup → [docs/INFRASTRUCTURE.md](docs/INFRASTRUCTURE.md).

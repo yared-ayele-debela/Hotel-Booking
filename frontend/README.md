@@ -10,6 +10,8 @@ cd frontend
 npm install
 npm run dev
 ```
+npm run dev
+```
 
 Open http://localhost:5173. Ensure the Laravel backend is running and CORS allows the frontend origin.
 

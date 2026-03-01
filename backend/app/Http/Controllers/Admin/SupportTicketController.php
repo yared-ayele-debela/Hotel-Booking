@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\Role;
+use App\Events\SupportTicketReplyCreated;
 use App\Http\Controllers\Controller;
 use App\Models\SupportTicket;
+use App\Models\SupportTicketReply;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +21,9 @@ class SupportTicketController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
         $tickets = $query->latest()->paginate(15)->withQueryString();
         return view('admin.support-tickets.index', compact('tickets'));
     }
@@ -26,7 +31,7 @@ class SupportTicketController extends Controller
     public function show(SupportTicket $supportTicket): View
     {
         $this->authorize('view', $supportTicket);
-        $supportTicket->load(['user', 'assignedTo']);
+        $supportTicket->load(['user', 'assignedTo', 'replies.user']);
         $staff = User::whereIn('role', [Role::ADMIN, Role::SUPER_ADMIN])->orderBy('name')->get();
         return view('admin.support-tickets.show', compact('supportTicket', 'staff'));
     }
@@ -48,5 +53,18 @@ class SupportTicketController extends Controller
         }
         $supportTicket->save();
         return redirect()->route('admin.support-tickets.show', $supportTicket)->with('success', 'Ticket updated.');
+    }
+
+    public function storeReply(Request $request, SupportTicket $supportTicket): RedirectResponse
+    {
+        $this->authorize('update', $supportTicket);
+        $validated = $request->validate(['body' => 'required|string|max:10000']);
+        $reply = SupportTicketReply::create([
+            'support_ticket_id' => $supportTicket->id,
+            'user_id' => $request->user()->id,
+            'body' => $validated['body'],
+        ]);
+        event(new SupportTicketReplyCreated($reply));
+        return redirect()->route('admin.support-tickets.show', $supportTicket)->with('success', 'Reply added.');
     }
 }

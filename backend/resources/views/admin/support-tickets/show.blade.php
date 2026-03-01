@@ -10,10 +10,34 @@
                 <div class="card-header"><h5 class="mb-0">Ticket</h5></div>
                 <div class="card-body">
                     <p class="mb-1"><strong>Subject:</strong> {{ $supportTicket->subject }}</p>
+                    <p class="mb-1"><strong>Category:</strong> {{ \App\Enums\TicketCategory::tryFrom($supportTicket->category)?->label() ?? $supportTicket->category }}</p>
                     <p class="mb-1"><strong>From:</strong> {{ $supportTicket->user->name ?? '-' }} ({{ $supportTicket->user->email ?? '-' }})</p>
                     <p class="mb-1"><strong>Status:</strong> {{ $supportTicket->status }} | <strong>Priority:</strong> {{ $supportTicket->priority }}</p>
                     <p class="mb-0"><strong>Body:</strong></p>
                     <div class="border rounded p-2 mt-1">{{ $supportTicket->body }}</div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header"><h5 class="mb-0">Replies</h5></div>
+                <div class="card-body">
+                    @forelse($supportTicket->replies as $reply)
+                    <div class="border rounded p-2 mb-2">
+                        <small class="text-muted">{{ $reply->user->name ?? $reply->user->email }} — {{ $reply->created_at->format('Y-m-d H:i') }}</small>
+                        <div class="mt-1">{{ $reply->body }}</div>
+                    </div>
+                    @empty
+                    <p class="text-muted mb-0">No replies yet.</p>
+                    @endforelse
+                    <hr>
+                    <form action="{{ route('admin.support-tickets.replies.store', $supportTicket) }}" method="POST">
+                        @csrf
+                        <div class="mb-2">
+                            <label class="form-label">Add reply</label>
+                            <textarea name="body" class="form-control" rows="3" required maxlength="10000">{{ old('body') }}</textarea>
+                            @error('body')<span class="text-danger small">{{ $message }}</span>@enderror
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Send reply</button>
+                    </form>
                 </div>
             </div>
         </div>

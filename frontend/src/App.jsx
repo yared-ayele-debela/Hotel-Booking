@@ -10,6 +10,9 @@ import Booking from './pages/Booking';
 import Checkout from './pages/Checkout';
 import Profile from './pages/Profile';
 import Wishlist from './pages/Wishlist';
+import Support from './pages/Support';
+import SupportTicketNew from './pages/SupportTicketNew';
+import SupportTicketDetail from './pages/SupportTicketDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
@@ -33,6 +36,9 @@ export default function App() {
               <Route path="checkout/:uuid" element={<Checkout />} />
               <Route path="profile" element={<Profile />} />
               <Route path="wishlist" element={<Wishlist />} />
+              <Route path="support" element={<Support />} />
+              <Route path="support/new" element={<SupportTicketNew />} />
+              <Route path="support/:id" element={<SupportTicketDetail />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
             </Route>

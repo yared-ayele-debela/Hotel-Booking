@@ -38,6 +38,12 @@
                         <span>Payouts</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.vendor.support-tickets.index') }}">
+                        <i data-feather="message-circle"></i>
+                        <span>Support</span>
+                    </a>
+                </li>
                 @else
                 {{-- Admin / Super Admin menu --}}
                 <li>

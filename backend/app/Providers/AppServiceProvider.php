@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\SupportTicketReplyCreated;
+use App\Listeners\SendSupportTicketReplyNotification;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
         Paginator::useBootstrap();
 
+        Event::listen(SupportTicketReplyCreated::class, SendSupportTicketReplyNotification::class);
     }
 }

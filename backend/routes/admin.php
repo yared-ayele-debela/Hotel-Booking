@@ -32,6 +32,7 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
         Route::get('/support-tickets', [\App\Http\Controllers\Admin\SupportTicketController::class, 'index'])->name('support-tickets.index');
         Route::get('/support-tickets/{supportTicket}', [\App\Http\Controllers\Admin\SupportTicketController::class, 'show'])->name('support-tickets.show');
         Route::patch('/support-tickets/{supportTicket}', [\App\Http\Controllers\Admin\SupportTicketController::class, 'update'])->name('support-tickets.update');
+        Route::post('/support-tickets/{supportTicket}/replies', [\App\Http\Controllers\Admin\SupportTicketController::class, 'storeReply'])->name('support-tickets.replies.store');
     });
 
     // Super Admin only: vendors & commission
@@ -52,6 +53,10 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
         Route::post('rooms/{room}/availability', [\App\Http\Controllers\Admin\Vendor\RoomController::class, 'storeAvailability'])->name('rooms.availability.store');
         Route::get('/bookings', [\App\Http\Controllers\Admin\Vendor\BookingController::class, 'index'])->name('bookings.index');
         Route::get('/payouts', [\App\Http\Controllers\Admin\Vendor\PayoutController::class, 'index'])->name('payouts.index');
+        Route::get('/support-tickets', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'index'])->name('support-tickets.index');
+        Route::get('/support-tickets/create', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'create'])->name('support-tickets.create');
+        Route::post('/support-tickets', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'store'])->name('support-tickets.store');
+        Route::get('/support-tickets/{supportTicket}', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'show'])->name('support-tickets.show');
         
         // Room Images
         Route::get('rooms/{room}/images', [\App\Http\Controllers\Admin\Vendor\RoomImageController::class, 'index'])->name('rooms.images.index');

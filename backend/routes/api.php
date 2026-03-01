@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\HotelSearchController;
 use App\Http\Controllers\Api\V1\ReviewController;
+use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\WishlistController;
 use App\Http\Controllers\Webhook\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -52,5 +53,8 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
         Route::delete('/wishlist/{hotelId}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+        Route::get('/support-tickets', [SupportTicketController::class, 'index'])->name('support-tickets.index');
+        Route::post('/support-tickets', [SupportTicketController::class, 'store'])->name('support-tickets.store');
+        Route::get('/support-tickets/{supportTicket}', [SupportTicketController::class, 'show'])->name('support-tickets.show');
     });
 });

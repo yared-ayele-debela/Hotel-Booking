@@ -25,6 +25,9 @@ export default function Header() {
               <Link to="/wishlist" className="px-3 py-2 rounded-lg hover:bg-amber-50 text-stone-700">
                 Wishlist
               </Link>
+              <Link to="/support" className="px-3 py-2 rounded-lg hover:bg-amber-50 text-stone-700">
+                Support
+              </Link>
               <Link to="/profile" className="px-3 py-2 rounded-lg hover:bg-amber-50 text-stone-700">
                 Profile
               </Link>

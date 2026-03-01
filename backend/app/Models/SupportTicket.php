@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupportTicket extends Model
 {
@@ -11,6 +12,7 @@ class SupportTicket extends Model
         'user_id',
         'subject',
         'body',
+        'category',
         'status',
         'priority',
         'assigned_to',
@@ -32,5 +34,10 @@ class SupportTicket extends Model
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function replies(): HasMany
+    {
+        return $this->hasMany(SupportTicketReply::class)->orderBy('created_at');
     }
 }

@@ -258,8 +258,9 @@ export default function HotelDetail() {
       )}
       
       {/* Date Selection Section */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-stone-900 mb-4">Select Dates</h2>
+      <div className="bg-white rounded-xl border-2 border-amber-200 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-stone-900 mb-1">Select your dates to book</h2>
+        <p className="text-sm text-stone-600 mb-4">Choose check-in and check-out, then click Check Availability to see room prices and the Book button.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label htmlFor="check-in" className="block text-sm font-medium text-stone-700 mb-1">
@@ -291,9 +292,9 @@ export default function HotelDetail() {
         <button
           onClick={handleDateSearch}
           disabled={!localCheckIn || !localCheckOut}
-          className="w-full sm:w-auto px-6 py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto px-6 py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
         >
-          Check Availability
+          Check Availability &amp; see Book options
         </button>
         {checkIn && checkOut && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -304,6 +305,11 @@ export default function HotelDetail() {
         )}
       </div>
       <h2 className="text-lg font-semibold text-stone-900 mb-3">Rooms</h2>
+      {(!checkIn || !checkOut) && (
+        <div className="mb-4 p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900">
+          <p className="text-sm font-medium">Select check-in and check-out dates above, then click “Check Availability” to see prices and book a room.</p>
+        </div>
+      )}
       <ul className="space-y-4 mb-8">
         {(hotel.rooms || []).map((room) => (
           <li
@@ -312,7 +318,12 @@ export default function HotelDetail() {
           >
             <div className="flex-1">
               <h3 className="font-medium text-stone-900 mb-2">{room.name}</h3>
-              <p className="text-sm text-stone-600 mb-3">Capacity: {room.capacity} · From ${room.base_price?.toFixed(2)}/night</p>
+              <p className="text-sm text-stone-600 mb-3">Capacity: {room.capacity} · From ${room.base_price != null ? Number(room.base_price).toFixed(2) : '0.00'}/night</p>
+              {room.cancellation_policy_summary && (
+                <p className="text-sm text-stone-500 mb-2" title="Cancellation policy">
+                  {room.cancellation_policy_summary}
+                </p>
+              )}
               
               {/* Room Images */}
               {room.images && room.images.length > 0 && (
@@ -357,18 +368,15 @@ export default function HotelDetail() {
               {checkIn && checkOut ? (
                 <Link
                   to={`/book?hotel_id=${hotel.id}&room_id=${room.id}&check_in=${checkIn}&check_out=${checkOut}`}
-                  className="px-4 py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 text-center"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 text-center shadow-sm"
                 >
-                  Book
+                  <span>Book this room</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </Link>
               ) : (
-                <button
-                  disabled
-                  className="px-4 py-2 rounded-lg bg-stone-300 text-stone-500 font-medium cursor-not-allowed"
-                  title="Please select check-in and check-out dates"
-                >
+                <span className="inline-block px-4 py-2 rounded-lg bg-stone-100 text-stone-500 text-sm" title="Select check-in and check-out dates above">
                   Select dates to book
-                </button>
+                </span>
               )}
             </div>
           </li>

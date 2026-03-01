@@ -40,6 +40,12 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     // Reviews list (no auth) – approved only
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
+    // Guest checkout (no auth)
+    Route::post('/bookings/guest/preview', [BookingController::class, 'previewGuest'])->name('bookings.guest.preview');
+    Route::post('/bookings/guest', [BookingController::class, 'storeGuest'])->name('bookings.guest.store');
+    Route::get('/bookings/guest-view', [BookingController::class, 'guestView'])->name('bookings.guest-view');
+    Route::get('/bookings/guest-invoice', [BookingController::class, 'guestInvoice'])->name('bookings.guest-invoice');
+
     // Authenticated customer routes
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -49,6 +55,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/bookings/{uuid}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
         Route::get('/bookings/{uuid}', [BookingController::class, 'show'])->name('bookings.show');
         Route::post('/bookings/{uuid}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+        Route::post('/bookings/{uuid}/claim', [BookingController::class, 'claim'])->name('bookings.claim');
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
         Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');

@@ -66,6 +66,12 @@
                         <span>Commission</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.website-settings.index') }}">
+                        <i data-feather="settings"></i>
+                        <span>Website Settings</span>
+                    </a>
+                </li>
                 @endif
 
                 <li>

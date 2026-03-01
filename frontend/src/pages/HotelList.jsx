@@ -121,7 +121,11 @@ export default function HotelList() {
                 <h2 className="font-semibold text-stone-900">{h.name}</h2>
                 <p className="text-sm text-stone-600">{[h.city, h.country].filter(Boolean).join(', ') || '—'}</p>
                 {h.average_rating != null && <p className="text-sm mt-1">★ {h.average_rating}</p>}
-                <span className="inline-block mt-2 text-amber-600 font-medium">View details →</span>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center text-amber-600 font-medium">View details →</span>
+                  <span className="text-stone-400">·</span>
+                  <span className="inline-flex items-center text-amber-600 font-medium">Book</span>
+                </div>
               </div>
             </Link>
           ))}

@@ -25,7 +25,15 @@ class Hotel extends Model
         'status',
         'tax_rate',
         'tax_name',
+        'cancellation_policy',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'cancellation_policy' => 'array',
+        ];
+    }
 
     public function vendor()
     {

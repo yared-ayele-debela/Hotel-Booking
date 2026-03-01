@@ -24,9 +24,16 @@ class BookingResource extends JsonResource
             'discount_amount' => (float) ($this->discount_amount ?? 0),
             'tax_amount' => (float) ($this->tax_amount ?? 0),
             'coupon_code' => $this->when($this->coupon_id, fn () => $this->coupon?->code),
+            'guest_email' => $this->when($this->isGuest(), $this->guest_email),
+            'guest_name' => $this->when($this->isGuest(), $this->guest_name),
+            'is_guest' => $this->isGuest(),
             'hotel' => new HotelResource($this->whenLoaded('hotel')),
             'booking_rooms' => BookingRoomResource::collection($this->whenLoaded('bookingRooms')),
             'review' => new ReviewResource($this->whenLoaded('review')),
+            'cancellation_policy_summary' => $this->when(
+                $this->resource->exists,
+                fn () => app(\App\Services\CancellationPolicyService::class)->getSummaryForBooking($this->resource)
+            ),
         ];
     }
 }

@@ -34,19 +34,29 @@ class BookingService
     /**
      * Create a booking: lock inventory, create booking + booking_rooms, return booking.
      * On failure releases lock and rethrows.
+     * For guest checkout pass customerId null and guest_email + guest_name.
      *
      * @param  array<int, int>  $roomQuantities  [room_id => quantity]
      */
     public function createBooking(
-        int $customerId,
+        ?int $customerId,
         int $hotelId,
         array $roomQuantities,
         string $checkIn,
         string $checkOut,
         string $currency = 'USD',
         ?string $couponCode = null,
+        ?string $guestEmail = null,
+        ?string $guestName = null,
     ): Booking {
-        return DB::transaction(function () use ($customerId, $hotelId, $roomQuantities, $checkIn, $checkOut, $currency, $couponCode) {
+        if ($customerId === null && (empty($guestEmail) || empty($guestName))) {
+            throw new \InvalidArgumentException('Guest booking requires guest_email and guest_name.');
+        }
+        if ($customerId !== null && ($guestEmail !== null || $guestName !== null)) {
+            throw new \InvalidArgumentException('Cannot set both customer_id and guest fields.');
+        }
+
+        return DB::transaction(function () use ($customerId, $hotelId, $roomQuantities, $checkIn, $checkOut, $currency, $couponCode, $guestEmail, $guestName) {
             foreach (array_keys($roomQuantities) as $roomId) {
                 $this->availabilityService->ensureAvailabilityRows($roomId, $checkIn, $checkOut);
             }
@@ -74,6 +84,8 @@ class BookingService
             try {
                 $booking = Booking::create([
                     'customer_id' => $customerId,
+                    'guest_email' => $customerId === null ? $guestEmail : null,
+                    'guest_name' => $customerId === null ? $guestName : null,
                     'hotel_id' => $hotelId,
                     'status' => BookingStatus::PENDING_PAYMENT->value,
                     'check_in' => $checkIn,

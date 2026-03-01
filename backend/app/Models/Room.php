@@ -18,7 +18,15 @@ class Room extends Model
         'capacity',
         'base_price',
         'total_rooms',
+        'cancellation_policy',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'cancellation_policy' => 'array',
+        ];
+    }
 
     public function hotel()
     {

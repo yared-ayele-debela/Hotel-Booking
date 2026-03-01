@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\PaymentConfirmed;
 use App\Events\SupportTicketReplyCreated;
+use App\Listeners\SendBookingConfirmationNotification;
 use App\Listeners\SendSupportTicketReplyNotification;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
@@ -26,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
 
         Event::listen(SupportTicketReplyCreated::class, SendSupportTicketReplyNotification::class);
+        Event::listen(PaymentConfirmed::class, SendBookingConfirmationNotification::class);
     }
 }

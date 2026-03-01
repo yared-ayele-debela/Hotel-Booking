@@ -30,8 +30,8 @@
     <div class="two-col">
         <div>
             <strong>Guest</strong><br>
-            {{ $booking->customer->name ?? 'Guest' }}<br>
-            {{ $booking->customer->email ?? '' }}
+            {{ $booking->customer_id ? ($booking->customer->name ?? 'Guest') : ($booking->guest_name ?? 'Guest') }}<br>
+            {{ $booking->customer_id ? ($booking->customer->email ?? '') : ($booking->guest_email ?? '') }}
         </div>
         <div>
             <strong>Hotel</strong><br>

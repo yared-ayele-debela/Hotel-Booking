@@ -47,8 +47,12 @@ class RoomController extends Controller
             'capacity' => 'required|integer|min:1',
             'base_price' => 'required|numeric|min:0',
             'total_rooms' => 'required|integer|min:1',
+            'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
+            'cancellation_policy_custom' => 'nullable|string',
         ]);
+        $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         $hotel = Hotel::where('id', $validated['hotel_id'])->where('vendor_id', auth()->id())->firstOrFail();
+        unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
         Room::create($validated);
         return redirect()->route('admin.vendor.rooms.index', ['hotel_id' => $hotel->id])->with('success', 'Room created.');
     }
@@ -68,7 +72,11 @@ class RoomController extends Controller
             'capacity' => 'required|integer|min:1',
             'base_price' => 'required|numeric|min:0',
             'total_rooms' => 'required|integer|min:1',
+            'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
+            'cancellation_policy_custom' => 'nullable|string',
         ]);
+        $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
+        unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
         $room->update($validated);
         return redirect()->route('admin.vendor.rooms.index')->with('success', 'Room updated.');
     }
@@ -104,5 +112,36 @@ class RoomController extends Controller
             ]
         );
         return redirect()->route('admin.vendor.rooms.availability', $room)->with('success', 'Availability updated.');
+    }
+
+    /**
+     * Build cancellation_policy array from request (preset or custom JSON). Returns null for none / use hotel default.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function buildCancellationPolicyFromRequest(Request $request): ?array
+    {
+        $preset = $request->input('cancellation_policy_preset');
+        if ($preset === null || $preset === '' || $preset === 'none') {
+            return null;
+        }
+        if ($preset === 'custom') {
+            $custom = $request->input('cancellation_policy_custom');
+            if (empty(trim((string) $custom))) {
+                return null;
+            }
+            $decoded = json_decode($custom, true);
+            if (! is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
+                return null;
+            }
+            return $decoded;
+        }
+        $map = [
+            'non_refundable' => ['type' => 'non_refundable'],
+            'free_24' => ['type' => 'free_until_hours', 'hours' => 24],
+            'free_48' => ['type' => 'free_until_hours', 'hours' => 48],
+            'free_168' => ['type' => 'free_until_hours', 'hours' => 168],
+        ];
+        return $map[$preset] ?? null;
     }
 }

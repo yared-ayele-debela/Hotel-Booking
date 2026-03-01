@@ -57,6 +57,14 @@ class HotelResource extends JsonResource
             }),
             'average_rating' => $this->when(isset($this->average_rating), fn () => round((float) $this->average_rating, 2)),
             'review_count' => $this->when(isset($this->review_count), fn () => (int) $this->review_count),
+            'cancellation_policy' => $this->when(
+                $this->cancellation_policy !== null,
+                fn () => $this->cancellation_policy
+            ),
+            'cancellation_policy_summary' => $this->when(
+                $this->cancellation_policy !== null,
+                fn () => app(\App\Services\CancellationPolicyService::class)->getSummaryForPolicy($this->cancellation_policy)
+            ),
         ];
     }
 }

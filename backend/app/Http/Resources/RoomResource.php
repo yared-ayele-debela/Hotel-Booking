@@ -38,6 +38,18 @@ class RoomResource extends JsonResource
                     'alt_text' => $banner->alt_text,
                 ] : null;
             }),
+            'cancellation_policy' => $this->when(
+                $this->cancellation_policy !== null,
+                fn () => $this->cancellation_policy
+            ),
+            'cancellation_policy_summary' => $this->when(
+                $this->cancellation_policy !== null || ($this->relationLoaded('hotel') && $this->hotel?->cancellation_policy !== null),
+                function () {
+                    $svc = app(\App\Services\CancellationPolicyService::class);
+                    $policy = $this->cancellation_policy ?? ($this->relationLoaded('hotel') ? $this->hotel?->cancellation_policy : null);
+                    return $policy !== null ? $svc->getSummaryForPolicy($policy) : null;
+                }
+            ),
         ];
     }
 }

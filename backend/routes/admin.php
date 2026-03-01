@@ -35,13 +35,19 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
         Route::post('/support-tickets/{supportTicket}/replies', [\App\Http\Controllers\Admin\SupportTicketController::class, 'storeReply'])->name('support-tickets.replies.store');
     });
 
-    // Super Admin only: vendors & commission
+    // Super Admin only: vendors, commission & website settings
     Route::middleware('super_admin')->group(function () {
         Route::get('/vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('vendors.index');
         Route::patch('/vendors/{vendor}/status', [\App\Http\Controllers\Admin\VendorController::class, 'updateStatus'])->name('vendors.update-status');
         Route::get('/commission', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('commission.index');
         Route::get('/commission/edit', [\App\Http\Controllers\Admin\CommissionController::class, 'edit'])->name('commission.edit');
         Route::put('/commission', [\App\Http\Controllers\Admin\CommissionController::class, 'update'])->name('commission.update');
+        
+        // Website Settings
+        Route::get('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'index'])->name('website-settings.index');
+        Route::put('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'update'])->name('website-settings.update');
+        Route::delete('/website-settings/logo', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'removeLogo'])->name('website-settings.remove-logo');
+        Route::delete('/website-settings/favicon', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'removeFavicon'])->name('website-settings.remove-favicon');
     });
 
     // Vendor dashboard (vendor role only)

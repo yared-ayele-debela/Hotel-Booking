@@ -16,6 +16,8 @@ class Booking extends Model
     protected $fillable = [
         'uuid',
         'customer_id',
+        'guest_email',
+        'guest_name',
         'hotel_id',
         'status',
         'check_in',
@@ -26,6 +28,11 @@ class Booking extends Model
         'discount_amount',
         'tax_amount',
     ];
+
+    public function isGuest(): bool
+    {
+        return $this->customer_id === null && $this->guest_email !== null;
+    }
 
     protected function casts(): array
     {

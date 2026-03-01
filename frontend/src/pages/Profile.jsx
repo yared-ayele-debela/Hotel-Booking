@@ -57,6 +57,7 @@ export default function Profile() {
             <li key={b.uuid || b.id} className="p-4 rounded-xl border border-stone-200 bg-white">
               <p className="font-medium">{b.hotel?.name ?? 'Hotel'}</p>
               <p className="text-sm text-stone-600">{b.check_in} – {b.check_out} · ${b.total_price != null ? Number(b.total_price).toFixed(2) : '—'}</p>
+              {b.cancellation_policy_summary && <p className="text-sm text-stone-500">{b.cancellation_policy_summary}</p>}
               <p className="text-sm">Status: {b.status}</p>
               <div className="flex gap-3 mt-2">
                 <Link to={`/checkout/${b.uuid}`} className="text-amber-600 text-sm">View</Link>

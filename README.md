@@ -161,18 +161,6 @@ This repository includes comprehensive implementation guides in the root directo
   - Quality & security
   - Deployment
 
-- **IMPLEMENTATION-CHECKLIST.md** — Phase-by-phase checklist for tracking development progress
-
-- **FEATURE-SUGGESTIONS.md** — Post-MVP feature ideas including:
-  - Wishlist functionality
-  - Guest checkout
-  - Cancellation policies
-  - Multi-room cart
-  - Amenities management
-  - Support tickets
-  - Multi-currency support
-  - And more...
-
 ## 🔑 Core Entities
 
 ### Hotels (Vendors)

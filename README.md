@@ -299,8 +299,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 👤 Author
 
-Created by [Your Name]
-
+Created by Yared Debela
 ## 📞 Support
 
 For issues, questions, or suggestions:

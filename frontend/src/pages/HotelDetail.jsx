@@ -125,6 +125,11 @@ export default function HotelDetail() {
           <span className="ml-2">★ {hotel.average_rating} ({hotel.review_count ?? 0} reviews)</span>
         )}
       </p>
+      {(hotel.check_in || hotel.check_out) && (
+        <p className="text-sm text-stone-600 mb-4">
+          Check-in: {hotel.check_in ?? '—'} · Check-out: {hotel.check_out ?? '—'}
+        </p>
+      )}
       {hotel.description && (
         <p className="text-stone-700 mb-6">{hotel.description}</p>
       )}

@@ -23,6 +23,7 @@ class CreateGuestBookingRequest extends BaseApiRequest
             'rooms.*.quantity' => 'required|integer|min:1',
             'currency' => 'nullable|string|size:3',
             'coupon_code' => 'nullable|string|max:64',
+            'late_checkout' => 'nullable|boolean',
             'guest_email' => 'required|email',
             'guest_name' => 'required|string|max:255',
         ];

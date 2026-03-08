@@ -12,5 +12,6 @@ readonly class PriceBreakdown
         public string $currency = 'USD',
         public ?string $couponCode = null,
         public ?int $couponId = null,
+        public float $addOnAmount = 0.0,
     ) {}
 }

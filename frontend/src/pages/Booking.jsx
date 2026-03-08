@@ -16,6 +16,7 @@ export default function Booking() {
   const checkOut = searchParams.get('check_out');
   const [quantity, setQuantity] = useState(1);
   const [couponCode, setCouponCode] = useState('');
+  const [lateCheckout, setLateCheckout] = useState(false);
   const [guestEmail, setGuestEmail] = useState('');
   const [guestName, setGuestName] = useState('');
 
@@ -39,6 +40,7 @@ export default function Booking() {
         rooms: [{ room_id: Number(roomId), quantity }],
       };
       if (couponCode.trim()) payload.coupon_code = couponCode.trim();
+      if (lateCheckout) payload.late_checkout = true;
       if (isGuest) {
         payload.guest_email = guestEmail.trim();
         payload.guest_name = guestName.trim();
@@ -87,6 +89,19 @@ export default function Booking() {
       )}
       <p className="text-stone-600 mb-4">{hotel.name} – {room.name}</p>
       <p className="text-sm text-stone-600 mb-4">Check-in: {checkIn} · Check-out: {checkOut} · Quantity: {quantity}</p>
+      {hotel.check_in && hotel.check_out && (
+        <p className="text-sm text-stone-500 mb-2">Hotel times: Check-in {hotel.check_in} · Check-out {hotel.check_out}</p>
+      )}
+      {hotel.late_checkout_price != null && hotel.late_checkout_price > 0 && (
+        <div className="mb-4 p-3 rounded-lg border border-stone-200 bg-stone-50">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={lateCheckout} onChange={(e) => setLateCheckout(e.target.checked)} className="rounded border-stone-300" />
+            <span className="text-sm font-medium text-stone-700">Add late checkout</span>
+            <span className="text-sm text-stone-600">(+{Number(hotel.late_checkout_price).toFixed(2)} USD)</span>
+          </label>
+          <p className="text-xs text-stone-500 mt-1 ml-6">Extend your check-out time for an additional fee.</p>
+        </div>
+      )}
       {room.cancellation_policy_summary && (
         <p className="text-sm text-stone-500 mb-4">{room.cancellation_policy_summary}</p>
       )}

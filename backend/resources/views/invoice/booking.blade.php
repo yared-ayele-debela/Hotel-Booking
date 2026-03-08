@@ -41,7 +41,9 @@
         </div>
     </div>
 
-    <p><strong>Check-in:</strong> {{ $booking->check_in->format('F j, Y') }} &nbsp; <strong>Check-out:</strong> {{ $booking->check_out->format('F j, Y') }} &nbsp; <strong>Nights:</strong> {{ $nights }}</p>
+    <p><strong>Check-in:</strong> {{ $booking->check_in->format('F j, Y') }}@if($booking->hotel->check_in) at {{ date('g:i A', strtotime($booking->hotel->check_in)) }}@endif
+        &nbsp; <strong>Check-out:</strong> {{ $booking->check_out->format('F j, Y') }}@if($booking->hotel->check_out) at {{ date('g:i A', strtotime($booking->hotel->check_out)) }}@endif
+        &nbsp; <strong>Nights:</strong> {{ $nights }}</p>
 
     <table>
         <thead>
@@ -66,6 +68,15 @@
                 <td class="text-right">{{ $booking->currency }} {{ number_format($lineTotal, 2) }}</td>
             </tr>
             @endforeach
+            @if($booking->late_checkout && (float) ($booking->late_checkout_amount ?? 0) > 0)
+            <tr>
+                <td>Late checkout</td>
+                <td class="text-right">1</td>
+                <td class="text-right">–</td>
+                <td class="text-right">{{ $booking->currency }} {{ number_format((float) $booking->late_checkout_amount, 2) }}</td>
+                <td class="text-right">{{ $booking->currency }} {{ number_format((float) $booking->late_checkout_amount, 2) }}</td>
+            </tr>
+            @endif
         </tbody>
     </table>
 

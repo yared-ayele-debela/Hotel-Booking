@@ -24,6 +24,8 @@ class Booking extends Model
         'check_out',
         'total_price',
         'currency',
+        'late_checkout',
+        'late_checkout_amount',
         'coupon_id',
         'discount_amount',
         'tax_amount',
@@ -42,6 +44,8 @@ class Booking extends Model
             'total_price' => 'decimal:2',
             'discount_amount' => 'decimal:2',
             'tax_amount' => 'decimal:2',
+            'late_checkout' => 'boolean',
+            'late_checkout_amount' => 'decimal:2',
         ];
     }
 

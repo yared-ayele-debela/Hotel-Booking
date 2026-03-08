@@ -58,6 +58,11 @@
                         <label class="form-label">Check-out (time)</label>
                         <input type="time" name="check_out" class="form-control" value="{{ old('check_out') }}">
                     </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Late checkout price (optional)</label>
+                        <input type="number" name="late_checkout_price" class="form-control" value="{{ old('late_checkout_price') }}" min="0" step="0.01" placeholder="0.00">
+                        <small class="text-muted">Paid add-on for guests who want extended check-out.</small>
+                    </div>
                 </div>
                 @if(isset($amenities) && $amenities->isNotEmpty())
                 <div class="mb-3">

@@ -17,7 +17,7 @@ class PricingService
     /**
      * Calculate price breakdown for given rooms and date range.
      * Base price from room (and room_availability price_override when present).
-     * Applies length-of-stay discount and optional coupon (validated via CouponService).
+     * Applies length-of-stay discount, optional coupon, and optional late checkout add-on.
      *
      * @param  array<int, int>  $roomQuantities  room_id => quantity
      */
@@ -28,6 +28,7 @@ class PricingService
         int $hotelId,
         ?string $couponCode = null,
         ?int $userId = null,
+        bool $lateCheckout = false,
     ): PriceBreakdown {
         $subtotal = 0.0;
         $period = CarbonPeriod::create($checkIn, $checkOut)->excludeEndDate();
@@ -47,10 +48,19 @@ class PricingService
 
         $nights = $period->count();
         [$discount, $coupon] = $this->applyDiscounts($subtotal, $checkIn, $checkOut, $nights, $couponCode, $hotelId, $roomQuantities, $userId);
-        $taxableAmount = max(0, $subtotal - $discount);
+
+        $addOnAmount = 0.0;
+        if ($lateCheckout) {
+            $hotel = Hotel::find($hotelId);
+            if ($hotel && $hotel->late_checkout_price !== null) {
+                $addOnAmount = (float) $hotel->late_checkout_price;
+            }
+        }
+
+        $taxableAmount = max(0, $subtotal - $discount + $addOnAmount);
         $taxRate = $this->getTaxRateForHotel($hotelId);
         $tax = round($taxableAmount * $taxRate, 2);
-        $total = $subtotal - $discount + $tax;
+        $total = $subtotal - $discount + $addOnAmount + $tax;
 
         return new PriceBreakdown(
             subtotal: round($subtotal, 2),
@@ -60,6 +70,7 @@ class PricingService
             currency: 'USD',
             couponCode: $couponCode,
             couponId: $coupon?->id,
+            addOnAmount: round($addOnAmount, 2),
         );
     }
 

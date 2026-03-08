@@ -48,6 +48,7 @@ class BookingService
         ?string $couponCode = null,
         ?string $guestEmail = null,
         ?string $guestName = null,
+        bool $lateCheckout = false,
     ): Booking {
         if ($customerId === null && (empty($guestEmail) || empty($guestName))) {
             throw new \InvalidArgumentException('Guest booking requires guest_email and guest_name.');
@@ -56,7 +57,7 @@ class BookingService
             throw new \InvalidArgumentException('Cannot set both customer_id and guest fields.');
         }
 
-        return DB::transaction(function () use ($customerId, $hotelId, $roomQuantities, $checkIn, $checkOut, $currency, $couponCode, $guestEmail, $guestName) {
+        return DB::transaction(function () use ($customerId, $hotelId, $roomQuantities, $checkIn, $checkOut, $currency, $couponCode, $guestEmail, $guestName, $lateCheckout) {
             foreach (array_keys($roomQuantities) as $roomId) {
                 $this->availabilityService->ensureAvailabilityRows($roomId, $checkIn, $checkOut);
             }
@@ -75,6 +76,7 @@ class BookingService
                 $hotelId,
                 $couponCode,
                 $customerId,
+                $lateCheckout,
             );
 
             foreach ($roomQuantities as $roomId => $quantity) {
@@ -92,6 +94,8 @@ class BookingService
                     'check_out' => $checkOut,
                     'total_price' => $breakdown->total,
                     'currency' => $breakdown->currency,
+                    'late_checkout' => $lateCheckout,
+                    'late_checkout_amount' => $breakdown->addOnAmount > 0 ? $breakdown->addOnAmount : null,
                     'coupon_id' => $breakdown->couponId,
                     'discount_amount' => $breakdown->discount,
                     'tax_amount' => $breakdown->tax,

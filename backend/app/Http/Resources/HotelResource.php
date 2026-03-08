@@ -34,6 +34,7 @@ class HotelResource extends JsonResource
             'longitude' => $this->longitude ? (float) $this->longitude : null,
             'check_in' => self::timeToHi($this->check_in),
             'check_out' => self::timeToHi($this->check_out),
+            'late_checkout_price' => $this->late_checkout_price ? (float) $this->late_checkout_price : null,
             'status' => $this->status,
             'rooms' => RoomResource::collection($this->whenLoaded('rooms')),
             'images' => $this->whenLoaded('images', function () {

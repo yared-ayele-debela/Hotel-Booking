@@ -24,6 +24,7 @@ class Hotel extends Model
         'longitude',
         'check_in',
         'check_out',
+        'late_checkout_price',
         'status',
         'tax_rate',
         'tax_name',

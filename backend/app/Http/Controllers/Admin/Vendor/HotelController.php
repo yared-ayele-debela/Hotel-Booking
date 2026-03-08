@@ -44,6 +44,7 @@ class HotelController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
             'check_in' => 'nullable|string|max:10',
             'check_out' => 'nullable|string|max:10',
+            'late_checkout_price' => 'nullable|numeric|min:0',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
             'amenities' => 'nullable|array',
@@ -60,6 +61,7 @@ class HotelController extends Controller
         if (! empty($validated['check_out'])) {
             $validated['check_out'] = \Carbon\Carbon::parse($validated['check_out'])->format('H:i:s');
         }
+        $validated['late_checkout_price'] = isset($validated['late_checkout_price']) && $validated['late_checkout_price'] > 0 ? $validated['late_checkout_price'] : null;
         $amenityIds = $validated['amenities'] ?? [];
         unset($validated['amenities']);
         $hotel = Hotel::create($validated);
@@ -92,6 +94,7 @@ class HotelController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
             'check_in' => 'nullable|string|max:10',
             'check_out' => 'nullable|string|max:10',
+            'late_checkout_price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
@@ -107,6 +110,7 @@ class HotelController extends Controller
         if (! empty($validated['check_out'])) {
             $validated['check_out'] = \Carbon\Carbon::parse($validated['check_out'])->format('H:i:s');
         }
+        $validated['late_checkout_price'] = isset($validated['late_checkout_price']) && $validated['late_checkout_price'] > 0 ? $validated['late_checkout_price'] : null;
         $amenityIds = $validated['amenities'] ?? [];
         unset($validated['amenities']);
         $hotel->update($validated);

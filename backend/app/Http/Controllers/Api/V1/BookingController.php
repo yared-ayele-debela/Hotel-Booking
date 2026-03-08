@@ -45,6 +45,7 @@ class BookingController extends BaseApiController
         }
 
         $couponCode = $request->filled('coupon_code') ? trim($request->coupon_code) : null;
+        $lateCheckout = (bool) $request->input('late_checkout', false);
         $breakdown = $this->pricingService->calculate(
             $roomQuantities,
             $checkIn,
@@ -52,12 +53,14 @@ class BookingController extends BaseApiController
             $hotelId,
             $couponCode,
             (int) $user->id,
+            $lateCheckout,
         );
 
         return $this->success([
             'subtotal' => $breakdown->subtotal,
             'discount' => $breakdown->discount,
             'tax' => $breakdown->tax,
+            'add_on_amount' => $breakdown->addOnAmount,
             'total' => $breakdown->total,
             'currency' => $breakdown->currency,
             'coupon_code' => $breakdown->couponCode,
@@ -131,6 +134,7 @@ class BookingController extends BaseApiController
         }
 
         $couponCode = $request->filled('coupon_code') ? trim($request->coupon_code) : null;
+        $lateCheckout = (bool) $request->input('late_checkout', false);
         $breakdown = $this->pricingService->calculate(
             $roomQuantities,
             $checkIn,
@@ -138,12 +142,14 @@ class BookingController extends BaseApiController
             $hotelId,
             $couponCode,
             null,
+            $lateCheckout,
         );
 
         return $this->success([
             'subtotal' => $breakdown->subtotal,
             'discount' => $breakdown->discount,
             'tax' => $breakdown->tax,
+            'add_on_amount' => $breakdown->addOnAmount,
             'total' => $breakdown->total,
             'currency' => $breakdown->currency,
             'coupon_code' => $breakdown->couponCode,
@@ -174,6 +180,7 @@ class BookingController extends BaseApiController
         }
 
         $couponCode = $request->filled('coupon_code') ? trim($request->coupon_code) : null;
+        $lateCheckout = (bool) $request->input('late_checkout', false);
 
         try {
             $booking = $this->bookingService->createBooking(
@@ -185,7 +192,8 @@ class BookingController extends BaseApiController
                 $currency,
                 $couponCode,
                 $guestEmail,
-                $guestName
+                $guestName,
+                $lateCheckout,
             );
         } catch (\RuntimeException $e) {
             return $this->error($e->getMessage(), 422, 'UNAVAILABLE');

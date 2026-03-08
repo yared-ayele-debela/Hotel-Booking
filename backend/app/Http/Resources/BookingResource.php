@@ -24,6 +24,8 @@ class BookingResource extends JsonResource
             'discount_amount' => (float) ($this->discount_amount ?? 0),
             'tax_amount' => (float) ($this->tax_amount ?? 0),
             'coupon_code' => $this->when($this->coupon_id, fn () => $this->coupon?->code),
+            'late_checkout' => (bool) ($this->late_checkout ?? false),
+            'late_checkout_amount' => $this->late_checkout ? (float) ($this->late_checkout_amount ?? 0) : null,
             'guest_email' => $this->when($this->isGuest(), $this->guest_email),
             'guest_name' => $this->when($this->isGuest(), $this->guest_name),
             'is_guest' => $this->isGuest(),

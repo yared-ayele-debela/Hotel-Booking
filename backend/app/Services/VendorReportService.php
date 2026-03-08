@@ -96,7 +96,7 @@ class VendorReportService
         }
 
         return $query
-            ->selectRaw('rooms.id as room_id, rooms.name as room_name, SUM(booking_rooms.quantity * booking_rooms.unit_price) as revenue, COUNT(DISTINCT bookings.id) as bookings')
+            ->selectRaw('rooms.id as room_id, rooms.name as room_name, SUM(booking_rooms.quantity * booking_rooms.unit_price * DATEDIFF(bookings.check_out, bookings.check_in)) as revenue, COUNT(DISTINCT bookings.id) as bookings')
             ->groupBy('rooms.id', 'rooms.name')
             ->orderByDesc('revenue')
             ->get()
@@ -206,7 +206,12 @@ class VendorReportService
 
         foreach (['day', 'week', 'month'] as $p) {
             $occ = $this->occupancyByPeriod($hotelIds, $p);
-            $rows[] = ['Occupancy (' . $occ['period_label'] . ')', $occ['occupancy'] . '%', 'Booked: ' . $occ['booked_nights'], 'Available: ' . $occ['available_nights']);
+            $rows[] = [
+                'Occupancy (' . $occ['period_label'] . ')',
+                $occ['occupancy'] . '%',
+                'Booked: ' . $occ['booked_nights'],
+                'Available: ' . $occ['available_nights'],
+            ];
         }
 
         return $rows;

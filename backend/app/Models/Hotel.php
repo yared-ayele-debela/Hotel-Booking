@@ -16,6 +16,8 @@ class Hotel extends Model
         'name',
         'description',
         'address',
+        'country_id',
+        'city_id',
         'city',
         'country',
         'latitude',
@@ -27,6 +29,16 @@ class Hotel extends Model
         'tax_name',
         'cancellation_policy',
     ];
+
+    public function countryRelation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id');
+    }
+
+    public function cityRelation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
 
     protected function casts(): array
     {

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\City;
+use App\Models\Country;
 use App\Models\Hotel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,14 +15,16 @@ class HotelController extends Controller
     public function index(): View
     {
         $this->authorize('viewAny', Hotel::class);
-        $hotels = Hotel::where('vendor_id', auth()->id())->with(['images', 'bannerImage'])->latest()->paginate(15);
+        $hotels = Hotel::where('vendor_id', auth()->id())->with(['images', 'bannerImage', 'cityRelation', 'countryRelation'])->latest()->paginate(15);
         return view('admin.vendor.hotels.index', compact('hotels'));
     }
 
     public function create(): View
     {
         $this->authorize('create', Hotel::class);
-        return view('admin.vendor.hotels.create');
+        $countries = Country::orderBy('name')->get();
+        $cities = City::with('country')->orderBy('name')->get();
+        return view('admin.vendor.hotels.create', compact('countries', 'cities'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -30,6 +34,8 @@ class HotelController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'address' => 'nullable|string|max:255',
+            'country_id' => 'nullable|exists:countries,id',
+            'city_id' => 'nullable|exists:cities,id',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -43,6 +49,7 @@ class HotelController extends Controller
         $validated['status'] = 'active';
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
+        $this->syncCityCountryFromIds($validated);
         if (! empty($validated['check_in'])) {
             $validated['check_in'] = \Carbon\Carbon::parse($validated['check_in'])->format('H:i:s');
         }
@@ -56,7 +63,9 @@ class HotelController extends Controller
     public function edit(Hotel $hotel): View
     {
         $this->authorize('update', $hotel);
-        return view('admin.vendor.hotels.edit', compact('hotel'));
+        $countries = Country::orderBy('name')->get();
+        $cities = City::with('country')->orderBy('name')->get();
+        return view('admin.vendor.hotels.edit', compact('hotel', 'countries', 'cities'));
     }
 
     public function update(Request $request, Hotel $hotel): RedirectResponse
@@ -66,6 +75,8 @@ class HotelController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'address' => 'nullable|string|max:255',
+            'country_id' => 'nullable|exists:countries,id',
+            'city_id' => 'nullable|exists:cities,id',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -78,6 +89,7 @@ class HotelController extends Controller
         ]);
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
+        $this->syncCityCountryFromIds($validated);
         if (! empty($validated['check_in'])) {
             $validated['check_in'] = \Carbon\Carbon::parse($validated['check_in'])->format('H:i:s');
         }
@@ -86,6 +98,31 @@ class HotelController extends Controller
         }
         $hotel->update($validated);
         return redirect()->route('admin.vendor.hotels.index')->with('success', 'Hotel updated.');
+    }
+
+    /**
+     * Set city and country strings from city_id/country_id when present.
+     *
+     * @param array<string, mixed> $validated
+     */
+    private function syncCityCountryFromIds(array &$validated): void
+    {
+        if (! empty($validated['city_id'])) {
+            $city = City::find($validated['city_id']);
+            if ($city) {
+                $validated['city'] = $city->name;
+                if (empty($validated['country_id']) && $city->country_id) {
+                    $validated['country_id'] = $city->country_id;
+                    $validated['country'] = $city->country->name ?? $validated['country'] ?? null;
+                }
+            }
+        }
+        if (! empty($validated['country_id'])) {
+            $country = Country::find($validated['country_id']);
+            if ($country) {
+                $validated['country'] = $country->name;
+            }
+        }
     }
 
     public function destroy(Hotel $hotel): RedirectResponse

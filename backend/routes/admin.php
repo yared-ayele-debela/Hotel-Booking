@@ -48,6 +48,9 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
         Route::put('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'update'])->name('website-settings.update');
         Route::delete('/website-settings/logo', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'removeLogo'])->name('website-settings.remove-logo');
         Route::delete('/website-settings/favicon', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'removeFavicon'])->name('website-settings.remove-favicon');
+
+        Route::resource('countries', \App\Http\Controllers\Admin\CountryController::class);
+        Route::resource('cities', \App\Http\Controllers\Admin\CityController::class);
     });
 
     // Vendor dashboard (vendor role only)

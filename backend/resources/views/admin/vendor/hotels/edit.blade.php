@@ -33,20 +33,39 @@
                 </div>
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">City</label>
-                        <input type="text" name="city" class="form-control" value="{{ old('city', $hotel->city) }}">
+                        <label class="form-label">Country</label>
+                        <select name="country_id" id="country_id" class="form-select">
+                            <option value="">— Select country —</option>
+                            @foreach($countries as $c)
+                                <option value="{{ $c->id }}" data-image="{{ $c->image ? asset('storage/'.$c->image) : '' }}" {{ old('country_id', $hotel->country_id) == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                        <div id="country_image_preview" class="mt-2"></div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Country</label>
-                        <input type="text" name="country" class="form-control" value="{{ old('country', $hotel->country) }}">
+                        <label class="form-label">City</label>
+                        <select name="city_id" id="city_id" class="form-select">
+                            <option value="">— Select city —</option>
+                            @foreach($cities as $city)
+                                <option value="{{ $city->id }}" data-country-id="{{ $city->country_id }}" data-image="{{ $city->image ? asset('storage/'.$city->image) : '' }}" {{ old('city_id', $hotel->city_id) == $city->id ? 'selected' : '' }}>{{ $city->name }} ({{ $city->country->name ?? '' }})</option>
+                            @endforeach
+                        </select>
+                        <div id="city_image_preview" class="mt-2"></div>
                     </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Custom city/country (override)</label>
+                        <input type="text" name="city" class="form-control mb-1" value="{{ old('city', $hotel->city) }}" placeholder="City">
+                        <input type="text" name="country" class="form-control" value="{{ old('country', $hotel->country) }}" placeholder="Country">
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Check-in</label>
-                        <input type="time" name="check_in" class="form-control" value="{{ old('check_in', $hotel->check_in) }}">
+                        <input type="time" name="check_in" class="form-control" value="{{ old('check_in', $hotel->check_in ? $hotel->check_in->format('H:i') : '') }}">
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Check-out</label>
-                        <input type="time" name="check_out" class="form-control" value="{{ old('check_out', $hotel->check_out) }}">
+                        <input type="time" name="check_out" class="form-control" value="{{ old('check_out', $hotel->check_out ? $hotel->check_out->format('H:i') : '') }}">
                     </div>
                 </div>
                 @php
@@ -87,5 +106,42 @@
 document.getElementById('cancellation_policy_preset').addEventListener('change', function() {
     document.getElementById('cancellation_policy_custom_wrap').style.display = this.value === 'custom' ? '' : 'none';
 });
+var countrySelect = document.getElementById('country_id');
+var citySelect = document.getElementById('city_id');
+function filterCities() {
+    var cid = countrySelect.value;
+    for (var i = 0; i < citySelect.options.length; i++) {
+        var opt = citySelect.options[i];
+        if (opt.value === '') { opt.style.display = ''; continue; }
+        opt.style.display = (opt.dataset.countryId === cid || !cid) ? '' : 'none';
+        if (cid && opt.dataset.countryId !== cid) opt.selected = false;
+    }
+    showCityImage(citySelect.value);
+}
+function showCountryImage(val) {
+    var el = document.getElementById('country_image_preview');
+    var opt = countrySelect.querySelector('option[value="'+val+'"]');
+    if (opt && opt.dataset.image) {
+        el.innerHTML = '<img src="'+opt.dataset.image+'" alt="" class="rounded" style="max-height:80px">';
+    } else { el.innerHTML = ''; }
+}
+function showCityImage(val) {
+    var el = document.getElementById('city_image_preview');
+    var opt = citySelect.querySelector('option[value="'+val+'"]');
+    if (opt && opt.dataset.image) {
+        el.innerHTML = '<img src="'+opt.dataset.image+'" alt="" class="rounded" style="max-height:80px">';
+    } else { el.innerHTML = ''; }
+}
+countrySelect.addEventListener('change', function() {
+    filterCities();
+    showCountryImage(this.value);
+});
+citySelect.addEventListener('change', function() {
+    showCityImage(this.value);
+    var opt = this.options[this.selectedIndex];
+    if (opt && opt.dataset.countryId && !countrySelect.value) countrySelect.value = opt.dataset.countryId;
+});
+filterCities();
+showCountryImage(countrySelect.value);
 </script>
 @endsection

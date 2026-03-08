@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\HotelSearchController;
+use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\WishlistController;
@@ -36,6 +37,10 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     // Hotel search & single hotel (no auth)
     Route::get('/hotels', [HotelSearchController::class, 'index'])->name('hotels.index');
     Route::get('/hotels/{id}', [HotelSearchController::class, 'show'])->name('hotels.show');
+
+    // Locations for home / browse (no auth)
+    Route::get('/countries', [LocationController::class, 'countries'])->name('locations.countries');
+    Route::get('/cities', [LocationController::class, 'cities'])->name('locations.cities');
 
     // Reviews list (no auth) – approved only
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');

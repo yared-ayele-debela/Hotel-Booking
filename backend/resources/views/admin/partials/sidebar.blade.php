@@ -72,6 +72,18 @@
                         <span>Website Settings</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.countries.index') }}">
+                        <i data-feather="globe"></i>
+                        <span>Countries</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.cities.index') }}">
+                        <i data-feather="map-pin"></i>
+                        <span>Cities</span>
+                    </a>
+                </li>
                 @endif
 
                 <li>

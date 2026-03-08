@@ -3,8 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../hooks/useWishlist';
+import { HotelCard } from '../components/HotelCard';
 import { HotelListSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
+import { calculateNights } from '../lib/utils';
 
 function WishlistHeart({ hotelId, checkIn, checkOut, className = '' }) {
   const { user } = useAuth();
@@ -79,6 +81,7 @@ export default function HotelList() {
   const rawData = data?.data;
   const hotels = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
   const meta = data?.meta ?? {};
+  const nights = checkIn && checkOut ? calculateNights(checkIn, checkOut) : null;
 
   if (isLoading) return <div className="py-6"><h1 className="text-2xl font-bold mb-6">Search results</h1><HotelListSkeleton count={6} /></div>;
   if (isError) return <div className="py-6"><ErrorMessage message={error?.response?.data?.message || error?.message || 'Could not load hotels'} onRetry={() => refetch()} /></div>;
@@ -91,43 +94,14 @@ export default function HotelList() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {hotels.map((h) => (
-            <Link key={h.id} to={`/hotels/${h.id}${checkIn ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`} className="block rounded-xl border border-stone-200 bg-white overflow-hidden shadow-sm hover:shadow-md relative">
-              <div className="h-40 bg-stone-200 relative">
-                {h.banner_image ? (
-                  <img 
-                    src={h.banner_image.url} 
-                    alt={h.banner_image.alt_text || h.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : h.images && h.images.length > 0 ? (
-                  <img 
-                    src={h.images[0].url} 
-                    alt={h.images[0].alt_text || h.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-stone-200 flex items-center justify-center" aria-hidden="true">
-                    <div className="text-center text-stone-500">
-                      <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      <p className="text-xs">No image</p>
-                    </div>
-                  </div>
-                )}
-                <WishlistHeart hotelId={h.id} checkIn={checkIn || undefined} checkOut={checkOut || undefined} />
-              </div>
-              <div className="p-4">
-                <h2 className="font-semibold text-stone-900">{h.name}</h2>
-                <p className="text-sm text-stone-600">{[h.city, h.country].filter(Boolean).join(', ') || '—'}</p>
-                {h.average_rating != null && <p className="text-sm mt-1">★ {h.average_rating}</p>}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center text-amber-600 font-medium">View details →</span>
-                  <span className="text-stone-400">·</span>
-                  <span className="inline-flex items-center text-amber-600 font-medium">Book</span>
-                </div>
-              </div>
-            </Link>
+            <HotelCard
+              key={h.id}
+              hotel={h}
+              to={`/hotels/${h.id}${checkIn ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`}
+              nights={nights ?? undefined}
+              dealLabel={nights ? 'Early 2026 Deal' : undefined}
+              imageOverlay={<WishlistHeart hotelId={h.id} checkIn={checkIn || undefined} checkOut={checkOut || undefined} />}
+            />
           ))}
         </div>
       )}

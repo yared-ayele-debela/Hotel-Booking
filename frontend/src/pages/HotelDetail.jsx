@@ -1,4 +1,4 @@
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { api } from '../lib/api';
@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../hooks/useWishlist';
 import { HotelDetailSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
+import { formatPrice, getRatingLabel, calculateNights } from '../lib/utils';
 
 function WishlistHeart({ hotelId, checkIn, checkOut }) {
   const { user } = useAuth();
@@ -44,7 +45,6 @@ function HeartIcon({ filled }) {
 export default function HotelDetail() {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const checkIn = searchParams.get('check_in');
   const checkOut = searchParams.get('check_out');
   
@@ -310,77 +310,76 @@ export default function HotelDetail() {
           <p className="text-sm font-medium">Select check-in and check-out dates above, then click “Check Availability” to see prices and book a room.</p>
         </div>
       )}
-      <ul className="space-y-4 mb-8">
-        {(hotel.rooms || []).map((room) => (
-          <li
-            key={room.id}
-            className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-4 rounded-xl border border-stone-200 bg-white"
-          >
-            <div className="flex-1">
-              <h3 className="font-medium text-stone-900 mb-2">{room.name}</h3>
-              <p className="text-sm text-stone-600 mb-3">Capacity: {room.capacity} · From ${room.base_price != null ? Number(room.base_price).toFixed(2) : '0.00'}/night</p>
-              {room.cancellation_policy_summary && (
-                <p className="text-sm text-stone-500 mb-2" title="Cancellation policy">
-                  {room.cancellation_policy_summary}
-                </p>
-              )}
-              
-              {/* Room Images */}
-              {room.images && room.images.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {room.images.slice(0, 4).map((image, index) => (
-                      <div
-                        key={image.id}
-                        className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
-                          image.is_banner ? 'border-amber-500' : 'border-stone-300 hover:border-stone-400'
-                        }`}
-                        onClick={() => {
-                          setSelectedImageIndex(index);
-                          setIsGalleryOpen(true);
-                          setCurrentRoomImages(room.images);
-                        }}
-                        title={image.is_banner ? 'Banner Image' : `${room.name} - Image ${index + 1}`}
-                      >
-                        <img
-                          src={image.url}
-                          alt={image.alt_text || `${room.name} - Image ${index + 1}`}
-                          className="w-20 h-20 object-cover"
-                        />
-                        {image.is_banner && (
-                          <div className="absolute top-1 left-1 bg-amber-500 text-white text-xs px-1 py-0.5 rounded">
-                            Banner
-                          </div>
+      <ul className="space-y-6 mb-8">
+        {(hotel.rooms || []).map((room) => {
+          const roomImage = room.images?.[0] || room.banner_image || hotel.images?.[0];
+          const rating = hotel.average_rating != null ? Number(hotel.average_rating) : null;
+          const reviewCount = hotel.review_count != null ? Number(hotel.review_count) : 0;
+          const nights = checkIn && checkOut ? calculateNights(checkIn, checkOut) : null;
+          const price = room.base_price != null ? Number(room.base_price) : null;
+          const totalPrice = price != null && nights ? price * nights : null;
+          return (
+            <li key={room.id} className="rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-sm hover:shadow-lg transition-shadow">
+              <div className="flex flex-col sm:flex-row">
+                <div
+                  className="sm:w-72 flex-shrink-0 aspect-[4/3] sm:aspect-auto sm:h-52 bg-stone-200 relative cursor-pointer"
+                  onClick={() => room.images?.length > 0 && (setSelectedImageIndex(0), setCurrentRoomImages(room.images), setIsGalleryOpen(true))}
+                >
+                  {roomImage?.url ? (
+                    <img src={roomImage.url} alt={roomImage.alt_text || room.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-stone-400">
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 sm:p-5 flex-1 flex flex-col sm:flex-row sm:justify-between gap-4">
+                  <div>
+                    <h3 className="font-semibold text-stone-900 text-lg">{room.name}</h3>
+                    <p className="text-sm text-stone-600 mt-0.5">{[hotel.city, hotel.country].filter(Boolean).join(', ') || '—'}</p>
+                    {rating != null && (
+                      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="font-semibold text-stone-900">{rating.toFixed(1)}</span>
+                        <span className="text-stone-600 text-sm">{getRatingLabel(rating)}</span>
+                        {reviewCount > 0 && (
+                          <span className="text-stone-500 text-sm">{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</span>
                         )}
                       </div>
-                    ))}
-                    {room.images.length > 4 && (
-                      <div className="w-20 h-20 bg-stone-200 rounded flex items-center justify-center text-xs text-stone-600">
-                        +{room.images.length - 4}
+                    )}
+                    <span className="inline-block mt-2 px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-sm font-medium w-fit">Early 2026 Deal</span>
+                    {nights != null && nights > 0 && <p className="text-sm text-stone-600 mt-1">{nights} {nights === 1 ? 'night' : 'nights'}</p>}
+                    {totalPrice != null && (
+                      <div className="mt-2">
+                        <span className="font-semibold text-stone-900">{formatPrice(totalPrice, 'EUR')}</span>
                       </div>
+                    )}
+                    {price != null && !checkIn && !checkOut && (
+                      <p className="mt-2 text-stone-700 font-medium">From {formatPrice(price, 'EUR')} / night</p>
+                    )}
+                    {room.cancellation_policy_summary && (
+                      <p className="text-sm text-stone-500 mt-2" title="Cancellation policy">{room.cancellation_policy_summary}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col justify-end">
+                    {checkIn && checkOut ? (
+                      <Link
+                        to={`/book?hotel_id=${hotel.id}&room_id=${room.id}&check_in=${checkIn}&check_out=${checkOut}`}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 text-center shadow-sm"
+                      >
+                        <span>Book this room</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      </Link>
+                    ) : (
+                      <span className="inline-block px-4 py-2 rounded-lg bg-stone-100 text-stone-500 text-sm" title="Select check-in and check-out dates above">
+                        Select dates to book
+                      </span>
                     )}
                   </div>
                 </div>
-              )}
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3 lg:flex-col lg:items-end">
-              {checkIn && checkOut ? (
-                <Link
-                  to={`/book?hotel_id=${hotel.id}&room_id=${room.id}&check_in=${checkIn}&check_out=${checkOut}`}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 text-center shadow-sm"
-                >
-                  <span>Book this room</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                </Link>
-              ) : (
-                <span className="inline-block px-4 py-2 rounded-lg bg-stone-100 text-stone-500 text-sm" title="Select check-in and check-out dates above">
-                  Select dates to book
-                </span>
-              )}
-            </div>
-          </li>
-        ))}
+              </div>
+            </li>
+          );
+        })}
       </ul>
       <h2 className="text-lg font-semibold text-stone-900 mb-3">Reviews</h2>
       {reviews.length === 0 ? (

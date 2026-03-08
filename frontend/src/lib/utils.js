@@ -5,12 +5,21 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price) {
+export function formatPrice(price, currency = 'USD') {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: 2,
   }).format(price);
+}
+
+/** Rating label for display (e.g. 9.6 → "Exceptional") */
+export function getRatingLabel(score) {
+  const n = Number(score);
+  if (n >= 9) return 'Exceptional';
+  if (n >= 8) return 'Great';
+  if (n >= 7) return 'Good';
+  return 'Pleasant';
 }
 
 export function formatDate(dateString) {

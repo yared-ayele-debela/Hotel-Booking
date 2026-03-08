@@ -42,7 +42,7 @@ export default function Home() {
     if (city.trim()) params.set('city', city.trim());
     if (checkIn) params.set('check_in', checkIn);
     if (checkOut) params.set('check_out', checkOut);
-    if (guests > 0) params.set('guests', guests);
+    if (guests > 0) params.set('min_capacity', guests);
     navigate({ pathname: '/hotels', search: params.toString() });
   };
 
@@ -194,7 +194,7 @@ export default function Home() {
               cities.map((c) => (
                 <LocationCard
                   key={c.id}
-                  to={`/hotels?city=${encodeURIComponent(c.name)}`}
+                  to={`/hotels?city_id=${c.id}&city=${encodeURIComponent(c.name)}${c.country_id ? `&country_id=${c.country_id}&country=${encodeURIComponent(c.country_name || '')}` : ''}`}
                   name={c.name}
                   subtext={c.country_name}
                   image={c.image}
@@ -218,13 +218,13 @@ export default function Home() {
             </Link>
           </div>
           {hotelsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="rounded-2xl bg-stone-200 animate-pulse h-64" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {(hotels.slice(0, 4)).map((h) => (
                 <HotelCard key={h.id} hotel={h} nights={2} />
               ))}
@@ -239,13 +239,13 @@ export default function Home() {
           </h2>
           <p className="text-stone-600 mb-8">Save on your next short break.</p>
           {hotelsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="rounded-2xl bg-stone-200 animate-pulse h-64" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {weekendDeals.map((h) => (
                 <HotelCard key={h.id} hotel={h} dealLabel="Early 2026 Deal" nights={2} />
               ))}
@@ -260,13 +260,13 @@ export default function Home() {
           </h2>
           <p className="text-stone-600 mb-8">Highly rated by guests.</p>
           {hotelsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="rounded-2xl bg-stone-200 animate-pulse h-64" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {guestsLove.map((h) => (
                 <HotelCard key={h.id} hotel={h} nights={2} />
               ))}

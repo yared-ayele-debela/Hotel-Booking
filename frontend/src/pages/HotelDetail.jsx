@@ -7,6 +7,7 @@ import { useWishlist } from '../hooks/useWishlist';
 import { HotelDetailSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
 import { formatPrice, getRatingLabel, calculateNights } from '../lib/utils';
+import { AmenityIcon } from '../components/AmenityIcon';
 
 function WishlistHeart({ hotelId, checkIn, checkOut }) {
   const { user } = useAuth();
@@ -126,6 +127,24 @@ export default function HotelDetail() {
       </p>
       {hotel.description && (
         <p className="text-stone-700 mb-6">{hotel.description}</p>
+      )}
+
+      {hotel.amenities?.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-stone-900 mb-3">Hotel amenities</h2>
+          <div className="flex flex-wrap gap-3">
+            {hotel.amenities.map((a) => (
+              <span
+                key={a.id}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-100 text-stone-700 text-sm"
+                title={a.name}
+              >
+                <AmenityIcon slug={a.slug} className="w-4 h-4 text-amber-600" />
+                {a.name}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
       
       {/* Image Gallery */}
@@ -358,6 +377,16 @@ export default function HotelDetail() {
                     )}
                     {room.cancellation_policy_summary && (
                       <p className="text-sm text-stone-500 mt-2" title="Cancellation policy">{room.cancellation_policy_summary}</p>
+                    )}
+                    {room.amenities?.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {room.amenities.map((a) => (
+                          <span key={a.id} className="inline-flex items-center gap-1 text-stone-600 text-sm" title={a.name}>
+                            <AmenityIcon slug={a.slug} className="w-3.5 h-3.5" />
+                            {a.name}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
                   <div className="flex flex-col justify-end">

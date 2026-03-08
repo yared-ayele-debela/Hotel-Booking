@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
+import { AmenityIcon } from './AmenityIcon';
 import { formatPrice, getRatingLabel } from '../lib/utils';
 
 function getHotelMinPrice(hotel) {
@@ -51,6 +52,15 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
         <p className="text-sm text-stone-600 mt-0.5">
           {[hotel.city, hotel.country].filter(Boolean).join(', ') || '—'}
         </p>
+        {hotel.amenities?.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Amenities">
+            {hotel.amenities.slice(0, 5).map((a) => (
+              <span key={a.id} className="inline-flex items-center gap-1 text-stone-500" title={a.name}>
+                <AmenityIcon slug={a.slug} className="w-3.5 h-3.5" />
+              </span>
+            ))}
+          </div>
+        )}
         {rating != null && (
           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="font-semibold text-stone-900">{rating.toFixed(1)}</span>

@@ -11,7 +11,8 @@ trait HandlesVendorIsolation
     {
         return match ($user->role) {
             Role::SUPER_ADMIN, Role::ADMIN => true,
-            Role::VENDOR => ! isset($resource->vendor_id) || $resource->vendor_id === $user->id,
+            Role::VENDOR => $user->isVendorApproved()
+                && (! isset($resource->vendor_id) || $resource->vendor_id === $user->id),
             default => false,
         };
     }

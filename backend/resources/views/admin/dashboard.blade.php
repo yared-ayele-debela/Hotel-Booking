@@ -86,32 +86,44 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Status</th>
-                                    <th width="180">Actions</th>
+                                    <th>Approval</th>
+                                    <th>Account</th>
+                                    <th width="200">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($vendors->take(5) as $v)
+                                @php $profile = $v->vendorProfile; $approval = $profile?->status ?? 'pending'; @endphp
                                 <tr>
                                     <td>{{ $v->name }}</td>
                                     <td>{{ $v->email }}</td>
                                     <td>
-                                        <span class="badge {{ $v->status === 'active' ? 'bg-success' : 'bg-warning' }}">{{ $v->status }}</span>
+                                        @if($approval === 'approved')<span class="badge bg-success">Approved</span>
+                                        @elseif($approval === 'rejected')<span class="badge bg-danger">Rejected</span>
+                                        @else<span class="badge bg-warning">Pending</span>@endif
                                     </td>
                                     <td>
-                                        @if($v->status === 'suspended')
-                                        <form action="{{ route('admin.vendors.update-status', $v) }}" method="POST" class="d-inline">
+                                        <span class="badge {{ $v->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ $v->status }}</span>
+                                    </td>
+                                    <td>
+                                        @if($approval === 'pending')
+                                        <form action="{{ route('admin.vendors.approve', $v) }}" method="POST" class="d-inline">
                                             @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="status" value="active">
                                             <button type="submit" class="btn btn-sm btn-success">Approve</button>
                                         </form>
-                                        @else
+                                        @elseif($approval === 'approved' && $v->status === 'active')
                                         <form action="{{ route('admin.vendors.update-status', $v) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="suspended">
-                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Suspend this vendor?')">Suspend</button>
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Suspend?')">Suspend</button>
+                                        </form>
+                                        @elseif($v->status === 'suspended')
+                                        <form action="{{ route('admin.vendors.update-status', $v) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="status" value="active">
+                                            <button type="submit" class="btn btn-sm btn-success">Activate</button>
                                         </form>
                                         @endif
                                     </td>

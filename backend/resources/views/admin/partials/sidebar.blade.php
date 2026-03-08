@@ -27,6 +27,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.vendor.reports.index') }}">
+                        <i data-feather="bar-chart-2"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.vendor.bookings.index') }}">
                         <i data-feather="calendar"></i>
                         <span>Bookings</span>

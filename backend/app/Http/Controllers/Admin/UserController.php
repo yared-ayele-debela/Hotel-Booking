@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Role as RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\VendorProfile;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -31,14 +33,23 @@ class UserController extends Controller
             'roles'    => 'nullable|array'
         ]);
 
+        $isVendor = $request->roles && in_array('vendor', $request->roles, true);
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'role'     => $isVendor ? RoleEnum::VENDOR : RoleEnum::CUSTOMER,
         ]);
 
         if ($request->roles) {
             $user->syncRoles($request->roles);
+        }
+
+        if ($isVendor) {
+            VendorProfile::firstOrCreate(
+                ['user_id' => $user->id],
+                ['status' => VendorProfile::STATUS_PENDING]
+            );
         }
 
         return redirect()->route('admin.users.index')
@@ -59,18 +70,27 @@ class UserController extends Controller
             'roles' => 'nullable|array'
         ]);
 
+        $isVendor = $request->roles && in_array('vendor', $request->roles ?? [], true);
+        $wasVendor = $user->role === RoleEnum::VENDOR;
+
         $user->update([
             'name'  => $request->name,
             'email' => $request->email,
+            'role'  => $isVendor ? RoleEnum::VENDOR : RoleEnum::CUSTOMER,
         ]);
 
         if ($request->filled('password')) {
-            $user->update([
-                'password' => Hash::make($request->password),
-            ]);
+            $user->update(['password' => Hash::make($request->password)]);
         }
 
         $user->syncRoles($request->roles ?? []);
+
+        if ($isVendor && ! $wasVendor) {
+            VendorProfile::firstOrCreate(
+                ['user_id' => $user->id],
+                ['status' => VendorProfile::STATUS_PENDING]
+            );
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User updated successfully.');

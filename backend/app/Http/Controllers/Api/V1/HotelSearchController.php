@@ -23,6 +23,11 @@ class HotelSearchController extends BaseApiController
     {
         $query = Hotel::query()->where('status', 'active');
 
+        // Only show hotels from approved vendors
+        $query->whereHas('vendor', function ($q) {
+            $q->whereHas('vendorProfile', fn ($q2) => $q2->where('status', 'approved'));
+        });
+
         if ($request->filled('city_id')) {
             $query->where('city_id', $request->city_id);
         } elseif ($request->filled('city')) {
@@ -124,6 +129,7 @@ class HotelSearchController extends BaseApiController
         $hotel = Hotel::query()
             ->where('id', $id)
             ->where('status', 'active')
+            ->whereHas('vendor', fn ($q) => $q->whereHas('vendorProfile', fn ($q2) => $q2->where('status', 'approved')))
             ->selectRaw('hotels.*, (SELECT COALESCE(AVG(r.rating), 0) FROM reviews r INNER JOIN bookings b ON r.booking_id = b.id WHERE b.hotel_id = hotels.id AND r.approved = 1) as average_rating, (SELECT COUNT(*) FROM reviews r INNER JOIN bookings b ON r.booking_id = b.id WHERE b.hotel_id = hotels.id AND r.approved = 1) as review_count')
             ->with(['rooms.hotel', 'rooms.images', 'rooms.amenities', 'images', 'amenities'])
             ->firstOrFail();

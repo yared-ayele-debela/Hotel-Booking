@@ -56,6 +56,56 @@ class AuthController extends Controller
     }
 
     /**
+     * Register as vendor: name, email, password, optional business info. Creates VENDOR + VendorProfile (pending).
+     * Returns token + user. Vendor cannot add hotels until approved.
+     */
+    public function registerVendor(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => ['required', 'confirmed', Password::defaults()],
+            'business_name' => 'nullable|string|max:255',
+            'business_details' => 'nullable|string|max:2000',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => Role::VENDOR,
+            'status' => 'active',
+        ]);
+
+        $user->assignRole('vendor');
+
+        \App\Models\VendorProfile::create([
+            'user_id' => $user->id,
+            'status' => \App\Models\VendorProfile::STATUS_PENDING,
+            'business_name' => $validated['business_name'] ?? null,
+            'business_details' => $validated['business_details'] ?? null,
+        ]);
+
+        $token = $user->createToken('spa')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'token' => $token,
+                'token_type' => 'Bearer',
+                'user' => [
+                    'id' => $user->id,
+                    'uuid' => $user->uuid,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role->value,
+                    'vendor_approved' => false,
+                ],
+            ],
+        ], 201);
+    }
+
+    /**
      * Register: name, email, password. Creates CUSTOMER + active, returns token + user.
      */
     public function register(Request $request): JsonResponse
@@ -107,15 +157,16 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $user->id,
-                'uuid' => $user->uuid,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role->value,
-            ],
-        ]);
+        $data = [
+            'id' => $user->id,
+            'uuid' => $user->uuid,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role->value,
+        ];
+        if ($user->role === Role::VENDOR) {
+            $data['vendor_approved'] = $user->isVendorApproved();
+        }
+        return response()->json(['success' => true, 'data' => $data]);
     }
 }

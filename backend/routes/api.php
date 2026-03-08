@@ -34,6 +34,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     // Auth (no token)
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/register/vendor', [AuthController::class, 'registerVendor'])->name('register.vendor');
 
     // Hotel search & single hotel (no auth)
     Route::get('/hotels', [HotelSearchController::class, 'index'])->name('hotels.index');

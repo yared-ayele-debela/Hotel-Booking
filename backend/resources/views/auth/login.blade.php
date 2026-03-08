@@ -88,8 +88,8 @@
 
 
                                     <div class="mt-5 text-center">
-                                        <p class="text-muted mb-0">Don't have an account ? <a href="{{route('register')}}"
-                                                                                              class="text-primary fw-semibold"> Signup now </a> </p>
+                                        <p class="text-muted mb-0">Don't have an account? <a href="{{ route('register') }}" class="text-primary fw-semibold">Sign up as customer</a></p>
+                                        <p class="text-muted mb-0 mt-1">List your property? <a href="{{ route('register.vendor') }}" class="text-primary fw-semibold">Register as vendor</a></p>
                                     </div>
                                 </div>
 

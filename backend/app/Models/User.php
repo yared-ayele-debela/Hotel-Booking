@@ -58,4 +58,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(SavedHotel::class);
     }
+
+    public function vendorProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(VendorProfile::class);
+    }
+
+    public function isVendorApproved(): bool
+    {
+        if ($this->role !== \App\Enums\Role::VENDOR) {
+            return false;
+        }
+        $profile = $this->vendorProfile;
+        return $profile && $profile->isApproved();
+    }
 }

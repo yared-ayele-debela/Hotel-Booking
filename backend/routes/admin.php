@@ -38,6 +38,8 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
     // Super Admin only: vendors, commission & website settings
     Route::middleware('super_admin')->group(function () {
         Route::get('/vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('vendors.index');
+        Route::post('/vendors/{vendor}/approve', [\App\Http\Controllers\Admin\VendorController::class, 'approve'])->name('vendors.approve');
+        Route::post('/vendors/{vendor}/reject', [\App\Http\Controllers\Admin\VendorController::class, 'reject'])->name('vendors.reject');
         Route::patch('/vendors/{vendor}/status', [\App\Http\Controllers\Admin\VendorController::class, 'updateStatus'])->name('vendors.update-status');
         Route::get('/commission', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('commission.index');
         Route::get('/commission/edit', [\App\Http\Controllers\Admin\CommissionController::class, 'edit'])->name('commission.edit');
@@ -57,6 +59,8 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
     // Vendor dashboard (vendor role only)
     Route::middleware('vendor')->prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\Vendor\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/reports', [\App\Http\Controllers\Admin\Vendor\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\Vendor\ReportController::class, 'export'])->name('reports.export');
         Route::resource('hotels', \App\Http\Controllers\Admin\Vendor\HotelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('rooms', \App\Http\Controllers\Admin\Vendor\RoomController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::get('rooms/{room}/availability', [\App\Http\Controllers\Admin\Vendor\RoomController::class, 'availability'])->name('rooms.availability');

@@ -29,9 +29,10 @@ class DashboardController extends Controller
         $net = $revenue - $commissionAmount;
 
         $revenueChart = $this->revenueChartData($hotelIds);
+        $vendorApproved = auth()->user()->isVendorApproved();
 
         return view('admin.vendor.dashboard', compact(
-            'revenue', 'bookingCount', 'commissionAmount', 'net', 'revenueChart'
+            'revenue', 'bookingCount', 'commissionAmount', 'net', 'revenueChart', 'vendorApproved'
         ));
     }
 

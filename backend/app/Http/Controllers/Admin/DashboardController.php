@@ -41,7 +41,7 @@ class DashboardController extends Controller
         }
 
         $vendors = $isSuperAdmin
-            ? User::where('role', Role::VENDOR)->orderBy('name')->get()
+            ? User::where('role', Role::VENDOR)->with('vendorProfile')->orderBy('name')->get()
             : [];
 
         $commissionRate = $isSuperAdmin ? $this->commissionService->getCommissionRate() : null;

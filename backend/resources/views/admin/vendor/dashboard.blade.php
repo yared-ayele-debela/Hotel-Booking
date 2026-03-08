@@ -5,6 +5,12 @@
     <x-page-title title="Vendor Dashboard" :breadcrumbs="[['label' => 'Dashboard']]" />
     <x-alert />
 
+    @if(isset($vendorApproved) && !$vendorApproved)
+    <div class="alert alert-warning mb-4" role="alert">
+        <strong>Pending approval.</strong> Your account is under review. You will be able to add hotels and receive bookings once approved by our team.
+    </div>
+    @endif
+
     <div class="row">
         <div class="col-xl-3 col-md-6">
             <div class="card card-h-100">
@@ -57,6 +63,7 @@
                     <h5 class="card-title">Quick links</h5>
                     <a href="{{ route('admin.vendor.hotels.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">My Hotels</a>
                     <a href="{{ route('admin.vendor.rooms.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Rooms & Availability</a>
+                    <a href="{{ route('admin.vendor.reports.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Reports</a>
                     <a href="{{ route('admin.vendor.bookings.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Bookings</a>
                     <a href="{{ route('admin.vendor.payouts.index') }}" class="btn btn-outline-primary btn-sm d-block">Payout history</a>
                 </div>

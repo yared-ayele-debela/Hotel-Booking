@@ -76,5 +76,10 @@ class Hotel extends Model
     {
         return $this->hasMany(SavedHotel::class);
     }
+
+    public function amenities()
+    {
+        return $this->belongsToMany(Amenity::class, 'hotel_amenity')->orderBy('amenities.sort_order');
+    }
 }
 

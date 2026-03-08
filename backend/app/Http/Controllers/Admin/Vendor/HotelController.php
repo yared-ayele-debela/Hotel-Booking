@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Amenity;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Hotel;
@@ -24,7 +25,8 @@ class HotelController extends Controller
         $this->authorize('create', Hotel::class);
         $countries = Country::orderBy('name')->get();
         $cities = City::with('country')->orderBy('name')->get();
-        return view('admin.vendor.hotels.create', compact('countries', 'cities'));
+        $amenities = Amenity::orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.vendor.hotels.create', compact('countries', 'cities', 'amenities'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -44,6 +46,8 @@ class HotelController extends Controller
             'check_out' => 'nullable|string|max:10',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
+            'amenities' => 'nullable|array',
+            'amenities.*' => 'exists:amenities,id',
         ]);
         $validated['vendor_id'] = auth()->id();
         $validated['status'] = 'active';
@@ -56,16 +60,21 @@ class HotelController extends Controller
         if (! empty($validated['check_out'])) {
             $validated['check_out'] = \Carbon\Carbon::parse($validated['check_out'])->format('H:i:s');
         }
-        Hotel::create($validated);
+        $amenityIds = $validated['amenities'] ?? [];
+        unset($validated['amenities']);
+        $hotel = Hotel::create($validated);
+        $hotel->amenities()->sync($amenityIds);
         return redirect()->route('admin.vendor.hotels.index')->with('success', 'Hotel created.');
     }
 
     public function edit(Hotel $hotel): View
     {
         $this->authorize('update', $hotel);
+        $hotel->load('amenities');
         $countries = Country::orderBy('name')->get();
         $cities = City::with('country')->orderBy('name')->get();
-        return view('admin.vendor.hotels.edit', compact('hotel', 'countries', 'cities'));
+        $amenities = Amenity::orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.vendor.hotels.edit', compact('hotel', 'countries', 'cities', 'amenities'));
     }
 
     public function update(Request $request, Hotel $hotel): RedirectResponse
@@ -86,6 +95,8 @@ class HotelController extends Controller
             'status' => 'required|in:active,inactive',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
+            'amenities' => 'nullable|array',
+            'amenities.*' => 'exists:amenities,id',
         ]);
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
@@ -96,7 +107,10 @@ class HotelController extends Controller
         if (! empty($validated['check_out'])) {
             $validated['check_out'] = \Carbon\Carbon::parse($validated['check_out'])->format('H:i:s');
         }
+        $amenityIds = $validated['amenities'] ?? [];
+        unset($validated['amenities']);
         $hotel->update($validated);
+        $hotel->amenities()->sync($amenityIds);
         return redirect()->route('admin.vendor.hotels.index')->with('success', 'Hotel updated.');
     }
 

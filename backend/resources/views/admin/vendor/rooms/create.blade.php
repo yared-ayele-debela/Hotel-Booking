@@ -37,6 +37,21 @@
                     <label class="form-label">Base price *</label>
                     <input type="number" name="base_price" class="form-control" step="0.01" value="{{ old('base_price') }}" min="0" required>
                 </div>
+                @if(isset($amenities) && $amenities->isNotEmpty())
+                <div class="mb-3">
+                    <label class="form-label">Room amenities</label>
+                    <div class="row">
+                        @foreach($amenities as $a)
+                        <div class="col-md-4 col-lg-3">
+                            <div class="form-check">
+                                <input type="checkbox" name="amenities[]" value="{{ $a->id }}" id="amenity_{{ $a->id }}" class="form-check-input" {{ in_array($a->id, old('amenities', [])) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="amenity_{{ $a->id }}">{{ $a->name }}</label>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
                 <div class="mb-3">
                     <label class="form-label">Cancellation policy</label>
                     <select name="cancellation_policy_preset" id="cancellation_policy_preset" class="form-select">

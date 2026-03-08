@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,
             AdminSeeder::class,
             PlatformSettingSeeder::class,
+            AmenitySeeder::class,
             HotelSeeder::class,
             RoomSeeder::class,
             RoomAvailabilitySeeder::class,

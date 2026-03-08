@@ -47,5 +47,10 @@ class Room extends Model
     {
         return $this->hasOne(\App\Models\RoomImage::class)->banner();
     }
+
+    public function amenities()
+    {
+        return $this->belongsToMany(\App\Models\Amenity::class, 'room_amenity')->orderBy('amenities.sort_order');
+    }
 }
 

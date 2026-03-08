@@ -61,13 +61,28 @@
                 <div class="row">
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Check-in</label>
-                        <input type="time" name="check_in" class="form-control" value="{{ old('check_in', $hotel->check_in ? $hotel->check_in->format('H:i') : '') }}">
+                        <input type="time" name="check_in" class="form-control" value="{{ old('check_in', $hotel->check_in) }}">
                     </div>
                     <div class="col-md-2 mb-3">
                         <label class="form-label">Check-out</label>
-                        <input type="time" name="check_out" class="form-control" value="{{ old('check_out', $hotel->check_out ? $hotel->check_out->format('H:i') : '') }}">
+                        <input type="time" name="check_out" class="form-control" value="{{ old('check_out', $hotel->check_out) }}">
                     </div>
                 </div>
+                @if(isset($amenities) && $amenities->isNotEmpty())
+                <div class="mb-3">
+                    <label class="form-label">Hotel amenities</label>
+                    <div class="row">
+                        @foreach($amenities as $a)
+                        <div class="col-md-4 col-lg-3">
+                            <div class="form-check">
+                                <input type="checkbox" name="amenities[]" value="{{ $a->id }}" id="amenity_{{ $a->id }}" class="form-check-input" {{ in_array($a->id, old('amenities', $hotel->amenities->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="amenity_{{ $a->id }}">{{ $a->name }}</label>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
                 @php
                     $cp = $hotel->cancellation_policy;
                     $cpPreset = old('cancellation_policy_preset');

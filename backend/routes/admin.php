@@ -51,6 +51,7 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
 
         Route::resource('countries', \App\Http\Controllers\Admin\CountryController::class);
         Route::resource('cities', \App\Http\Controllers\Admin\CityController::class);
+        Route::resource('amenities', \App\Http\Controllers\Admin\AmenityController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     });
 
     // Vendor dashboard (vendor role only)

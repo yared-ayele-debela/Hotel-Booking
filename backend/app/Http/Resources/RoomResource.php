@@ -42,6 +42,12 @@ class RoomResource extends JsonResource
                 $this->cancellation_policy !== null,
                 fn () => $this->cancellation_policy
             ),
+            'amenities' => $this->whenLoaded('amenities', fn () => $this->amenities->map(fn ($a) => [
+                'id' => $a->id,
+                'slug' => $a->slug,
+                'name' => $a->name,
+                'icon' => $a->icon,
+            ])),
             'cancellation_policy_summary' => $this->when(
                 $this->cancellation_policy !== null || ($this->relationLoaded('hotel') && $this->hotel?->cancellation_policy !== null),
                 function () {

@@ -65,6 +65,12 @@ class HotelResource extends JsonResource
                 $this->cancellation_policy !== null,
                 fn () => app(\App\Services\CancellationPolicyService::class)->getSummaryForPolicy($this->cancellation_policy)
             ),
+            'amenities' => $this->whenLoaded('amenities', fn () => $this->amenities->map(fn ($a) => [
+                'id' => $a->id,
+                'slug' => $a->slug,
+                'name' => $a->name,
+                'icon' => $a->icon,
+            ])),
         ];
     }
 }

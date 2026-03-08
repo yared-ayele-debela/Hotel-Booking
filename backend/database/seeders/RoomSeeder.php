@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Amenity;
 use App\Models\Hotel;
 use App\Models\Room;
 use Illuminate\Database\Seeder;
@@ -23,9 +24,12 @@ class RoomSeeder extends Seeder
             ['name' => 'Single', 'capacity' => 1, 'base_price' => 69.00, 'total_rooms' => 8],
         ];
 
+        $roomAmenitySlugs = ['wifi', 'air-conditioning', 'minibar', 'balcony', 'room-service'];
+        $roomAmenityIds = Amenity::whereIn('slug', $roomAmenitySlugs)->pluck('id')->toArray();
+
         foreach ($hotels as $hotel) {
             foreach ($roomTemplates as $template) {
-                Room::firstOrCreate(
+                $room = Room::firstOrCreate(
                     [
                         'hotel_id' => $hotel->id,
                         'name' => $template['name'],
@@ -37,6 +41,13 @@ class RoomSeeder extends Seeder
                         'total_rooms' => $template['total_rooms'],
                     ]
                 );
+                if (! empty($roomAmenityIds)) {
+                    $count = rand(2, min(5, count($roomAmenityIds)));
+                    $shuffled = $roomAmenityIds;
+                    shuffle($shuffled);
+                    $ids = array_slice($shuffled, 0, $count);
+                    $room->amenities()->sync($ids);
+                }
             }
         }
     }

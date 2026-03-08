@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Amenity;
 use App\Models\Hotel;
 use App\Models\Room;
 use App\Models\RoomAvailability;
@@ -35,7 +36,8 @@ class RoomController extends Controller
         $this->authorize('create', Room::class);
         $hotels = Hotel::where('vendor_id', auth()->id())->orderBy('name')->get();
         $hotelId = $request->get('hotel_id');
-        return view('admin.vendor.rooms.create', compact('hotels', 'hotelId'));
+        $amenities = Amenity::orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.vendor.rooms.create', compact('hotels', 'hotelId', 'amenities'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -49,19 +51,24 @@ class RoomController extends Controller
             'total_rooms' => 'required|integer|min:1',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
+            'amenities' => 'nullable|array',
+            'amenities.*' => 'exists:amenities,id',
         ]);
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         $hotel = Hotel::where('id', $validated['hotel_id'])->where('vendor_id', auth()->id())->firstOrFail();
-        unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
-        Room::create($validated);
+        $amenityIds = $validated['amenities'] ?? [];
+        unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom'], $validated['amenities']);
+        $room = Room::create($validated);
+        $room->amenities()->sync($amenityIds);
         return redirect()->route('admin.vendor.rooms.index', ['hotel_id' => $hotel->id])->with('success', 'Room created.');
     }
 
     public function edit(Room $room): View
     {
         $this->authorize('update', $room);
-        $room->load('hotel');
-        return view('admin.vendor.rooms.edit', compact('room'));
+        $room->load(['hotel', 'amenities']);
+        $amenities = Amenity::orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.vendor.rooms.edit', compact('room', 'amenities'));
     }
 
     public function update(Request $request, Room $room): RedirectResponse
@@ -74,10 +81,14 @@ class RoomController extends Controller
             'total_rooms' => 'required|integer|min:1',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
+            'amenities' => 'nullable|array',
+            'amenities.*' => 'exists:amenities,id',
         ]);
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
-        unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
+        $amenityIds = $validated['amenities'] ?? [];
+        unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom'], $validated['amenities']);
         $room->update($validated);
+        $room->amenities()->sync($amenityIds);
         return redirect()->route('admin.vendor.rooms.index')->with('success', 'Room updated.');
     }
 

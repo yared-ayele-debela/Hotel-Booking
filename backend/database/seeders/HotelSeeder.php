@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Enums\Role;
+use App\Models\Amenity;
 use App\Models\Hotel;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -253,11 +253,22 @@ class HotelSeeder extends Seeder
             ],
         ];
 
+        $allAmenityIds = Amenity::pluck('id')->toArray();
+        if (empty($allAmenityIds)) {
+            return;
+        }
+
         foreach ($hotels as $data) {
-            Hotel::firstOrCreate(
+            $hotel = Hotel::firstOrCreate(
                 ['name' => $data['name'], 'vendor_id' => $data['vendor_id']],
                 $data
             );
+            // Assign 4–10 random amenities per hotel
+            $count = rand(4, min(10, count($allAmenityIds)));
+            $shuffled = $allAmenityIds;
+            shuffle($shuffled);
+            $ids = array_slice($shuffled, 0, $count);
+            $hotel->amenities()->sync($ids);
         }
     }
 }

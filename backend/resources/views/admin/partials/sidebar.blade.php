@@ -84,6 +84,12 @@
                         <span>Cities</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.amenities.index') }}">
+                        <i data-feather="check-square"></i>
+                        <span>Amenities</span>
+                    </a>
+                </li>
                 @endif
 
                 <li>

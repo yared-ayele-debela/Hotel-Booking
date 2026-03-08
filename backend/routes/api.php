@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AmenityController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\HotelSearchController;
 use App\Http\Controllers\Api\V1\LocationController;
@@ -41,6 +42,9 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     // Locations for home / browse (no auth)
     Route::get('/countries', [LocationController::class, 'countries'])->name('locations.countries');
     Route::get('/cities', [LocationController::class, 'cities'])->name('locations.cities');
+
+    // Amenities for filters (no auth)
+    Route::get('/amenities', [AmenityController::class, 'index'])->name('amenities.index');
 
     // Reviews list (no auth) – approved only
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');

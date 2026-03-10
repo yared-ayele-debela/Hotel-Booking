@@ -39,9 +39,16 @@
                             $approvalStatus = $profile?->status ?? 'pending';
                         @endphp
                         <tr>
-                            <td>{{ $v->name }}</td>
+                            <td>
+                                <a href="{{ route('admin.vendors.show', $v) }}">{{ $v->name }}</a>
+                            </td>
                             <td>{{ $v->email }}</td>
-                            <td>{{ $profile?->business_name ?? '—' }}</td>
+                            <td>
+                                {{ $profile?->business_name ?? '—' }}
+                                @if($profile && ($profile->business_phone || $profile->business_address))
+                                    <br><small class="text-muted">{{ $profile->business_phone ?? '' }}{{ $profile->business_phone && $profile->business_address ? ' · ' : '' }}{{ Str::limit($profile->business_address ?? '', 30) }}</small>
+                                @endif
+                            </td>
                             <td>
                                 @if($approvalStatus === 'approved')
                                     <span class="badge bg-success">Approved</span>
@@ -55,6 +62,7 @@
                                 <span class="badge {{ $v->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ $v->status }}</span>
                             </td>
                             <td>
+                                <a href="{{ route('admin.vendors.show', $v) }}" class="btn btn-sm btn-outline-primary me-1">View</a>
                                 @if($approvalStatus === 'pending')
                                     <form action="{{ route('admin.vendors.approve', $v) }}" method="POST" class="d-inline">
                                         @csrf

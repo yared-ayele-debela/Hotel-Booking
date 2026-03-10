@@ -15,6 +15,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.vendor.profile.edit') }}">
+                        <i data-feather="briefcase"></i>
+                        <span>Business Details</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.vendor.hotels.index') }}">
                         <i data-feather="building"></i>
                         <span>Hotels</span>

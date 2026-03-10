@@ -38,6 +38,7 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
     // Super Admin only: vendors, commission & website settings
     Route::middleware('super_admin')->group(function () {
         Route::get('/vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('vendors.index');
+        Route::get('/vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'show'])->name('vendors.show');
         Route::post('/vendors/{vendor}/approve', [\App\Http\Controllers\Admin\VendorController::class, 'approve'])->name('vendors.approve');
         Route::post('/vendors/{vendor}/reject', [\App\Http\Controllers\Admin\VendorController::class, 'reject'])->name('vendors.reject');
         Route::patch('/vendors/{vendor}/status', [\App\Http\Controllers\Admin\VendorController::class, 'updateStatus'])->name('vendors.update-status');
@@ -59,6 +60,8 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
     // Vendor dashboard (vendor role only)
     Route::middleware('vendor')->prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\Vendor\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/profile', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'update'])->name('profile.update');
         Route::get('/reports', [\App\Http\Controllers\Admin\Vendor\ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/export', [\App\Http\Controllers\Admin\Vendor\ReportController::class, 'export'])->name('reports.export');
         Route::resource('hotels', \App\Http\Controllers\Admin\Vendor\HotelController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);

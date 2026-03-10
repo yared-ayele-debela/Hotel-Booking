@@ -27,6 +27,15 @@ class VendorController extends Controller
         return view('admin.vendors.index', compact('vendors'));
     }
 
+    public function show(User $vendor): View
+    {
+        if ($vendor->role !== Role::VENDOR) {
+            abort(404);
+        }
+        $vendor->load('vendorProfile');
+        return view('admin.vendors.show', compact('vendor'));
+    }
+
     public function approve(User $vendor): RedirectResponse
     {
         if ($vendor->role !== Role::VENDOR) {

@@ -86,6 +86,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Email</th>
+                                    <th>Business</th>
                                     <th>Approval</th>
                                     <th>Account</th>
                                     <th width="200">Actions</th>
@@ -95,8 +96,14 @@
                                 @foreach($vendors->take(5) as $v)
                                 @php $profile = $v->vendorProfile; $approval = $profile?->status ?? 'pending'; @endphp
                                 <tr>
-                                    <td>{{ $v->name }}</td>
+                                    <td><a href="{{ route('admin.vendors.show', $v) }}">{{ $v->name }}</a></td>
                                     <td>{{ $v->email }}</td>
+                                    <td>
+                                        {{ $profile?->business_name ?? '—' }}
+                                        @if($profile?->business_phone)
+                                            <br><small class="text-muted">{{ $profile->business_phone }}</small>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($approval === 'approved')<span class="badge bg-success">Approved</span>
                                         @elseif($approval === 'rejected')<span class="badge bg-danger">Rejected</span>
@@ -106,6 +113,7 @@
                                         <span class="badge {{ $v->status === 'active' ? 'bg-success' : 'bg-secondary' }}">{{ $v->status }}</span>
                                     </td>
                                     <td>
+                                        <a href="{{ route('admin.vendors.show', $v) }}" class="btn btn-sm btn-outline-primary me-1">View</a>
                                         @if($approval === 'pending')
                                         <form action="{{ route('admin.vendors.approve', $v) }}" method="POST" class="d-inline">
                                             @csrf

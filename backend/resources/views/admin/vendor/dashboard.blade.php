@@ -61,6 +61,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Quick links</h5>
+                    <a href="{{ route('admin.vendor.profile.edit') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Business Details</a>
                     <a href="{{ route('admin.vendor.hotels.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">My Hotels</a>
                     <a href="{{ route('admin.vendor.rooms.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Rooms & Availability</a>
                     <a href="{{ route('admin.vendor.reports.index') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Reports</a>

@@ -7,7 +7,7 @@
                 <li class="menu-title" data-key="t-menu">Menu</li>
 
                 @if(auth()->user()->role === \App\Enums\Role::VENDOR)
-                {{-- Vendor menu --}}
+                {{-- Vendor menu: Overview → Profile → Inventory → Operations → Finance → Support --}}
                 <li>
                     <a href="{{ route('admin.vendor.dashboard') }}">
                         <i data-feather="home"></i>
@@ -22,26 +22,26 @@
                 </li>
                 <li>
                     <a href="{{ route('admin.vendor.hotels.index') }}">
-                        <i data-feather="building"></i>
+                        <i data-feather="layers"></i>
                         <span>Hotels</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.vendor.rooms.index') }}">
-                        <i data-feather="grid"></i>
+                        <i data-feather="box"></i>
                         <span>Rooms</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.vendor.reports.index') }}">
-                        <i data-feather="bar-chart-2"></i>
-                        <span>Reports</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.vendor.bookings.index') }}">
                         <i data-feather="calendar"></i>
                         <span>Bookings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.vendor.reports.index') }}">
+                        <i data-feather="bar-chart-2"></i>
+                        <span>Reports</span>
                     </a>
                 </li>
                 <li>
@@ -52,12 +52,12 @@
                 </li>
                 <li>
                     <a href="{{ route('admin.vendor.support-tickets.index') }}">
-                        <i data-feather="message-circle"></i>
+                        <i data-feather="help-circle"></i>
                         <span>Support</span>
                     </a>
                 </li>
                 @else
-                {{-- Admin / Super Admin menu --}}
+                {{-- Admin / Super Admin menu: Overview → Platform → Partners → Moderation → System --}}
                 <li>
                     <a href="{{ route('admin.dashboard') }}">
                         <i data-feather="home"></i>
@@ -66,24 +66,7 @@
                 </li>
 
                 @if(auth()->user()->role === \App\Enums\Role::SUPER_ADMIN)
-                <li>
-                    <a href="{{ route('admin.vendors.index') }}">
-                        <i data-feather="users"></i>
-                        <span>Vendors</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.commission.index') }}">
-                        <i data-feather="percent"></i>
-                        <span>Commission</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.website-settings.index') }}">
-                        <i data-feather="settings"></i>
-                        <span>Website Settings</span>
-                    </a>
-                </li>
+                {{-- Platform content & configuration --}}
                 <li>
                     <a href="{{ route('admin.countries.index') }}">
                         <i data-feather="globe"></i>
@@ -102,8 +85,63 @@
                         <span>Amenities</span>
                     </a>
                 </li>
-                @endif
-
+                {{-- Partners & revenue --}}
+                <li>
+                    <a href="{{ route('admin.vendors.index') }}">
+                        <i data-feather="users"></i>
+                        <span>Vendors</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.commission.index') }}">
+                        <i data-feather="percent"></i>
+                        <span>Commission</span>
+                    </a>
+                </li>
+                {{-- Moderation & support --}}
+                <li>
+                    <a href="{{ route('admin.disputes.index') }}">
+                        <i data-feather="alert-circle"></i>
+                        <span>Disputes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.reviews.index') }}">
+                        <i data-feather="star"></i>
+                        <span>Review Moderation</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.support-tickets.index') }}">
+                        <i data-feather="message-circle"></i>
+                        <span>Support Tickets</span>
+                    </a>
+                </li>
+                {{-- System settings --}}
+                <li>
+                    <a href="{{ route('admin.website-settings.index') }}">
+                        <i data-feather="settings"></i>
+                        <span>Website Settings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow">
+                        <i data-feather="shield"></i>
+                        <span data-key="t-apps">Access Control</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{{ route('admin.roles.index') }}"><span data-key="t-roles">Roles</span></a></li>
+                        <li><a href="{{ route('admin.permissions.index') }}"><span data-key="t-permissions">Permissions</span></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{{ route('admin.users.index') }}">
+                        <i data-feather="users"></i>
+                        <span data-key="t-forms">Users</span>
+                    </a>
+                </li>
+                @else
+                {{-- Admin (non-super): Moderation only --}}
                 <li>
                     <a href="{{ route('admin.disputes.index') }}">
                         <i data-feather="alert-circle"></i>
@@ -124,7 +162,7 @@
                 </li>
                 <li>
                     <a href="javascript: void(0);" class="has-arrow">
-                        <i data-feather="grid"></i>
+                        <i data-feather="shield"></i>
                         <span data-key="t-apps">Access Control</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
@@ -133,14 +171,12 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="javascript: void(0);" class="has-arrow">
+                    <a href="{{ route('admin.users.index') }}">
                         <i data-feather="users"></i>
                         <span data-key="t-forms">Users</span>
                     </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="{{ route('admin.users.index') }}" data-key="t-form-elements">Users</a></li>
-                    </ul>
                 </li>
+                @endif
                 @endif
 
 {{--                <li>--}}

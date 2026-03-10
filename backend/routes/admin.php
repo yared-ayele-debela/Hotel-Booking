@@ -69,6 +69,7 @@ Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->grou
         Route::get('rooms/{room}/availability', [\App\Http\Controllers\Admin\Vendor\RoomController::class, 'availability'])->name('rooms.availability');
         Route::post('rooms/{room}/availability', [\App\Http\Controllers\Admin\Vendor\RoomController::class, 'storeAvailability'])->name('rooms.availability.store');
         Route::get('/bookings', [\App\Http\Controllers\Admin\Vendor\BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{uuid}/invoice', [\App\Http\Controllers\Admin\Vendor\BookingController::class, 'invoice'])->name('bookings.invoice');
         Route::get('/payouts', [\App\Http\Controllers\Admin\Vendor\PayoutController::class, 'index'])->name('payouts.index');
         Route::get('/support-tickets', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'index'])->name('support-tickets.index');
         Route::get('/support-tickets/create', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'create'])->name('support-tickets.create');

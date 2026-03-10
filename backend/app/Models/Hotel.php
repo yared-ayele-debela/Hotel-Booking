@@ -28,6 +28,7 @@ class Hotel extends Model
         'status',
         'tax_rate',
         'tax_name',
+        'tax_inclusive',
         'cancellation_policy',
     ];
 
@@ -45,6 +46,7 @@ class Hotel extends Model
     {
         return [
             'cancellation_policy' => 'array',
+            'tax_inclusive' => 'boolean',
         ];
     }
 

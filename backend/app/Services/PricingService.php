@@ -49,18 +49,27 @@ class PricingService
         $nights = $period->count();
         [$discount, $coupon] = $this->applyDiscounts($subtotal, $checkIn, $checkOut, $nights, $couponCode, $hotelId, $roomQuantities, $userId);
 
+        $hotel = Hotel::with('countryRelation')->find($hotelId);
         $addOnAmount = 0.0;
-        if ($lateCheckout) {
-            $hotel = Hotel::find($hotelId);
-            if ($hotel && $hotel->late_checkout_price !== null) {
-                $addOnAmount = (float) $hotel->late_checkout_price;
-            }
+        if ($lateCheckout && $hotel && $hotel->late_checkout_price !== null) {
+            $addOnAmount = (float) $hotel->late_checkout_price;
         }
 
-        $taxableAmount = max(0, $subtotal - $discount + $addOnAmount);
+        $taxInclusive = $hotel && $hotel->tax_inclusive;
         $taxRate = $this->getTaxRateForHotel($hotelId);
-        $tax = round($taxableAmount * $taxRate, 2);
-        $total = $subtotal - $discount + $addOnAmount + $tax;
+        $taxName = $hotel?->tax_name ?? $hotel?->countryRelation?->tax_name ?? config('booking.default_tax_name', 'Tax');
+
+        $amountBeforeTax = max(0, $subtotal - $discount + $addOnAmount);
+
+        if ($taxInclusive) {
+            // Prices include tax: extract tax from the amount
+            $tax = $taxRate > 0 ? round($amountBeforeTax * $taxRate / (1 + $taxRate), 2) : 0.0;
+            $total = $amountBeforeTax;
+        } else {
+            // Tax-exclusive: add tax on top
+            $tax = round($amountBeforeTax * $taxRate, 2);
+            $total = $amountBeforeTax + $tax;
+        }
 
         return new PriceBreakdown(
             subtotal: round($subtotal, 2),
@@ -71,6 +80,9 @@ class PricingService
             couponCode: $couponCode,
             couponId: $coupon?->id,
             addOnAmount: round($addOnAmount, 2),
+            taxInclusive: $taxInclusive,
+            taxRate: $taxRate,
+            taxName: $taxName,
         );
     }
 
@@ -105,9 +117,12 @@ class PricingService
 
     protected function getTaxRateForHotel(int $hotelId): float
     {
-        $hotel = Hotel::find($hotelId);
+        $hotel = Hotel::with('countryRelation')->find($hotelId);
         if ($hotel && $hotel->tax_rate !== null) {
             return (float) $hotel->tax_rate;
+        }
+        if ($hotel?->countryRelation && $hotel->countryRelation->tax_rate !== null) {
+            return (float) $hotel->countryRelation->tax_rate;
         }
         return (float) config('booking.default_tax_rate', 0);
     }

@@ -48,7 +48,26 @@ export default function Checkout() {
       <p className="text-stone-600 mb-2">Booking: {booking?.uuid || uuid}</p>
       {booking?.hotel && <p className="text-stone-600 mb-2">Hotel: {booking.hotel.name}</p>}
       {booking?.guest_name && <p className="text-stone-600 mb-2">Guest: {booking.guest_name}</p>}
-      {booking?.total_price != null && <p className="font-medium">Total: ${Number(booking.total_price).toFixed(2)}</p>}
+      {booking?.total_price != null && (
+        <div className="mt-4 p-4 rounded-lg bg-stone-50 border border-stone-200">
+          <h3 className="font-semibold text-stone-900 mb-2">Price breakdown</h3>
+          {booking.subtotal != null && (
+            <p className="text-sm text-stone-600">Subtotal: {booking.currency || 'USD'} {Number(booking.subtotal).toFixed(2)}</p>
+          )}
+          {(booking.discount_amount ?? 0) > 0 && (
+            <p className="text-sm text-stone-600">Discount: −{booking.currency || 'USD'} {Number(booking.discount_amount).toFixed(2)}</p>
+          )}
+          {(booking.late_checkout_amount ?? 0) > 0 && (
+            <p className="text-sm text-stone-600">Late checkout: +{booking.currency || 'USD'} {Number(booking.late_checkout_amount).toFixed(2)}</p>
+          )}
+          {(booking.tax_amount ?? 0) > 0 && (
+            <p className="text-sm text-stone-600">
+              {booking.hotel?.tax_name || 'Tax'}{booking.hotel?.tax_inclusive ? ' (included)' : ''}: {booking.currency || 'USD'} {Number(booking.tax_amount).toFixed(2)}
+            </p>
+          )}
+          <p className="font-medium text-stone-900 mt-2">Total: {booking.currency || 'USD'} {Number(booking.total_price).toFixed(2)}</p>
+        </div>
+      )}
       {booking?.cancellation_policy_summary && (
         <p className="text-sm text-stone-600 mt-2">{booking.cancellation_policy_summary}</p>
       )}

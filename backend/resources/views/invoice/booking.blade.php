@@ -87,13 +87,13 @@
         </tr>
         @if((float) ($booking->discount_amount ?? 0) > 0)
         <tr>
-            <td>Discount@if($booking->coupon) ({{ $booking->coupon->code }})@endif</td>
+            <td>Discount @if($booking->coupon) ({{ $booking->coupon->code }})@endif</td>
             <td class="text-right">−{{ $booking->currency }} {{ number_format((float) $booking->discount_amount, 2) }}</td>
         </tr>
         @endif
         @if((float) ($booking->tax_amount ?? 0) > 0)
         <tr>
-            <td>{{ $booking->hotel->tax_name ?? config('booking.default_tax_name', 'Tax') }}</td>
+            <td>{{ $booking->hotel->tax_name ?? config('booking.default_tax_name', 'Tax') }} {{ ($booking->hotel->tax_inclusive ?? false) ? ' (included in prices)' : '' }}</td>
             <td class="text-right">{{ $booking->currency }} {{ number_format((float) $booking->tax_amount, 2) }}</td>
         </tr>
         @endif

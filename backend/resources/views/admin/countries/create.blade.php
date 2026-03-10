@@ -20,6 +20,17 @@
                         @error('code')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Default tax rate (%)</label>
+                        <input type="number" name="tax_rate" class="form-control" value="{{ old('tax_rate') }}" min="0" max="100" step="0.01" placeholder="10">
+                        <small class="text-muted">Used when hotel has no tax rate.</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Default tax name</label>
+                        <input type="text" name="tax_name" class="form-control" value="{{ old('tax_name') }}" placeholder="Occupancy tax / VAT">
+                    </div>
+                </div>
                 <div class="mb-3">
                     <label class="form-label">Image</label>
                     <input type="file" name="image" class="form-control" accept="image/*">

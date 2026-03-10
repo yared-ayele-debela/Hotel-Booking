@@ -45,6 +45,9 @@ class HotelController extends Controller
             'check_in' => 'nullable|string|max:10',
             'check_out' => 'nullable|string|max:10',
             'late_checkout_price' => 'nullable|numeric|min:0',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'tax_name' => 'nullable|string|max:64',
+            'tax_inclusive' => 'nullable|in:0,1',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
             'amenities' => 'nullable|array',
@@ -62,6 +65,8 @@ class HotelController extends Controller
             $validated['check_out'] = \Carbon\Carbon::parse($validated['check_out'])->format('H:i:s');
         }
         $validated['late_checkout_price'] = isset($validated['late_checkout_price']) && $validated['late_checkout_price'] > 0 ? $validated['late_checkout_price'] : null;
+        $validated['tax_rate'] = isset($validated['tax_rate']) && $validated['tax_rate'] > 0 ? $validated['tax_rate'] / 100 : null;
+        $validated['tax_inclusive'] = (bool) ($validated['tax_inclusive'] ?? false);
         $amenityIds = $validated['amenities'] ?? [];
         unset($validated['amenities']);
         $hotel = Hotel::create($validated);
@@ -95,6 +100,9 @@ class HotelController extends Controller
             'check_in' => 'nullable|string|max:10',
             'check_out' => 'nullable|string|max:10',
             'late_checkout_price' => 'nullable|numeric|min:0',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'tax_name' => 'nullable|string|max:64',
+            'tax_inclusive' => 'nullable|in:0,1',
             'status' => 'required|in:active,inactive',
             'cancellation_policy_preset' => 'nullable|string|in:,none,non_refundable,free_24,free_48,free_168,custom',
             'cancellation_policy_custom' => 'nullable|string',
@@ -111,6 +119,8 @@ class HotelController extends Controller
             $validated['check_out'] = \Carbon\Carbon::parse($validated['check_out'])->format('H:i:s');
         }
         $validated['late_checkout_price'] = isset($validated['late_checkout_price']) && $validated['late_checkout_price'] > 0 ? $validated['late_checkout_price'] : null;
+        $validated['tax_rate'] = isset($validated['tax_rate']) && $validated['tax_rate'] > 0 ? $validated['tax_rate'] / 100 : null;
+        $validated['tax_inclusive'] = (bool) ($validated['tax_inclusive'] ?? false);
         $amenityIds = $validated['amenities'] ?? [];
         unset($validated['amenities']);
         $hotel->update($validated);

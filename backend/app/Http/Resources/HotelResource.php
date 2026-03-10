@@ -35,6 +35,9 @@ class HotelResource extends JsonResource
             'check_in' => self::timeToHi($this->check_in),
             'check_out' => self::timeToHi($this->check_out),
             'late_checkout_price' => $this->late_checkout_price ? (float) $this->late_checkout_price : null,
+            'tax_rate' => $this->tax_rate !== null ? (float) $this->tax_rate : null,
+            'tax_name' => $this->tax_name,
+            'tax_inclusive' => (bool) ($this->tax_inclusive ?? false),
             'status' => $this->status,
             'rooms' => RoomResource::collection($this->whenLoaded('rooms')),
             'images' => $this->whenLoaded('images', function () {

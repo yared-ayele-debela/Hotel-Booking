@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class BookingController extends Controller
@@ -31,5 +32,31 @@ class BookingController extends Controller
         $bookings = $query->latest()->paginate(15)->withQueryString();
         $hotels = Hotel::where('vendor_id', auth()->id())->orderBy('name')->get();
         return view('admin.vendor.bookings.index', compact('bookings', 'hotels'));
+    }
+
+    /**
+     * View/download invoice for a booking (vendor's hotel only).
+     */
+    public function invoice(string $uuid): Response
+    {
+        $booking = Booking::where('uuid', $uuid)->with(['hotel', 'bookingRooms.room', 'customer', 'coupon'])->firstOrFail();
+        $hotelIds = Hotel::where('vendor_id', auth()->id())->pluck('id');
+        if (! $hotelIds->contains($booking->hotel_id)) {
+            abort(403, 'You do not have access to this invoice.');
+        }
+
+        $nights = $booking->check_in->diffInDays($booking->check_out);
+        $subtotal = (float) $booking->total_price - (float) ($booking->tax_amount ?? 0) + (float) ($booking->discount_amount ?? 0);
+
+        $html = view('invoice.booking', [
+            'booking' => $booking,
+            'nights' => $nights,
+            'subtotal' => round($subtotal, 2),
+        ])->render();
+
+        return response($html, 200, [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'Content-Disposition' => 'inline; filename="invoice-'.$booking->uuid.'.html"',
+        ]);
     }
 }

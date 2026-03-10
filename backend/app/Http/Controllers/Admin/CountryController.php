@@ -27,8 +27,11 @@ class CountryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:10|unique:countries,code',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'tax_name' => 'nullable|string|max:64',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+        $validated['tax_rate'] = isset($validated['tax_rate']) && $validated['tax_rate'] > 0 ? $validated['tax_rate'] / 100 : null;
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('locations/countries', 'public');
         }
@@ -46,8 +49,11 @@ class CountryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:10|unique:countries,code,' . $country->id,
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'tax_name' => 'nullable|string|max:64',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+        $validated['tax_rate'] = isset($validated['tax_rate']) && $validated['tax_rate'] > 0 ? $validated['tax_rate'] / 100 : null;
         if ($request->hasFile('image')) {
             if ($country->image && Storage::disk('public')->exists($country->image)) {
                 Storage::disk('public')->delete($country->image);

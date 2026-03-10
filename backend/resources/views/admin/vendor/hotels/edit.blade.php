@@ -73,6 +73,24 @@
                         <small class="text-muted">Paid add-on for extended check-out.</small>
                     </div>
                 </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Tax rate (%)</label>
+                        <input type="number" name="tax_rate" class="form-control" value="{{ old('tax_rate', $hotel->tax_rate !== null ? $hotel->tax_rate * 100 : '') }}" min="0" max="100" step="0.01" placeholder="10">
+                        <small class="text-muted">e.g. 10 for 10%. Leave blank to use country default.</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tax name</label>
+                        <input type="text" name="tax_name" class="form-control" value="{{ old('tax_name', $hotel->tax_name) }}" placeholder="Occupancy tax / VAT">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tax type</label>
+                        <select name="tax_inclusive" class="form-select">
+                            <option value="0" {{ old('tax_inclusive', $hotel->tax_inclusive) == 0 ? 'selected' : '' }}>Tax-exclusive (add tax at checkout)</option>
+                            <option value="1" {{ old('tax_inclusive', $hotel->tax_inclusive) == 1 ? 'selected' : '' }}>Tax-inclusive (prices include tax)</option>
+                        </select>
+                    </div>
+                </div>
                 @if(isset($amenities) && $amenities->isNotEmpty())
                 <div class="mb-3">
                     <label class="form-label">Hotel amenities</label>

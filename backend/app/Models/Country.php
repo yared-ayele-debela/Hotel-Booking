@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Country extends Model
 {
-    protected $fillable = ['name', 'code', 'image'];
+    protected $fillable = ['name', 'code', 'image', 'tax_rate', 'tax_name'];
 
     public function cities(): HasMany
     {

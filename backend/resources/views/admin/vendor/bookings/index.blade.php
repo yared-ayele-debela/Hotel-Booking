@@ -42,21 +42,24 @@
         <div class="card-body">
             <table class="table table-hover">
                 <thead>
-                    <tr><th>Booking</th><th>Hotel</th><th>Customer</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Total</th></tr>
+                    <tr><th>Booking</th><th>Hotel</th><th>Customer</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Total</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
                     @forelse($bookings as $b)
                     <tr>
                         <td><code>{{ $b->uuid ?? $b->id }}</code></td>
                         <td>{{ $b->hotel->name ?? '-' }}</td>
-                        <td>{{ $b->customer->name ?? $b->customer->email ?? '-' }}</td>
+                        <td>{{ $b->customer_id ? ($b->customer->name ?? $b->customer->email ?? '-') : ($b->guest_name ?? $b->guest_email ?? '-') }}</td>
                         <td>{{ $b->check_in ? $b->check_in->format('Y-m-d') : '-' }}</td>
                         <td>{{ $b->check_out ? $b->check_out->format('Y-m-d') : '-' }}</td>
                         <td><span class="badge bg-secondary">{{ $b->status }}</span></td>
                         <td>${{ number_format($b->total_price ?? 0, 2) }}</td>
+                        <td>
+                            <a href="{{ route('admin.vendor.bookings.invoice', $b->uuid) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="View invoice">Invoice</a>
+                        </td>
                     </tr>
                     @empty
-                    <tr><td colspan="7" class="text-muted">No bookings match your filters.</td></tr>
+                    <tr><td colspan="8" class="text-muted">No bookings match your filters.</td></tr>
                     @endforelse
                 </tbody>
             </table>

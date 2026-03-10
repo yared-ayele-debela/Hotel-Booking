@@ -13,5 +13,8 @@ readonly class PriceBreakdown
         public ?string $couponCode = null,
         public ?int $couponId = null,
         public float $addOnAmount = 0.0,
+        public bool $taxInclusive = false,
+        public float $taxRate = 0.0,
+        public ?string $taxName = null,
     ) {}
 }

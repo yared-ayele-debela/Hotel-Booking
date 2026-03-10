@@ -114,6 +114,17 @@
         @endif
     </p>
 
+    @php
+        $viewBookingUrl = $booking->isGuest()
+            ? \Illuminate\Support\Facades\URL::temporarySignedRoute('api.v1.bookings.guest-view', now()->addDays(30), ['uuid' => $booking->uuid])
+            : rtrim(config('app.frontend_url', config('app.url')), '/') . '/checkout/' . $booking->uuid;
+        $qrCodeDataUri = qrCodeDataUri($viewBookingUrl, 120);
+    @endphp
+    <div style="margin-top: 24px; padding: 16px; border: 1px solid #e7e5e4; border-radius: 8px; display: inline-block;">
+        <img src="{{ $qrCodeDataUri }}" alt="Booking QR Code" width="120" height="120" style="display: block;">
+        <p class="meta" style="margin: 8px 0 0 0; font-size: 0.75rem;">Scan to view booking</p>
+    </div>
+
     <p class="meta" style="margin-top: 32px;">Thank you for your booking. This document serves as your receipt.</p>
 </body>
 </html>

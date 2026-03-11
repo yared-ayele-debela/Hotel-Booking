@@ -94,13 +94,21 @@ export default function SupportTicketDetail() {
           <p className="text-sm text-stone-500">#{ticket.id} · Created {ticket.created_at ? new Date(ticket.created_at).toLocaleString() : ''}</p>
         </div>
         <div className="p-4 sm:p-6">
-          <h2 className="font-semibold text-stone-900 mb-3">Replies</h2>
+          <h2 className="font-semibold text-stone-900 mb-3">Messages</h2>
           {replies.length === 0 ? (
             <p className="text-stone-600 text-sm">No replies yet. Support will respond here and we’ll email you.</p>
           ) : (
-            <ul className="space-y-4">
-              {replies.map((r) => (
-                <li key={r.id} className="pl-3 border-l-2 border-amber-200">
+          <ul className="space-y-4">
+            <li className="pl-3 border-l-2 border-amber-200">
+              <p className="text-sm text-stone-600">
+                <span className="font-medium text-stone-800">{user?.name ?? 'You'}</span>
+                {' · '}
+                {ticket.created_at ? new Date(ticket.created_at).toLocaleString() : ''}
+              </p>
+              <div className="mt-1 text-stone-800 whitespace-pre-wrap">{ticket.body}</div>
+            </li>
+            {replies.map((r) => (
+              <li key={r.id} className="pl-3 border-l-2 border-amber-200">
                   <p className="text-sm text-stone-600">
                     <span className="font-medium text-stone-800">{r.user?.name ?? 'Support'}</span>
                     {' · '}

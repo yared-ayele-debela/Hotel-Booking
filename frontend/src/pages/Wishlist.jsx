@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, X } from 'lucide-react';
+import { Heart, Loader2, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { HotelCard } from '../components/HotelCard';
@@ -25,7 +25,7 @@ export default function Wishlist() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] }),
   });
 
-  const items = data?.data ?? [];
+  const items = Array.isArray(data?.data) ? data.data : (data?.data?.data ?? []);
 
   if (!user) {
     return (

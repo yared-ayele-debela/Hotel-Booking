@@ -60,6 +60,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/me', [AuthController::class, 'me'])->name('me');
+        Route::put('/me', [AuthController::class, 'update'])->name('me.update');
         Route::post('/bookings/preview', [BookingController::class, 'preview'])->name('bookings.preview');
         Route::apiResource('bookings', BookingController::class)->only(['index', 'store']);
         Route::get('/bookings/{uuid}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');

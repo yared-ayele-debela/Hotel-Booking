@@ -169,4 +169,43 @@ class AuthController extends Controller
         }
         return response()->json(['success' => true, 'data' => $data]);
     }
+
+    /**
+     * Update current user profile (name, email, optional password).
+     */
+    public function update(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', 'confirmed', Password::defaults()];
+        }
+
+        $validated = $request->validate($rules);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+        $user->save();
+
+        $data = [
+            'id' => $user->id,
+            'uuid' => $user->uuid,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role->value,
+        ];
+        if ($user->role === Role::VENDOR) {
+            $data['vendor_approved'] = $user->isVendorApproved();
+        }
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
 }

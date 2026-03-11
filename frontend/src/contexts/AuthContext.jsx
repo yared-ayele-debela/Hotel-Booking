@@ -61,8 +61,15 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = (userData) => {
+    if (userData) {
+      setUser(userData);
+      setUserState(userData);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register: registerUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register: registerUser, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

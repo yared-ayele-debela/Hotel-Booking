@@ -37,10 +37,15 @@ function StatusBadge({ status }) {
 }
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editPasswordConfirm, setEditPasswordConfirm] = useState('');
+  const [editErrors, setEditErrors] = useState({});
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['bookings', page],
@@ -57,6 +62,51 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (payload) => {
+      const res = await api.put('/me', payload);
+      if (!res.data?.success) throw new Error(res.data?.message || 'Failed to update');
+      return res.data;
+    },
+    onSuccess: (data) => {
+      updateUser(data?.data);
+      setEditModalOpen(false);
+      setEditName('');
+      setEditEmail('');
+      setEditPassword('');
+      setEditPasswordConfirm('');
+      setEditErrors({});
+    },
+    onError: (err) => {
+      const errors = err.response?.data?.errors;
+      setEditErrors(errors && typeof errors === 'object' ? errors : {});
+    },
+  });
+
+  const openEditModal = () => {
+    setEditName(user?.name ?? '');
+    setEditEmail(user?.email ?? '');
+    setEditPassword('');
+    setEditPasswordConfirm('');
+    setEditErrors({});
+    setEditModalOpen(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    setEditErrors({});
+    if (editPassword.trim() && editPassword !== editPasswordConfirm) {
+      setEditErrors({ password: ['Passwords do not match.'] });
+      return;
+    }
+    const payload = { name: editName.trim(), email: editEmail.trim() };
+    if (editPassword.trim()) {
+      payload.password = editPassword;
+      payload.password_confirmation = editPasswordConfirm;
+    }
+    updateProfileMutation.mutate(payload);
+  };
 
   const bookings = Array.isArray(data?.data) ? data.data : [];
   const meta = data?.meta ?? {};
@@ -105,7 +155,7 @@ export default function Profile() {
           </div>
           <button
             type="button"
-            onClick={() => setEditModalOpen(true)}
+            onClick={openEditModal}
             className="flex items-center gap-2 px-3 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium text-stone-700"
             aria-label="Edit profile"
           >
@@ -220,7 +270,7 @@ export default function Profile() {
         )}
       </section>
 
-      {/* Edit modal (placeholder) */}
+      {/* Edit profile modal */}
       {editModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
@@ -235,16 +285,79 @@ export default function Profile() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-stone-600 text-sm mb-4">
-              Profile editing will be available soon. Contact support if you need to update your details.
-            </p>
-            <button
-              type="button"
-              onClick={() => setEditModalOpen(false)}
-              className="w-full py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
-            >
-              Close
-            </button>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="edit-name" className="block text-sm font-medium text-stone-700 mb-1">Name</label>
+                <input
+                  id="edit-name"
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                  required
+                  maxLength={255}
+                />
+                {editErrors.name && <p className="text-sm text-red-600 mt-1">{editErrors.name[0]}</p>}
+              </div>
+              <div>
+                <label htmlFor="edit-email" className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+                <input
+                  id="edit-email"
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                  required
+                />
+                {editErrors.email && <p className="text-sm text-red-600 mt-1">{editErrors.email[0]}</p>}
+              </div>
+              <div>
+                <label htmlFor="edit-password" className="block text-sm font-medium text-stone-700 mb-1">New password (leave blank to keep)</label>
+                <input
+                  id="edit-password"
+                  type="password"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                />
+                {editErrors.password && <p className="text-sm text-red-600 mt-1">{editErrors.password[0]}</p>}
+              </div>
+              {editPassword && (
+                <div>
+                  <label htmlFor="edit-password-confirm" className="block text-sm font-medium text-stone-700 mb-1">Confirm new password</label>
+                  <input
+                    id="edit-password-confirm"
+                    type="password"
+                    value={editPasswordConfirm}
+                    onChange={(e) => setEditPasswordConfirm(e.target.value)}
+                    className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                  />
+                </div>
+              )}
+              {updateProfileMutation.error && !(updateProfileMutation.error?.response?.data?.errors) && (
+                <ErrorMessage message={updateProfileMutation.error?.response?.data?.message || updateProfileMutation.error?.message} />
+              )}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={updateProfileMutation.isPending}
+                  className="flex-1 py-2.5 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditModalOpen(false)}
+                  className="px-4 py-2.5 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

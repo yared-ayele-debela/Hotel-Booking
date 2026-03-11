@@ -73,5 +73,6 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/support-tickets', [SupportTicketController::class, 'index'])->name('support-tickets.index');
         Route::post('/support-tickets', [SupportTicketController::class, 'store'])->name('support-tickets.store');
         Route::get('/support-tickets/{supportTicket}', [SupportTicketController::class, 'show'])->name('support-tickets.show');
+        Route::post('/support-tickets/{supportTicket}/replies', [SupportTicketController::class, 'storeReply'])->name('support-tickets.replies.store');
     });
 });

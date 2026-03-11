@@ -71,6 +71,45 @@
     </div>
     @endif
 
+    {{-- Bookings by status & trend (all admins) --}}
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bookings by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingsByStatusChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bookings Trend (last 6 months)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingsTrendChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if($isSuperAdmin && !empty($topVendorsChart['labels']))
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Vendors by Revenue</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topVendorsChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @if($isSuperAdmin && $vendors->isNotEmpty())
     <div class="row">
         <div class="col-12">
@@ -159,13 +198,13 @@
     </div>
 </div>
 
-@if($isSuperAdmin && !empty($revenueChart['labels']))
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var ctx = document.getElementById('revenueChart');
-    if (ctx) {
-        new Chart(ctx, {
+    @if($isSuperAdmin && !empty($revenueChart['labels']))
+    var revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        new Chart(revenueCtx, {
             type: 'bar',
             data: {
                 labels: @json($revenueChart['labels']),
@@ -180,13 +219,76 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true }
-                }
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+    @endif
+
+    var statusCtx = document.getElementById('bookingsByStatusChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json($bookingsByStatus['labels']),
+                datasets: [{
+                    data: @json($bookingsByStatus['data']),
+                    backgroundColor: ['rgba(255, 193, 7, 0.8)', 'rgba(40, 199, 111, 0.8)', 'rgba(220, 53, 69, 0.8)', 'rgba(13, 110, 253, 0.8)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    var trendCtx = document.getElementById('bookingsTrendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: @json($bookingsTrendChart['labels']),
+                datasets: [{
+                    label: 'Bookings',
+                    data: @json($bookingsTrendChart['data']),
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    var topVendorsCtx = document.getElementById('topVendorsChart');
+    if (topVendorsCtx) {
+        new Chart(topVendorsCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($topVendorsChart['labels'] ?? []),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: @json($topVendorsChart['data'] ?? []),
+                    backgroundColor: 'rgba(40, 199, 111, 0.6)',
+                    borderColor: 'rgba(40, 199, 111, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
             }
         });
     }
 });
 </script>
-@endif
 @endsection

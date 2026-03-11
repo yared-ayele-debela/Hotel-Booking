@@ -1,12 +1,32 @@
+import { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { MapPin, Calendar, Users, Search, SlidersHorizontal, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../hooks/useWishlist';
 import { HotelCard } from '../components/HotelCard';
 import { HotelListSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
+import { AmenityIcon } from '../components/AmenityIcon';
 import { calculateNights } from '../lib/utils';
+
+const PRICE_MAX = 500;
+const REVIEW_SCORE_OPTIONS = [
+  { label: 'Excellent: 5', value: 5 },
+  { label: 'Very Good: 4+', value: 4 },
+  { label: 'Good: 3+', value: 3 },
+  { label: 'Pleasant: 2+', value: 2 },
+];
+
+const SORT_OPTIONS = [
+  { value: '', label: 'Recommended' },
+  { value: 'price_low', label: 'Price: low to high' },
+  { value: 'price_high', label: 'Price: high to low' },
+  { value: 'rating', label: 'Highest rated' },
+  { value: 'name', label: 'Name A–Z' },
+  { value: 'distance', label: 'Distance', disabled: true },
+];
 
 function WishlistHeart({ hotelId, checkIn, checkOut, className = '' }) {
   const { user } = useAuth();
@@ -58,15 +78,41 @@ function HeartIcon({ filled }) {
   );
 }
 
-const REVIEW_SCORE_OPTIONS = [
-  { label: 'Excellent: 5', value: 5, desc: 'Based on guest reviews' },
-  { label: 'Very Good: 4+', value: 4, desc: '' },
-  { label: 'Good: 3+', value: 3, desc: '' },
-  { label: 'Pleasant: 2+', value: 2, desc: '' },
-];
+function FilterDrawer({ open, onClose, children }) {
+  if (!open) return null;
+  return (
+    <>
+      <div
+        className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside
+        className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-xl z-50 overflow-y-auto lg:hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filters"
+      >
+        <div className="sticky top-0 bg-white border-b border-stone-200 px-4 py-3 flex items-center justify-between">
+          <h2 className="font-semibold text-stone-900">Filters</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-stone-100"
+            aria-label="Close filters"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-4">{children}</div>
+      </aside>
+    </>
+  );
+}
 
 export default function HotelList() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const city = searchParams.get('city') || '';
   const country = searchParams.get('country') || '';
   const cityId = searchParams.get('city_id') || '';
@@ -82,6 +128,7 @@ export default function HotelList() {
   const amenitiesParam = searchParams.get('amenities') || '';
   const selectedAmenities = amenitiesParam ? amenitiesParam.split(',').filter(Boolean) : [];
 
+
   const applyFilters = (updates) => {
     const next = new URLSearchParams(searchParams);
     next.set('page', '1');
@@ -91,6 +138,62 @@ export default function HotelList() {
     });
     setSearchParams(next);
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const loc = form.location?.value?.trim() || '';
+    const locParts = loc.split(',').map((s) => s.trim()).filter(Boolean);
+    const updates = {
+      check_in: form.check_in?.value || '',
+      check_out: form.check_out?.value || '',
+      min_capacity: form.guests?.value || '',
+    };
+    if (locParts.length >= 2) {
+      updates.city = locParts[0];
+      updates.country = locParts[1];
+      updates.city_id = '';
+      updates.country_id = '';
+    } else if (locParts.length === 1) {
+      updates.city = locParts[0];
+      updates.country = '';
+      updates.city_id = '';
+      updates.country_id = '';
+    } else {
+      updates.city = '';
+      updates.country = '';
+      updates.city_id = '';
+      updates.country_id = '';
+    }
+    applyFilters(updates);
+  };
+
+  const { data: citiesData } = useQuery({
+    queryKey: ['locations', 'cities'],
+    queryFn: async () => {
+      const res = await api.get('/cities', { params: { limit: 20 } });
+      if (!res.data?.success) throw new Error('Failed to load');
+      return res.data.data?.data ?? [];
+    },
+  });
+
+  const { data: countriesData } = useQuery({
+    queryKey: ['locations', 'countries'],
+    queryFn: async () => {
+      const res = await api.get('/countries');
+      if (!res.data?.success) throw new Error('Failed to load');
+      return res.data.data?.data ?? [];
+    },
+  });
+
+  const locationOptions = useMemo(() => {
+    const items = [];
+    (citiesData || []).forEach((c) => items.push({ value: c.name, label: c.country_name ? `${c.name}, ${c.country_name}` : c.name }));
+    (countriesData || []).forEach((c) => {
+      if (!items.some((i) => i.value === c.name)) items.push({ value: c.name, label: c.name });
+    });
+    return items;
+  }, [citiesData, countriesData]);
 
   const { data: amenitiesData } = useQuery({
     queryKey: ['amenities'],
@@ -136,6 +239,138 @@ export default function HotelList() {
     return new URLSearchParams(p).toString();
   };
 
+  const filterCount = [minRating, minCapacity, minPrice, maxPrice].filter(Boolean).length + (selectedAmenities.length ? 1 : 0);
+
+  const { today, tomorrow } = useMemo(() => {
+    const d = new Date();
+    const t = d.toISOString().split('T')[0];
+    const next = new Date(d);
+    next.setDate(next.getDate() + 1);
+    return { today: t, tomorrow: next.toISOString().split('T')[0] };
+  }, []);
+
+  const priceMax = maxPrice ? Number(maxPrice) : PRICE_MAX;
+
+  const FilterContent = () => (
+    <div className="space-y-6">
+      <section>
+        <h3 className="text-sm font-medium text-stone-700 mb-3">Guests</h3>
+        <p className="text-xs text-stone-500 mb-2">Rooms that fit at least</p>
+        <select
+          value={minCapacity}
+          onChange={(e) => applyFilters({ min_capacity: e.target.value })}
+          className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white"
+        >
+          <option value="">Any</option>
+          {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
+            <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}+</option>
+          ))}
+        </select>
+      </section>
+
+      <section>
+        <h3 className="text-sm font-medium text-stone-700 mb-3">Minimum rating</h3>
+        <p className="text-xs text-stone-500 mb-2">Based on guest reviews</p>
+        <div className="space-y-2">
+          {REVIEW_SCORE_OPTIONS.map((opt) => (
+            <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="min_rating"
+                checked={minRating === String(opt.value)}
+                onChange={() => applyFilters({ min_rating: minRating === String(opt.value) ? '' : opt.value })}
+                className="rounded-full border-stone-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-sm text-stone-700">{opt.label}</span>
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h3 className="text-sm font-medium text-stone-700 mb-3">Price range (per night)</h3>
+        <div className="space-y-4">
+          <div className="flex gap-2 items-center">
+            <input
+              type="number"
+              min="0"
+              max={PRICE_MAX}
+              step="10"
+              value={minPrice || ''}
+              onChange={(e) => applyFilters({ min_price: e.target.value })}
+              placeholder="Min"
+              className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm"
+            />
+            <span className="text-stone-400">–</span>
+            <input
+              type="number"
+              min="0"
+              max={PRICE_MAX}
+              step="10"
+              value={maxPrice || ''}
+              onChange={(e) => applyFilters({ max_price: e.target.value })}
+              placeholder="Max"
+              className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <input
+              type="range"
+              min="0"
+              max={PRICE_MAX}
+              step="10"
+              value={priceMax}
+              onChange={(e) => applyFilters({ max_price: e.target.value })}
+              className="w-full h-2 rounded-lg appearance-none bg-stone-200 accent-amber-600"
+            />
+            <p className="text-xs text-stone-500">Max: ${priceMax}</p>
+          </div>
+        </div>
+      </section>
+
+      {amenities.length > 0 && (
+        <section>
+          <h3 className="text-sm font-medium text-stone-700 mb-3">Amenities</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {amenities.map((a) => (
+              <label key={a.id} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectedAmenities.includes(a.slug)}
+                  onChange={() => {
+                    const next = selectedAmenities.includes(a.slug)
+                      ? selectedAmenities.filter((s) => s !== a.slug)
+                      : [...selectedAmenities, a.slug];
+                    applyFilters({ amenities: next.join(',') });
+                  }}
+                  className="rounded border-stone-300 text-amber-600 focus:ring-amber-500"
+                />
+                <span className="text-sm text-stone-700 truncate">{a.name}</span>
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          const base = { check_in: checkIn, check_out: checkOut };
+          if (cityId) base.city_id = cityId;
+          else if (city) base.city = city;
+          if (countryId) base.country_id = countryId;
+          else if (country) base.country = country;
+          setSearchParams(new URLSearchParams(base));
+          setFilterDrawerOpen(false);
+        }}
+        aria-label="Clear all filters"
+        className="w-full py-2 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg"
+      >
+        Clear filters
+      </button>
+    </div>
+  );
+
   if (isError) {
     return (
       <div className="py-6">
@@ -145,248 +380,227 @@ export default function HotelList() {
   }
 
   return (
-    <div className="py-6 flex flex-col lg:flex-row gap-6 lg:gap-8">
-      {/* Left sidebar – filters */}
-      <aside className="lg:w-72 shrink-0">
-        <div className="sticky top-24 space-y-6 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-          <h2 className="font-semibold text-stone-900 text-lg">Filter by</h2>
-
-          {/* Guests */}
-          <section>
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Guests</h3>
-            <p className="text-xs text-stone-500 mb-2">Rooms that fit at least</p>
-            <select
-              value={minCapacity}
-              onChange={(e) => applyFilters({ min_capacity: e.target.value })}
-              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white"
-            >
-              <option value="">Any</option>
-              {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
-                <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}+</option>
-              ))}
-            </select>
-          </section>
-
-          {/* Review score */}
-          <section>
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Review score</h3>
-            <p className="text-xs text-stone-500 mb-2">Based on guest reviews</p>
-            <div className="space-y-2">
-              {REVIEW_SCORE_OPTIONS.map((opt) => (
-                <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="min_rating"
-                    checked={minRating === String(opt.value)}
-                    onChange={() => applyFilters({ min_rating: minRating === String(opt.value) ? '' : opt.value })}
-                    className="rounded-full border-stone-300"
-                  />
-                  <span className="text-sm text-stone-700">{opt.label}</span>
-                </label>
-              ))}
-            </div>
-          </section>
-
-          {/* Property rating (stars) – same as review score, alternative UI */}
-          <section>
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Property rating</h3>
-            <p className="text-xs text-stone-500 mb-2">Find high-quality hotels</p>
-            <div className="space-y-2">
-              {[5, 4, 3, 2, 1].map((stars) => (
-                <label key={stars} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="min_rating_stars"
-                    checked={minRating === String(stars)}
-                    onChange={() => applyFilters({ min_rating: minRating === String(stars) ? '' : stars })}
-                    className="rounded-full border-stone-300"
-                  />
-                  <span className="text-sm text-stone-700">{stars} star{stars > 1 ? 's' : ''}</span>
-                </label>
-              ))}
-            </div>
-          </section>
-
-          {/* Amenities */}
-          {amenities.length > 0 && (
-            <section>
-              <h3 className="text-sm font-medium text-stone-700 mb-3">Amenities</h3>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {amenities.map((a) => (
-                  <label key={a.id} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedAmenities.includes(a.slug)}
-                      onChange={() => {
-                        const next = selectedAmenities.includes(a.slug)
-                          ? selectedAmenities.filter((s) => s !== a.slug)
-                          : [...selectedAmenities, a.slug];
-                        applyFilters({ amenities: next.join(',') });
-                      }}
-                      className="rounded border-stone-300"
-                    />
-                    <span className="text-sm text-stone-700">{a.name}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Price */}
-          <section>
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Price (per night)</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs text-stone-500 mb-1">Min €</label>
+    <div className="py-4 sm:py-6">
+      {/* Sticky search bar — persist params from home, editable */}
+      <form
+        onSubmit={handleSearch}
+        className="sticky top-14 z-30 bg-white/95 backdrop-blur border-b border-stone-200 -mx-4 px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 mb-6"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div className="flex-1 lg:col-span-2 relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
                 <input
-                  type="number"
-                  min="0"
-                  step="10"
-                  placeholder="0"
-                  value={minPrice}
-                  onChange={(e) => applyFilters({ min_price: e.target.value })}
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+                  name="location"
+                  type="text"
+                  list="hotel-list-location"
+                  defaultValue={city && country ? `${city}, ${country}` : city || country}
+                  placeholder="City or country"
+                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  autoComplete="off"
+                />
+                <datalist id="hotel-list-location">
+                  {locationOptions.map((opt) => (
+                    <option key={opt.value} value={opt.label} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+                <input
+                  name="check_in"
+                  type="date"
+                  defaultValue={checkIn}
+                  min={today}
+                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  aria-label="Check-in"
                 />
               </div>
-              <div>
-                <label className="block text-xs text-stone-500 mb-1">Max €</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
                 <input
-                  type="number"
-                  min="0"
-                  step="10"
-                  placeholder="Any"
-                  value={maxPrice}
-                  onChange={(e) => applyFilters({ max_price: e.target.value })}
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+                  name="check_out"
+                  type="date"
+                  defaultValue={checkOut}
+                  min={checkIn || tomorrow}
+                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  aria-label="Check-out"
                 />
               </div>
-            </div>
-          </section>
-
-          {/* Property type – placeholder */}
-          <section>
-            <h3 className="text-sm font-medium text-stone-700 mb-3">Property type</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-stone-600">
-                <span>Hotels</span>
-                <span>{total}</span>
+              <div className="relative flex items-center">
+                <Users className="absolute left-3 w-5 h-5 text-stone-400 pointer-events-none" />
+                <select
+                  name="guests"
+                  defaultValue={minCapacity || '1'}
+                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500 appearance-none bg-white"
+                  aria-label="Guests"
+                >
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          </section>
-
-          <button
-            type="button"
-            onClick={() => {
-              const base = { check_in: checkIn, check_out: checkOut };
-              if (cityId) base.city_id = cityId;
-              else if (city) base.city = city;
-              if (countryId) base.country_id = countryId;
-              else if (country) base.country = country;
-              setSearchParams(new URLSearchParams(base));
-            }}
-            aria-label="Clear all filters"
-            className="w-full py-2 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg"
-          >
-            Clear filters
-          </button>
-        </div>
-      </aside>
-
-      {/* Main – breadcrumb, header, results */}
-      <div className="flex-1 min-w-0">
-        {/* Breadcrumb: Home > Country > City */}
-        <nav className="text-sm text-stone-600 mb-4" aria-label="Breadcrumb">
-          <Link to="/" className="hover:text-amber-600">Home</Link>
-          {country && (
-            <>
-              <span className="mx-1">›</span>
-              <span>{country}</span>
-            </>
-          )}
-          {city && (
-            <>
-              <span className="mx-1">›</span>
-              <span className="text-stone-900 font-medium">{city || 'Search results'}</span>
-            </>
-          )}
-          {!country && !city && <span className="text-stone-900 font-medium">Search results</span>}
-        </nav>
-
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <h1 className="text-2xl font-bold text-stone-900">
-            {city ? `${city}: ` : ''}{total} propert{total === 1 ? 'y' : 'ies'} found
-          </h1>
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm text-stone-600">Sort by</label>
-            <select
-              id="sort"
-              value={sort}
-              onChange={(e) => applyFilters({ sort: e.target.value })}
-              className="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white"
-            >
-              <option value="">Recommended</option>
-              <option value="price_low">Price: low to high</option>
-              <option value="price_high">Price: high to low</option>
-              <option value="rating">Highest rated</option>
-              <option value="name">Name A–Z</option>
-            </select>
             <button
-              type="button"
-              className="text-sm text-amber-600 hover:text-amber-700 font-medium"
-              aria-label="Show on map (coming soon)"
+              type="submit"
+              className="h-11 px-6 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 flex items-center justify-center gap-2"
             >
-              Show on map
+              <Search className="w-5 h-5" />
+              Search
             </button>
           </div>
         </div>
+      </form>
 
-        {isLoading ? (
-          <HotelListSkeleton count={6} />
-        ) : hotels.length === 0 ? (
-          <p className="text-stone-600 py-8">No hotels found. Try changing your filters or search.</p>
-        ) : (
-          <>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {hotels.map((h) => (
-                <HotelCard
-                  key={h.id}
-                  hotel={h}
-                  to={`/hotels/${h.id}${checkIn ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`}
-                  nights={nights ?? undefined}
-                  dealLabel={nights ? 'Early 2026 Deal' : undefined}
-                  imageOverlay={<WishlistHeart hotelId={h.id} checkIn={checkIn || undefined} checkOut={checkOut || undefined} />}
-                />
-              ))}
-            </div>
-            {meta.last_page > 1 && (
-              <nav className="mt-8 flex justify-center gap-2" aria-label="Pagination">
-                {meta.current_page > 1 && (
-                  <Link
-                    to={{ search: buildSearch({ page: meta.current_page - 1 }) }}
-                    className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50"
-                  >
-                    Previous
-                  </Link>
-                )}
-                <span className="px-4 py-2 text-stone-600">
-                  Page {meta.current_page} of {meta.last_page}
-                </span>
-                {meta.current_page < meta.last_page && (
-                  <Link
-                    to={{ search: buildSearch({ page: meta.current_page + 1 }) }}
-                    className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50"
-                  >
-                    Next
-                  </Link>
-                )}
-              </nav>
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+        {/* Desktop: left sidebar filters */}
+        <aside className="hidden lg:block lg:w-72 shrink-0">
+          <div className="sticky top-24 space-y-6 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+            <h2 className="font-semibold text-stone-900 text-lg">Filters</h2>
+            <FilterContent />
+          </div>
+        </aside>
+
+        {/* Mobile: filter drawer */}
+        <FilterDrawer open={filterDrawerOpen} onClose={() => setFilterDrawerOpen(false)}>
+          <FilterContent />
+        </FilterDrawer>
+
+        {/* Main: results */}
+        <div className="flex-1 min-w-0">
+          <nav className="text-sm text-stone-600 mb-4" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-amber-600">Home</Link>
+            {(country || city) && (
+              <>
+                <span className="mx-1">›</span>
+                <span className="text-stone-900 font-medium">{city || country || 'Search results'}</span>
+              </>
             )}
-          </>
-        )}
+            {!country && !city && <span className="text-stone-900 font-medium">Search results</span>}
+          </nav>
 
-        <p className="mt-8 text-xs text-stone-500">
-          Commission paid on bookings, and other factors can affect property rankings.
-        </p>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl font-bold text-stone-900">
+                {city ? `${city}: ` : ''}{total} propert{total === 1 ? 'y' : 'ies'} found
+              </h1>
+              <button
+                type="button"
+                onClick={() => setFilterDrawerOpen(true)}
+                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                Filters
+                {filterCount > 0 && (
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                    {filterCount}
+                  </span>
+                )}
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort" className="text-sm text-stone-600">Sort by</label>
+              <select
+                id="sort"
+                value={sort}
+                onChange={(e) => applyFilters({ sort: e.target.value })}
+                className="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white min-w-[160px]"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                    {opt.label}{opt.disabled ? ' (coming soon)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Selected amenity chips */}
+          {selectedAmenities.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {selectedAmenities.map((slug) => {
+                const a = amenities.find((x) => x.slug === slug);
+                return (
+                  <button
+                    key={slug}
+                    type="button"
+                    onClick={() => {
+                      const next = selectedAmenities.filter((s) => s !== slug);
+                      applyFilters({ amenities: next.join(',') });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-sm font-medium hover:bg-amber-200"
+                  >
+                    <AmenityIcon slug={slug} className="w-3.5 h-3.5" />
+                    {a?.name || slug}
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {isLoading ? (
+            <HotelListSkeleton count={6} />
+          ) : hotels.length === 0 ? (
+            <div className="py-16 text-center" role="status">
+              <p className="text-stone-600 text-lg font-medium mb-2">No hotels found</p>
+              <p className="text-stone-500 mb-6">Try adjusting your filters or search criteria to find more options.</p>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
+              >
+                <Search className="w-5 h-5" />
+                Search from home
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
+                {hotels.map((h) => (
+                  <HotelCard
+                    key={h.id}
+                    hotel={h}
+                    to={`/hotels/${h.id}${checkIn ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`}
+                    nights={nights ?? undefined}
+                    imageOverlay={<WishlistHeart hotelId={h.id} checkIn={checkIn || undefined} checkOut={checkOut || undefined} />}
+                  >
+                    <span className="mt-3 inline-flex items-center text-sm font-medium text-amber-600">
+                      View details →
+                    </span>
+                  </HotelCard>
+                ))}
+              </div>
+              {meta.last_page > 1 && (
+                <nav className="mt-8 flex justify-center gap-2" aria-label="Pagination">
+                  {meta.current_page > 1 && (
+                    <Link
+                      to={{ search: buildSearch({ page: meta.current_page - 1 }) }}
+                      className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium"
+                    >
+                      Previous
+                    </Link>
+                  )}
+                  <span className="px-4 py-2 text-stone-600 text-sm">
+                    Page {meta.current_page} of {meta.last_page}
+                  </span>
+                  {meta.current_page < meta.last_page && (
+                    <Link
+                      to={{ search: buildSearch({ page: meta.current_page + 1 }) }}
+                      className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium"
+                    >
+                      Next
+                    </Link>
+                  )}
+                </nav>
+              )}
+            </>
+          )}
+
+          <p className="mt-8 text-xs text-stone-500">
+            Commission paid on bookings, and other factors can affect property rankings.
+          </p>
+        </div>
       </div>
     </div>
   );

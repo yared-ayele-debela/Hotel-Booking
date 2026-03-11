@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { HotelCard } from '../components/HotelCard';
 import ErrorMessage from '../components/ErrorMessage';
 
-function WishlistContent() {
+export default function Wishlist() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
+
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['wishlist'],
     queryFn: async () => {
@@ -13,6 +17,7 @@ function WishlistContent() {
       if (!res.data?.success) throw new Error(res.data?.message || 'Failed to load');
       return res.data;
     },
+    enabled: !!user,
   });
 
   const removeMutation = useMutation({
@@ -20,16 +25,28 @@ function WishlistContent() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] }),
   });
 
-  const items = data?.data?.data ?? data?.data ?? [];
+  const items = data?.data ?? [];
+
+  if (!user) {
+    return (
+      <div className="py-6">
+        <h1 className="text-2xl font-bold text-stone-900 mb-6">Wishlist</h1>
+        <p className="text-stone-600">Please <Link to="/login" className="text-amber-600 underline">log in</Link> to see your saved hotels.</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
       <div className="py-6">
         <h1 className="text-2xl font-bold text-stone-900 mb-6">Wishlist</h1>
-        <p className="text-stone-600">Loading…</p>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        </div>
       </div>
     );
   }
+
   if (isError) {
     return (
       <div className="py-6">
@@ -42,40 +59,46 @@ function WishlistContent() {
   return (
     <div className="py-6">
       <h1 className="text-2xl font-bold text-stone-900 mb-6">Wishlist</h1>
+
       {items.length === 0 ? (
-        <p className="text-stone-600">You haven’t saved any hotels yet. Browse <Link to="/hotels" className="text-amber-600 underline">hotels</Link> and tap the heart to add them here.</p>
+        <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-stone-100 text-stone-400 mb-4">
+            <Heart className="w-8 h-8" />
+          </div>
+          <p className="text-stone-600 mb-4">Your wishlist is empty</p>
+          <Link
+            to="/hotels"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
+          >
+            Search hotels
+          </Link>
+        </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {items.map((item) => {
-            const h = item.hotel || item;
-            const hotelId = item.hotel_id ?? h.id;
+            const hotel = item.hotel || item;
+            const hotelId = item.hotel_id ?? hotel.id;
             return (
-              <div key={item.id || hotelId} className="rounded-xl border border-stone-200 bg-white overflow-hidden shadow-sm hover:shadow-md flex flex-col">
-                <Link to={`/hotels/${hotelId}`} className="flex-1 block">
-                  <div className="h-40 bg-stone-200" />
-                  <div className="p-4">
-                    <h2 className="font-semibold text-stone-900">{h.name}</h2>
-                    <p className="text-sm text-stone-600">{[h.city, h.country].filter(Boolean).join(', ') || '—'}</p>
-                    {h.average_rating != null && <p className="text-sm mt-1">★ {h.average_rating}</p>}
-                  </div>
-                </Link>
-                <div className="p-4 pt-0 flex gap-2">
-                  <Link
-                    to={`/hotels/${hotelId}`}
-                    className="flex-1 text-center px-4 py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
-                  >
-                    View & book
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => removeMutation.mutate(hotelId)}
-                    disabled={removeMutation.isPending}
-                    className="px-4 py-2 rounded-lg border border-stone-300 text-stone-600 hover:bg-stone-100 disabled:opacity-50"
-                    aria-label="Remove from wishlist"
-                  >
-                    Remove
-                  </button>
-                </div>
+              <div key={item.id || hotelId} className="relative">
+                <HotelCard
+                  hotel={hotel}
+                  to={`/hotels/${hotelId}`}
+                  imageOverlay={
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeMutation.mutate(hotelId);
+                      }}
+                      disabled={removeMutation.isPending}
+                      className="p-2 rounded-full bg-white/90 shadow hover:bg-white disabled:opacity-60"
+                      aria-label="Remove from wishlist"
+                    >
+                      <X className="w-5 h-5 text-stone-600" />
+                    </button>
+                  }
+                />
               </div>
             );
           })}
@@ -83,19 +106,4 @@ function WishlistContent() {
       )}
     </div>
   );
-}
-
-export default function Wishlist() {
-  const { user } = useAuth();
-
-  if (!user) {
-    return (
-      <div className="py-6">
-        <h1 className="text-2xl font-bold text-stone-900 mb-6">Wishlist</h1>
-        <p className="text-stone-600">Please <Link to="/login" className="text-amber-600 underline">log in</Link> to see your saved hotels.</p>
-      </div>
-    );
-  }
-
-  return <WishlistContent />;
 }

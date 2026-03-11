@@ -30,4 +30,9 @@ class SupportTicketPolicy
     {
         return in_array($user->role, [Role::SUPER_ADMIN, Role::ADMIN], true);
     }
+
+    public function reply(User $user, SupportTicket $ticket): bool
+    {
+        return (int) $ticket->user_id === (int) $user->id;
+    }
 }

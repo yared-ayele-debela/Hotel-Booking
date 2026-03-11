@@ -1,25 +1,54 @@
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Lock, CheckCircle2, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import ErrorMessage from '../components/ErrorMessage';
+import { formatPrice, formatDate } from '../lib/utils';
 
 export default function Checkout() {
   const { uuid } = useParams();
   const { user } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const stateBooking = location.state?.booking;
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
 
-  const { data, isLoading, isError, error } = useQuery({
+  const isSuccess = searchParams.get('success') === '1';
+
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['booking', uuid],
     queryFn: async () => {
       const res = await api.get(`/bookings/${uuid}`);
       return res.data;
     },
     enabled: !!uuid && !!user && !stateBooking,
+    refetchInterval: (query) => {
+      if (!query.state.data) return false;
+      const b = query.state.data?.data ?? query.state.data?.booking ?? query.state.data;
+      return b?.status === 'pending_payment' ? 3000 : false;
+    },
   });
 
   const booking = stateBooking || (data?.data ?? data?.booking ?? data);
+  const isConfirmed = booking?.status === 'confirmed';
+  const showSuccess = isSuccess || isConfirmed;
+
+  const handlePayClick = () => {
+    setPaymentError(null);
+    setIsProcessing(true);
+    // Placeholder: Stripe/PayPal integration will go here
+    setTimeout(() => {
+      setIsProcessing(false);
+      setPaymentError('Payment integration is being set up. You will receive a confirmation email with a link to complete payment.');
+    }, 2000);
+  };
+
+  const handleRetry = () => {
+    setPaymentError(null);
+  };
 
   if (!uuid) {
     return (
@@ -29,53 +58,169 @@ export default function Checkout() {
     );
   }
 
-  if (!booking && !user) {
+  if (!booking && !user && !stateBooking) {
     return (
       <div className="py-6">
         <p className="text-stone-600 mb-2">This checkout session has expired or the page was refreshed.</p>
-        <p className="text-stone-600 mb-4">We’ll send a link to your email after you complete the booking — use that link to view and pay.</p>
+        <p className="text-stone-600 mb-4">We'll send a link to your email after you complete the booking — use that link to view and pay.</p>
         <Link to="/hotels" className="text-amber-600 underline">Search hotels</Link>
       </div>
     );
   }
 
-  if (!stateBooking && !booking && isLoading) return <div className="py-6"><p>Loading...</p></div>;
-  if (!stateBooking && !booking && isError) return <div className="py-6"><ErrorMessage message={error?.response?.data?.message || error?.message || 'Booking not found'} /></div>;
+  if (!stateBooking && !booking && isLoading) {
+    return (
+      <div className="py-6 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+      </div>
+    );
+  }
+
+  if (!stateBooking && !booking && isError) {
+    return (
+      <div className="py-6">
+        <ErrorMessage message={error?.response?.data?.message || error?.message || 'Booking not found'} onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="py-6 max-w-lg mx-auto text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-6">
+          <CheckCircle2 className="w-10 h-10" />
+        </div>
+        <h1 className="text-2xl font-bold text-stone-900 mb-2">Booking confirmed</h1>
+        <p className="text-stone-600 mb-4">Thank you for your booking. A confirmation has been sent to your email.</p>
+        <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 mb-6">
+          <p className="font-mono font-semibold text-stone-900">{booking?.uuid || uuid}</p>
+          <p className="text-sm text-stone-600 mt-1">Your booking reference</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {user ? (
+            <Link to="/profile" className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700">
+              View my bookings
+            </Link>
+          ) : (
+            <Link to="/" className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700">
+              Back to home
+            </Link>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-6">
-      <h1 className="text-2xl font-bold text-stone-900 mb-4">Checkout</h1>
-      <p className="text-stone-600 mb-2">Booking: {booking?.uuid || uuid}</p>
-      {booking?.hotel && <p className="text-stone-600 mb-2">Hotel: {booking.hotel.name}</p>}
-      {booking?.guest_name && <p className="text-stone-600 mb-2">Guest: {booking.guest_name}</p>}
-      {booking?.total_price != null && (
-        <div className="mt-4 p-4 rounded-lg bg-stone-50 border border-stone-200">
-          <h3 className="font-semibold text-stone-900 mb-2">Price breakdown</h3>
-          {booking.subtotal != null && (
-            <p className="text-sm text-stone-600">Subtotal: {booking.currency || 'USD'} {Number(booking.subtotal).toFixed(2)}</p>
-          )}
-          {(booking.discount_amount ?? 0) > 0 && (
-            <p className="text-sm text-stone-600">Discount: −{booking.currency || 'USD'} {Number(booking.discount_amount).toFixed(2)}</p>
-          )}
-          {(booking.late_checkout_amount ?? 0) > 0 && (
-            <p className="text-sm text-stone-600">Late checkout: +{booking.currency || 'USD'} {Number(booking.late_checkout_amount).toFixed(2)}</p>
-          )}
-          {(booking.tax_amount ?? 0) > 0 && (
-            <p className="text-sm text-stone-600">
-              {booking.hotel?.tax_name || 'Tax'}{booking.hotel?.tax_inclusive ? ' (included)' : ''}: {booking.currency || 'USD'} {Number(booking.tax_amount).toFixed(2)}
+      <h1 className="text-2xl font-bold text-stone-900 mb-6">Checkout</h1>
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Left: Booking summary */}
+        <div className="flex-1">
+          <div className="rounded-2xl border border-stone-200 bg-white p-6">
+            <h2 className="font-semibold text-stone-900 mb-4">Booking summary</h2>
+            <p className="text-stone-600 mb-1">
+              <span className="font-mono font-medium text-stone-900">{booking?.uuid || uuid}</span>
             </p>
-          )}
-          <p className="font-medium text-stone-900 mt-2">Total: {booking.currency || 'USD'} {Number(booking.total_price).toFixed(2)}</p>
+            {booking?.hotel && (
+              <p className="text-stone-600 mb-1">{booking.hotel.name}</p>
+            )}
+            {booking?.guest_name && (
+              <p className="text-stone-600 mb-1">Guest: {booking.guest_name}</p>
+            )}
+            {booking?.check_in && booking?.check_out && (
+              <p className="text-stone-600 mb-4">{formatDate(booking.check_in)} – {formatDate(booking.check_out)}</p>
+            )}
+            {booking?.booking_rooms?.length > 0 && (
+              <ul className="text-sm text-stone-600 mb-4">
+                {booking.booking_rooms.map((br) => (
+                  <li key={br.id}>
+                    {br.room?.name} × {br.quantity}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {booking?.total_price != null && (
+              <div className="border-t border-stone-200 pt-4 space-y-2">
+                {booking.subtotal != null && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-stone-600">Subtotal</span>
+                    <span>{formatPrice(booking.subtotal, booking.currency)}</span>
+                  </div>
+                )}
+                {(booking.discount_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Discount</span>
+                    <span>-{formatPrice(booking.discount_amount, booking.currency)}</span>
+                  </div>
+                )}
+                {(booking.late_checkout_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-stone-600">Late checkout</span>
+                    <span>{formatPrice(booking.late_checkout_amount, booking.currency)}</span>
+                  </div>
+                )}
+                {(booking.tax_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-stone-600">{booking.hotel?.tax_name || 'Tax'}</span>
+                    <span>{formatPrice(booking.tax_amount, booking.currency)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-semibold text-stone-900 pt-2">
+                  <span>Total</span>
+                  <span>{formatPrice(booking.total_price, booking.currency)}</span>
+                </div>
+              </div>
+            )}
+            {booking?.cancellation_policy_summary && (
+              <p className="text-sm text-stone-500 mt-4">{booking.cancellation_policy_summary}</p>
+            )}
+          </div>
         </div>
-      )}
-      {booking?.cancellation_policy_summary && (
-        <p className="text-sm text-stone-600 mt-2">{booking.cancellation_policy_summary}</p>
-      )}
-      <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200">
-        <p className="text-amber-900 font-medium">Payment (Phase 8)</p>
-        <p className="text-sm text-amber-800 mt-1">Stripe/PayPal will be connected here.</p>
+
+        {/* Right: Payment form */}
+        <div className="lg:w-96 shrink-0">
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 sticky top-24">
+            <div className="flex items-center gap-2 text-stone-600 text-sm mb-4">
+              <Lock className="w-4 h-4" />
+              <span>Secure payment</span>
+            </div>
+            <p className="text-stone-600 text-sm mb-4">
+              Payment form (Stripe/PayPal) will be integrated here.
+            </p>
+
+            {paymentError && (
+              <div className="mb-4">
+                <ErrorMessage message={paymentError} onRetry={handleRetry} />
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handlePayClick}
+              disabled={isProcessing}
+              className="w-full py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing…
+                </>
+              ) : (
+                'Pay Now'
+              )}
+            </button>
+          </div>
+        </div>
       </div>
-      <Link to={user ? '/profile' : '/'} className="inline-block mt-6 px-6 py-3 rounded-lg bg-amber-600 text-white hover:bg-amber-700">Back to {user ? 'profile' : 'home'}</Link>
+
+      <Link
+        to={user ? '/profile' : '/'}
+        className="inline-block mt-6 text-stone-600 hover:text-stone-900 text-sm"
+      >
+        ← Back to {user ? 'profile' : 'home'}
+      </Link>
     </div>
   );
 }

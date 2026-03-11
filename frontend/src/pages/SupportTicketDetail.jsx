@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import ErrorMessage from '../components/ErrorMessage';
@@ -9,6 +10,8 @@ const CATEGORY_LABELS = { billing: 'Billing', booking: 'Booking', technical: 'Te
 export default function SupportTicketDetail() {
   const { user } = useAuth();
   const { id } = useParams();
+  const queryClient = useQueryClient();
+  const [replyBody, setReplyBody] = useState('');
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['support-ticket', id],
     queryFn: async () => {
@@ -20,6 +23,26 @@ export default function SupportTicketDetail() {
   });
 
   const ticket = data?.data;
+
+  const replyMutation = useMutation({
+    mutationFn: async (body) => {
+      const res = await api.post(`/support-tickets/${id}/replies`, { body });
+      if (!res.data?.success) throw new Error(res.data?.message || 'Failed to send reply');
+      return res.data;
+    },
+    onSuccess: () => {
+      setReplyBody('');
+      queryClient.invalidateQueries({ queryKey: ['support-ticket', id] });
+      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
+    },
+  });
+
+  const handleReplySubmit = (e) => {
+    e.preventDefault();
+    const body = replyBody.trim();
+    if (!body) return;
+    replyMutation.mutate(body);
+  };
 
   if (!user) {
     return (
@@ -69,7 +92,6 @@ export default function SupportTicketDetail() {
             <span className="text-xs px-2 py-0.5 rounded bg-stone-200 text-stone-700">{ticket.status}</span>
           </div>
           <p className="text-sm text-stone-500">#{ticket.id} · Created {ticket.created_at ? new Date(ticket.created_at).toLocaleString() : ''}</p>
-          <div className="mt-4 p-3 rounded-lg bg-stone-50 text-stone-800 whitespace-pre-wrap">{ticket.body}</div>
         </div>
         <div className="p-4 sm:p-6">
           <h2 className="font-semibold text-stone-900 mb-3">Replies</h2>
@@ -90,6 +112,31 @@ export default function SupportTicketDetail() {
             </ul>
           )}
         </div>
+        {ticket.status !== 'closed' && (
+          <div className="p-4 sm:p-6 border-t border-stone-200 bg-stone-50">
+            <h2 className="font-semibold text-stone-900 mb-3">Add a reply</h2>
+            <form onSubmit={handleReplySubmit} className="space-y-3">
+              <textarea
+                value={replyBody}
+                onChange={(e) => setReplyBody(e.target.value)}
+                placeholder="Type your reply..."
+                className="w-full rounded-lg border border-stone-300 px-4 py-2.5 min-h-[100px] bg-white"
+                maxLength={10000}
+                required
+              />
+              {replyMutation.error && (
+                <ErrorMessage message={replyMutation.error?.response?.data?.message || replyMutation.error?.message} />
+              )}
+              <button
+                type="submit"
+                disabled={replyMutation.isPending || !replyBody.trim()}
+                className="px-4 py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50"
+              >
+                {replyMutation.isPending ? 'Sending…' : 'Send reply'}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

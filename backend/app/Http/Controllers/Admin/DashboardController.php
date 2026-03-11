@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\CommissionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -47,8 +48,11 @@ class DashboardController extends Controller
         $commissionRate = $isSuperAdmin ? $this->commissionService->getCommissionRate() : null;
 
         $revenueChart = $isSuperAdmin ? $this->revenueChartData() : [];
+        $bookingsByStatus = $this->bookingsByStatusData();
+        $bookingsTrendChart = $this->bookingsTrendChartData();
+        $topVendorsChart = $isSuperAdmin ? $this->topVendorsByRevenueData() : [];
 
-        return view('admin.dashboard', compact('kpis', 'vendors', 'commissionRate', 'revenueChart', 'isSuperAdmin'));
+        return view('admin.dashboard', compact('kpis', 'vendors', 'commissionRate', 'revenueChart', 'bookingsByStatus', 'bookingsTrendChart', 'topVendorsChart', 'isSuperAdmin'));
     }
 
     /**
@@ -73,5 +77,70 @@ class DashboardController extends Controller
             $data[] = (float) ($rows[$month] ?? 0);
         }
         return ['labels' => $labels, 'data' => $data];
+    }
+
+    /**
+     * Bookings count by status (pending, confirmed, cancelled, completed).
+     */
+    protected function bookingsByStatusData(): array
+    {
+        $rows = DB::table('bookings')
+            ->whereNull('deleted_at')
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        $labels = ['Pending', 'Confirmed', 'Cancelled', 'Completed'];
+        $statuses = ['pending', 'confirmed', 'cancelled', 'completed'];
+        $data = [];
+        foreach ($statuses as $s) {
+            $data[] = (int) ($rows[$s] ?? 0);
+        }
+        return ['labels' => $labels, 'data' => $data];
+    }
+
+    /**
+     * Bookings count per month for last 6 months.
+     */
+    protected function bookingsTrendChartData(): array
+    {
+        $rows = DB::table('bookings')
+            ->whereNull('deleted_at')
+            ->where('check_in', '>=', now()->subMonths(6)->startOfMonth())
+            ->selectRaw("DATE_FORMAT(check_in, '%Y-%m') as month, COUNT(*) as count")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
+
+        $labels = [];
+        $data = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i)->format('Y-m');
+            $labels[] = now()->subMonths($i)->format('M Y');
+            $data[] = (int) ($rows[$month] ?? 0);
+        }
+        return ['labels' => $labels, 'data' => $data];
+    }
+
+    /**
+     * Top 5 vendors by revenue (confirmed bookings).
+     */
+    protected function topVendorsByRevenueData(): array
+    {
+        $rows = DB::table('bookings')
+            ->join('hotels', 'bookings.hotel_id', '=', 'hotels.id')
+            ->join('users', 'hotels.vendor_id', '=', 'users.id')
+            ->where('bookings.status', 'confirmed')
+            ->whereNull('bookings.deleted_at')
+            ->selectRaw('users.name as vendor_name, SUM(bookings.total_price) as total')
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        return [
+            'labels' => $rows->map(fn ($r) => Str::limit($r->vendor_name, 18))->values()->all(),
+            'data' => $rows->map(fn ($r) => (float) $r->total)->values()->all(),
+        ];
     }
 }

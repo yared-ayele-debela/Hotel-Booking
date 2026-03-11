@@ -71,4 +71,20 @@ class SupportTicketController extends BaseApiController
         $supportTicket->load(['replies.user']);
         return $this->success(new SupportTicketResource($supportTicket));
     }
+
+    /**
+     * Add a reply to own ticket (customer/vendor).
+     */
+    public function storeReply(Request $request, SupportTicket $supportTicket): JsonResponse
+    {
+        $this->authorize('reply', $supportTicket);
+        $validated = $request->validate(['body' => 'required|string|max:10000']);
+        $reply = \App\Models\SupportTicketReply::create([
+            'support_ticket_id' => $supportTicket->id,
+            'user_id' => $request->user()->id,
+            'body' => $validated['body'],
+        ]);
+        $reply->load('user');
+        return $this->success(new \App\Http\Resources\SupportTicketReplyResource($reply), 201);
+    }
 }

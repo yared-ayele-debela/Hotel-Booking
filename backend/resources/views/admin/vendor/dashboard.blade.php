@@ -59,6 +59,29 @@
         </div>
         <div class="col-xl-4">
             <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bookings by Status</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingsByStatusChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Bookings Trend (last 6 months)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingsTrendChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Quick links</h5>
                     <a href="{{ route('admin.vendor.profile.edit') }}" class="btn btn-outline-primary btn-sm d-block mb-2">Business Details</a>
@@ -71,19 +94,92 @@
             </div>
         </div>
     </div>
+
+    @if(!empty($topHotelsChart['labels']))
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Hotels by Revenue</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topHotelsChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var ctx = document.getElementById('revenueChart');
-    if (ctx) {
-        new Chart(ctx, {
+    var revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        new Chart(revenueCtx, {
             type: 'bar',
             data: {
                 labels: @json($revenueChart['labels']),
                 datasets: [{ label: 'Revenue ($)', data: @json($revenueChart['data']), backgroundColor: 'rgba(81, 86, 190, 0.6)', borderColor: 'rgba(81, 86, 190, 1)', borderWidth: 1 }]
             },
             options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+    var statusCtx = document.getElementById('bookingsByStatusChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json($bookingsByStatus['labels']),
+                datasets: [{
+                    data: @json($bookingsByStatus['data']),
+                    backgroundColor: ['rgba(255, 193, 7, 0.8)', 'rgba(40, 199, 111, 0.8)', 'rgba(220, 53, 69, 0.8)', 'rgba(13, 110, 253, 0.8)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    var trendCtx = document.getElementById('bookingsTrendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: @json($bookingsTrendChart['labels']),
+                datasets: [{
+                    label: 'Bookings',
+                    data: @json($bookingsTrendChart['data']),
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+    var topHotelsCtx = document.getElementById('topHotelsChart');
+    if (topHotelsCtx) {
+        new Chart(topHotelsCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($topHotelsChart['labels'] ?? []),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: @json($topHotelsChart['data'] ?? []),
+                    backgroundColor: 'rgba(40, 199, 111, 0.6)',
+                    borderColor: 'rgba(40, 199, 111, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
+            }
         });
     }
 });

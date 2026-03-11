@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, Calendar, Users, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, Shield, CreditCard, RotateCcw, Headphones } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { HotelCard } from '../components/HotelCard';
+import { Skeleton } from '../components/ui/Skeleton';
 
 function LocationCard({ to, name, subtext, image, className = '' }) {
   return (
@@ -28,6 +29,13 @@ function LocationCard({ to, name, subtext, image, className = '' }) {
     </Link>
   );
 }
+
+const TRUST_BADGES = [
+  { icon: CreditCard, label: 'Secure payment', description: 'Your payment data is protected with industry-standard encryption.' },
+  { icon: RotateCcw, label: 'Free cancellation', description: 'Flexible policies on most bookings. Cancel for free up to 48h before.' },
+  { icon: Headphones, label: '24/7 support', description: 'Our team is here around the clock to help with your stay.' },
+  { icon: Shield, label: 'Verified reviews', description: 'Real reviews from guests who stayed. No fake ratings.' },
+];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -57,7 +65,7 @@ export default function Home() {
   const { data: citiesData } = useQuery({
     queryKey: ['locations', 'cities'],
     queryFn: async () => {
-      const res = await api.get('/cities', { params: { limit: 12 } });
+      const res = await api.get('/cities', { params: { limit: 20 } });
       if (!res.data?.success) throw new Error('Failed to load');
       return res.data.data?.data ?? [];
     },
@@ -83,81 +91,88 @@ export default function Home() {
     },
   });
 
-  const { data: topRatedData } = useQuery({
-    queryKey: ['hotels', 'top-rated'],
-    queryFn: async () => {
-      const res = await api.get('/hotels', { params: { per_page: 4, min_rating: 4 } });
-      if (!res.data?.success) throw new Error('Failed to load');
-      const raw = res.data.data;
-      const list = Array.isArray(raw) ? raw : raw?.data ?? [];
-      return list;
-    },
-  });
-
   const cities = Array.isArray(citiesData) ? citiesData : [];
   const countries = Array.isArray(countriesData) ? countriesData : [];
   const hotels = Array.isArray(hotelsData) ? hotelsData : [];
-  const topRated = Array.isArray(topRatedData) ? topRatedData : [];
-  const weekendDeals = hotels.slice(0, 4);
-  const guestsLove = topRated.length ? topRated : hotels.slice(0, 4);
+
+  const locationOptions = useMemo(() => {
+    const items = [];
+    cities.forEach((c) => items.push({ value: c.name, label: c.country_name ? `${c.name}, ${c.country_name}` : c.name }));
+    countries.forEach((c) => {
+      if (!items.some((i) => i.value === c.name)) items.push({ value: c.name, label: c.name });
+    });
+    return items;
+  }, [cities, countries]);
 
   return (
-    <main className="min-h-screen bg-stone-50 overflow-x-hidden" role="main">
-      {/* Hero + Search – full width of screen */}
-      <header className="relative bg-stone-900 text-white overflow-hidden w-screen max-w-none left-1/2 -translate-x-1/2">
+    <div className="min-h-screen bg-stone-50">
+      {/* Hero Section — full-width with high-quality imagery */}
+      <header className="relative bg-stone-900 text-white overflow-hidden w-screen max-w-none left-1/2 -translate-x-1/2 min-h-[420px] sm:min-h-[480px] flex flex-col justify-center">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80"
             alt=""
             className="w-full h-full object-cover opacity-60"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/70" />
         </div>
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 w-full">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-2">
-            Find your next stay
+            Find your perfect stay
           </h1>
-          <p className="text-stone-200 text-center mb-8 max-w-xl mx-auto">
-            Search hotels and unique stays by city and dates.
+          <p className="text-stone-200 text-center mb-8 max-w-xl mx-auto text-base sm:text-lg">
+            Discover amazing hotels and unique stays. Book with confidence — secure payment, free cancellation, and 24/7 support.
           </p>
-          <form onSubmit={handleSearch} className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-4 sm:p-6">
+
+          {/* Overlay search card — mobile: stacked, desktop: inline */}
+          <form onSubmit={handleSearch} className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
               <div className="lg:col-span-2 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
                 <input
                   type="text"
-                  placeholder="City or destination"
+                  list="location-suggestions"
+                  placeholder="City or country"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  autoComplete="off"
                 />
+                <datalist id="location-suggestions">
+                  {locationOptions.map((opt) => (
+                    <option key={opt.value} value={opt.label} />
+                  ))}
+                </datalist>
               </div>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
                 <input
                   type="date"
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
                   min={today}
                   className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  aria-label="Check-in date"
                 />
               </div>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
                 <input
                   type="date"
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
                   min={checkIn || tomorrow}
                   className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  aria-label="Check-out date"
                 />
               </div>
               <div className="relative flex items-center">
-                <Users className="absolute left-3 w-5 h-5 text-stone-400" />
+                <Users className="absolute left-3 w-5 h-5 text-stone-400 pointer-events-none" />
                 <select
                   value={guests}
                   onChange={(e) => setGuests(Number(e.target.value))}
                   className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500 appearance-none bg-white"
+                  aria-label="Number of guests"
                 >
                   {[1, 2, 3, 4, 5, 6].map((n) => (
                     <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}</option>
@@ -167,28 +182,28 @@ export default function Home() {
             </div>
             <button
               type="submit"
-              className="mt-4 w-full sm:w-auto sm:px-8 h-11 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+              className="mt-4 w-full sm:w-auto sm:px-8 h-11 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center justify-center gap-2 min-h-[44px]"
             >
               <Search className="w-5 h-5" />
-              Search
+              Search Hotels
             </button>
           </form>
         </div>
       </header>
 
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-14 sm:space-y-20">
-        {/* Trending destinations – cities with images */}
-        <section aria-labelledby="trending-heading">
-          <h2 id="trending-heading" className="text-2xl sm:text-3xl font-bold text-stone-900 mb-6">
-            Trending destinations
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16 sm:space-y-24">
+        {/* Popular Destinations — grid of city cards */}
+        <section aria-labelledby="popular-destinations-heading">
+          <h2 id="popular-destinations-heading" className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
+            Popular Destinations
           </h2>
           <p className="text-stone-600 mb-8 max-w-2xl">
-            Explore popular cities and find hotels in the places guests love.
+            Explore Rome, Milan, Venice, Florence and more. Find hotels in the places guests love.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {cities.length === 0 ? (
               [...Array(8)].map((_, i) => (
-                <div key={i} className="aspect-[3/2] rounded-2xl bg-stone-200 animate-pulse" />
+                <Skeleton key={i} className="aspect-[3/2] rounded-2xl" />
               ))
             ) : (
               cities.map((c) => (
@@ -204,120 +219,73 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Stay at our top unique properties */}
-        <section aria-labelledby="top-properties-heading">
+        {/* Why Book With Us — trust badges */}
+        <section aria-labelledby="why-book-heading">
+          <h2 id="why-book-heading" className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
+            Why Book With Us
+          </h2>
+          <p className="text-stone-600 mb-8 max-w-2xl">
+            We make booking simple, safe, and stress-free.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {TRUST_BADGES.map((badge, i) => {
+              const Icon = badge.icon;
+              return (
+                <div
+                  key={i}
+                  className="flex flex-col items-center sm:items-start text-center sm:text-left p-6 rounded-2xl border border-stone-200 bg-white shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <h3 className="font-semibold text-stone-900 mb-1">{badge.label}</h3>
+                  <p className="text-sm text-stone-600">{badge.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Featured Hotels — grid with skeleton on load */}
+        <section aria-labelledby="featured-hotels-heading">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
             <div>
-              <h2 id="top-properties-heading" className="text-2xl sm:text-3xl font-bold text-stone-900">
-                Stay at our top unique properties
+              <h2 id="featured-hotels-heading" className="text-2xl sm:text-3xl font-bold text-stone-900">
+                Featured Hotels
               </h2>
               <p className="text-stone-600 mt-2">Handpicked stays for a memorable trip.</p>
             </div>
             <Link to="/hotels" className="text-amber-600 font-medium hover:text-amber-700 inline-flex items-center gap-1">
-              View all <ChevronRight className="w-4 h-4" />
+              View all hotels
             </Link>
           </div>
           {hotelsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-stone-200 animate-pulse h-64" />
+                <div key={i} className="rounded-2xl overflow-hidden border border-stone-200 bg-white">
+                  <Skeleton className="aspect-[4/3] w-full" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-1/3 mt-4" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {(hotels.slice(0, 4)).map((h) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {hotels.slice(0, 4).map((h) => (
                 <HotelCard key={h.id} hotel={h} nights={2} />
               ))}
             </div>
           )}
-        </section>
-
-        {/* Deals for the weekend */}
-        <section aria-labelledby="deals-heading">
-          <h2 id="deals-heading" className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
-            Deals for the weekend
-          </h2>
-          <p className="text-stone-600 mb-8">Save on your next short break.</p>
-          {hotelsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-stone-200 animate-pulse h-64" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {weekendDeals.map((h) => (
-                <HotelCard key={h.id} hotel={h} dealLabel="Early 2026 Deal" nights={2} />
-              ))}
-            </div>
+          {!hotelsLoading && hotels.length === 0 && (
+            <p className="text-stone-500 py-8 text-center">
+              No featured hotels yet. <Link to="/hotels" className="text-amber-600 underline">Browse all hotels</Link>.
+            </p>
           )}
-        </section>
-
-        {/* Homes guests love */}
-        <section aria-labelledby="guests-love-heading">
-          <h2 id="guests-love-heading" className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
-            Homes guests love
-          </h2>
-          <p className="text-stone-600 mb-8">Highly rated by guests.</p>
-          {hotelsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-stone-200 animate-pulse h-64" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {guestsLove.map((h) => (
-                <HotelCard key={h.id} hotel={h} nights={2} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Browse popular locations – by country or city */}
-        <section aria-labelledby="browse-heading">
-          <h2 id="browse-heading" className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
-            Browse popular locations
-          </h2>
-          <p className="text-stone-600 mb-8">Explore hotels by country or city.</p>
-          <div className="space-y-8">
-            {countries.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">By country</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {countries.map((c) => (
-                    <LocationCard
-                      key={c.id}
-                      to={`/hotels?country=${encodeURIComponent(c.name)}`}
-                      name={c.name}
-                      image={c.image}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-            {cities.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-stone-800 mb-4">By city</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {cities.slice(0, 8).map((c) => (
-                    <LocationCard
-                      key={c.id}
-                      to={`/hotels?city=${encodeURIComponent(c.name)}`}
-                      name={c.name}
-                      subtext={c.country_name}
-                      image={c.image}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-            {countries.length === 0 && cities.length === 0 && (
-              <p className="text-stone-500">No locations to show yet. Browse all <Link to="/hotels" className="text-amber-600 underline">hotels</Link>.</p>
-            )}
-          </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

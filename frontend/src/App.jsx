@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import HotelList from './pages/HotelList';
+import MapSearch from './pages/MapSearch';
 import HotelDetail from './pages/HotelDetail';
 import Booking from './pages/Booking';
 import Checkout from './pages/Checkout';
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="hotels" element={<HotelList />} />
+              <Route path="hotels/map" element={<MapSearch />} />
               <Route path="hotels/:id" element={<HotelDetail />} />
               <Route path="book" element={<Booking />} />
               <Route path="checkout/:uuid" element={<Checkout />} />

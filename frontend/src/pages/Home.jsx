@@ -180,13 +180,22 @@ export default function Home() {
                 </select>
               </div>
             </div>
-            <button
-              type="submit"
-              className="mt-4 w-full sm:w-auto sm:px-8 h-11 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center justify-center gap-2 min-h-[44px]"
-            >
-              <Search className="w-5 h-5" />
-              Search Hotels
-            </button>
+            <div className="mt-4 flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                className="w-full sm:w-auto sm:px-8 h-11 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 flex items-center justify-center gap-2 min-h-[44px]"
+              >
+                <Search className="w-5 h-5" />
+                Search Hotels
+              </button>
+              <Link
+                to="/hotels/map"
+                className="w-full sm:w-auto h-11 px-6 rounded-lg border-2 border-amber-600 text-amber-600 font-medium hover:bg-amber-50 flex items-center justify-center gap-2 min-h-[44px] transition-colors"
+              >
+                <MapPin className="w-5 h-5" />
+                Search on map
+              </Link>
+            </div>
           </form>
         </div>
       </header>

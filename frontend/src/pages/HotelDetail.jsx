@@ -440,13 +440,40 @@ export default function HotelDetail() {
               <h3 className="font-semibold text-stone-900 mb-3">Location</h3>
               {hotel.address && <p className="text-stone-600 mb-2">{hotel.address}</p>}
               <p className="text-stone-600 mb-4">{[hotel.city, hotel.country].filter(Boolean).join(', ')}</p>
-              <div className="aspect-video rounded-xl bg-stone-200 flex items-center justify-center text-stone-500">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 mx-auto mb-2" />
-                  <p>Map placeholder</p>
-                  <p className="text-sm">{(hotel.latitude && hotel.longitude) ? `${hotel.latitude}, ${hotel.longitude}` : 'Coordinates not available'}</p>
+              {hotel.latitude != null && hotel.longitude != null ? (
+                <div className="rounded-xl overflow-hidden border border-stone-200 shadow-sm">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      title="Hotel location map"
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(hotel.longitude) - 0.02},${Number(hotel.latitude) - 0.02},${Number(hotel.longitude) + 0.02},${Number(hotel.latitude) + 0.02}&layer=mapnik&marker=${hotel.latitude}%2C${hotel.longitude}`}
+                      className="w-full h-full border-0"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                  <div className="px-4 py-2 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
+                    <span className="text-sm text-stone-600">
+                      {Number(hotel.latitude).toFixed(6)}, {Number(hotel.longitude).toFixed(6)}
+                    </span>
+                    <a
+                      href={`https://www.openstreetmap.org/?mlat=${hotel.latitude}&mlon=${hotel.longitude}#map=15/${hotel.latitude}/${hotel.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-amber-600 hover:text-amber-700"
+                    >
+                      Open in Maps →
+                    </a>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="aspect-video rounded-xl bg-stone-200 flex items-center justify-center text-stone-500">
+                  <div className="text-center">
+                    <MapPin className="w-12 h-12 mx-auto mb-2" />
+                    <p>Coordinates not available</p>
+                    <p className="text-sm">Add a location when creating or editing the hotel to show the map.</p>
+                  </div>
+                </div>
+              )}
             </section>
           )}
         </div>

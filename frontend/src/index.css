@@ -12,6 +12,13 @@ body {
 a, button {
   @apply min-h-[44px] min-w-[44px] inline-flex items-center justify-center;
 }
+
+/* Reset for Leaflet map controls */
+.leaflet-container a,
+.leaflet-container button {
+  min-height: unset;
+  min-width: unset;
+}
 a:focus-visible, button:focus-visible {
   @apply outline-2 outline-offset-2 outline-amber-500;
 }

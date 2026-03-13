@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
      */
 
-Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/geoapify/autocomplete', [\App\Http\Controllers\Admin\GeoapifyController::class, 'autocomplete'])->name('geoapify.autocomplete');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');

@@ -27,10 +27,7 @@
                     <label class="form-label">Description</label>
                     <textarea name="description" class="form-control" rows="3">{{ old('description', $hotel->description) }}</textarea>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Address</label>
-                    <input type="text" name="address" class="form-control" value="{{ old('address', $hotel->address) }}">
-                </div>
+                @include('admin.vendor.hotels.partials.location-autocomplete', ['hotel' => $hotel])
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Country</label>
@@ -182,4 +179,5 @@ citySelect.addEventListener('change', function() {
 filterCities();
 showCountryImage(countrySelect.value);
 </script>
+@include('admin.vendor.hotels.partials.location-autocomplete-js')
 @endsection

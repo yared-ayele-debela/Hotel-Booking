@@ -110,13 +110,16 @@ function FilterDrawer({ open, onClose, children }) {
   );
 }
 
-export default function HotelList() {
+function HotelList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const city = searchParams.get('city') || '';
   const country = searchParams.get('country') || '';
   const cityId = searchParams.get('city_id') || '';
   const countryId = searchParams.get('country_id') || '';
+  const latitude = searchParams.get('latitude') || '';
+  const longitude = searchParams.get('longitude') || '';
+  const radiusKm = searchParams.get('radius_km') || '';
   const checkIn = searchParams.get('check_in') || '';
   const checkOut = searchParams.get('check_out') || '';
   const page = searchParams.get('page') || '1';
@@ -207,13 +210,19 @@ export default function HotelList() {
   const amenities = Array.isArray(amenitiesData?.data) ? amenitiesData.data : amenitiesData?.data?.data ?? [];
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['hotels', city, country, cityId, countryId, checkIn, checkOut, page, minRating, minCapacity, minPrice, maxPrice, sort, selectedAmenities.join(',')],
+    queryKey: ['hotels', city, country, cityId, countryId, latitude, longitude, radiusKm, checkIn, checkOut, page, minRating, minCapacity, minPrice, maxPrice, sort, selectedAmenities.join(',')],
     queryFn: async () => {
       const params = { page, per_page: 12 };
-      if (cityId) params.city_id = cityId;
-      else if (city) params.city = city;
-      if (countryId) params.country_id = countryId;
-      else if (country) params.country = country;
+      if (latitude && longitude && radiusKm) {
+        params.latitude = latitude;
+        params.longitude = longitude;
+        params.radius_km = radiusKm;
+      } else {
+        if (cityId) params.city_id = cityId;
+        else if (city) params.city = city;
+        if (countryId) params.country_id = countryId;
+        else if (country) params.country = country;
+      }
       if (checkIn) params.check_in = checkIn;
       if (checkOut) params.check_out = checkOut;
       if (minRating) params.min_rating = minRating;
@@ -442,13 +451,22 @@ export default function HotelList() {
                 </select>
               </div>
             </div>
-            <button
-              type="submit"
-              className="h-11 px-6 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 flex items-center justify-center gap-2"
-            >
-              <Search className="w-5 h-5" />
-              Search
-            </button>
+            <div className="flex gap-2">
+              <Link
+                to={`/hotels/map${checkIn && checkOut ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`}
+                className="h-11 px-4 rounded-lg border border-stone-300 hover:bg-stone-50 flex items-center gap-2 text-stone-700 font-medium"
+              >
+                <MapPin className="w-5 h-5" />
+                Map
+              </Link>
+              <button
+                type="submit"
+                className="h-11 px-6 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 flex items-center justify-center gap-2"
+              >
+                <Search className="w-5 h-5" />
+                Search
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -471,13 +489,15 @@ export default function HotelList() {
         <div className="flex-1 min-w-0">
           <nav className="text-sm text-stone-600 mb-4" aria-label="Breadcrumb">
             <Link to="/" className="hover:text-amber-600">Home</Link>
-            {(country || city) && (
+            {(country || city || (latitude && longitude)) && (
               <>
                 <span className="mx-1">›</span>
-                <span className="text-stone-900 font-medium">{city || country || 'Search results'}</span>
+                <span className="text-stone-900 font-medium">
+                  {city || country || (latitude && longitude ? 'Map search' : 'Search results')}
+                </span>
               </>
             )}
-            {!country && !city && <span className="text-stone-900 font-medium">Search results</span>}
+            {!country && !city && !latitude && !longitude && <span className="text-stone-900 font-medium">Search results</span>}
           </nav>
 
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -605,3 +625,5 @@ export default function HotelList() {
     </div>
   );
 }
+
+export default HotelList;

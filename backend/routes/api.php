@@ -38,6 +38,11 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::get('/hotels', [HotelSearchController::class, 'index'])->name('hotels.index');
     Route::get('/hotels/{id}', [HotelSearchController::class, 'show'])->name('hotels.show');
 
+    // Geocode autocomplete for map search (throttled)
+    Route::get('/geocode/autocomplete', [\App\Http\Controllers\Api\V1\GeocodeController::class, 'autocomplete'])
+        ->middleware('throttle:60,1')
+        ->name('geocode.autocomplete');
+
     // Locations for home / browse (no auth)
     Route::get('/countries', [LocationController::class, 'countries'])->name('locations.countries');
     Route::get('/cities', [LocationController::class, 'cities'])->name('locations.cities');

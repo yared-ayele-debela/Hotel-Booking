@@ -9,6 +9,7 @@ import HotelDetail from './pages/HotelDetail';
 import Booking from './pages/Booking';
 import Checkout from './pages/Checkout';
 import Profile from './pages/Profile';
+import MyBookings from './pages/MyBookings';
 import Wishlist from './pages/Wishlist';
 import Support from './pages/Support';
 import SupportTicketNew from './pages/SupportTicketNew';
@@ -35,6 +36,7 @@ export default function App() {
               <Route path="book" element={<Booking />} />
               <Route path="checkout/:uuid" element={<Checkout />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="bookings" element={<MyBookings />} />
               <Route path="wishlist" element={<Wishlist />} />
               <Route path="support" element={<Support />} />
               <Route path="support/new" element={<SupportTicketNew />} />

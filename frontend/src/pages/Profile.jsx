@@ -1,67 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Pencil, FileDown, X, Loader2 } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { Pencil, X, Loader2, User, CalendarCheck } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import ErrorMessage from '../components/ErrorMessage';
-import { formatPrice, formatDate } from '../lib/utils';
-import { cn } from '../lib/utils';
-
-const STATUS_LABELS = {
-  pending: 'Pending',
-  pending_payment: 'Pending',
-  confirmed: 'Confirmed',
-  cancelled: 'Cancelled',
-  completed: 'Completed',
-};
-
-const STATUS_STYLES = {
-  pending: 'bg-amber-100 text-amber-800',
-  pending_payment: 'bg-amber-100 text-amber-800',
-  confirmed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-stone-200 text-stone-700',
-  completed: 'bg-cyan-100 text-cyan-800',
-};
-
-const CANCELLABLE_STATUSES = ['pending', 'pending_payment', 'confirmed'];
-
-function StatusBadge({ status }) {
-  const label = STATUS_LABELS[status] ?? status;
-  const style = STATUS_STYLES[status] ?? 'bg-stone-100 text-stone-700';
-  return (
-    <span className={cn('inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium', style)}>
-      {label}
-    </span>
-  );
-}
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
-  const queryClient = useQueryClient();
-  const [page, setPage] = useState(1);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
   const [editPasswordConfirm, setEditPasswordConfirm] = useState('');
   const [editErrors, setEditErrors] = useState({});
-
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['bookings', page],
-    queryFn: async () => {
-      const res = await api.get('/bookings', { params: { page, per_page: 10 } });
-      return res.data;
-    },
-    enabled: !!user,
-  });
-
-  const cancelMutation = useMutation({
-    mutationFn: (uuid) => api.post(`/bookings/${uuid}/cancel`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-    },
-  });
 
   const updateProfileMutation = useMutation({
     mutationFn: async (payload) => {
@@ -108,217 +60,151 @@ export default function Profile() {
     updateProfileMutation.mutate(payload);
   };
 
-  const bookings = Array.isArray(data?.data) ? data.data : [];
-  const meta = data?.meta ?? {};
-  const total = meta.total ?? 0;
-  const lastPage = meta.last_page ?? 1;
-  const currentPage = meta.current_page ?? 1;
-
-  const openInvoice = async (uuid) => {
-    try {
-      const res = await api.get(`/bookings/${uuid}/invoice`, { responseType: 'blob' });
-      const url = URL.createObjectURL(new Blob([res.data], { type: 'text/html' }));
-      window.open(url, '_blank', 'noopener');
-    } catch (e) {
-      alert(e?.response?.data?.message || 'Could not load invoice');
-    }
-  };
-
-  const handleCancel = async (uuid) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
-    try {
-      await cancelMutation.mutateAsync(uuid);
-    } catch (e) {
-      alert(e?.response?.data?.message || 'Could not cancel booking');
-    }
-  };
-
   if (!user) {
     return (
-      <div className="py-6">
-        <p className="text-stone-600">Please log in to view your profile.</p>
-        <Link to="/login" className="text-amber-600 underline mt-2 inline-block">Log in</Link>
+      <div className="py-12 sm:py-16">
+        <div className="rounded-2xl border border-stone-200 bg-white p-8 sm:p-12 text-center max-w-md mx-auto">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-stone-100 text-stone-400 mb-4">
+            <User className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-semibold text-stone-900 mb-2">Sign in to view your profile</h2>
+          <p className="text-stone-600 mb-6">Log in to see your bookings and manage your account.</p>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors"
+          >
+            Log in
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="py-6 max-w-3xl">
-      <h1 className="text-2xl font-bold text-stone-900 mb-6">Profile</h1>
-
-      {/* User info */}
-      <section className="rounded-2xl border border-stone-200 bg-white p-6 mb-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="font-semibold text-stone-900 text-lg">{user.name}</h2>
-            <p className="text-stone-600 mt-0.5">{user.email}</p>
-          </div>
-          <button
-            type="button"
-            onClick={openEditModal}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium text-stone-700"
-            aria-label="Edit profile"
-          >
-            <Pencil className="w-4 h-4" />
-            Edit
-          </button>
+    <div className="py-6 sm:py-8 lg:py-10">
+      <div className="max-w-4xl mx-auto">
+        {/* Page header */}
+        <div className="mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">My Profile</h1>
+          <p className="text-stone-600 mt-1">Manage your account and view booking history</p>
         </div>
-      </section>
 
-      {/* My Bookings */}
-      <section>
-        <h2 className="text-lg font-semibold text-stone-900 mb-4">My Bookings</h2>
-
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
-          </div>
-        )}
-
-        {isError && (
-          <ErrorMessage message={error?.response?.data?.message || error?.message} />
-        )}
-
-        {!isLoading && !isError && bookings.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center">
-            <p className="text-stone-600 mb-4">No bookings yet.</p>
-            <Link to="/hotels" className="text-amber-600 font-medium hover:text-amber-700">
-              Search hotels
-            </Link>
-          </div>
-        )}
-
-        {!isLoading && !isError && bookings.length > 0 && (
-          <ul className="space-y-4">
-            {bookings.map((b) => (
-              <li
-                key={b.uuid || b.id}
-                className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-6 hover:shadow-sm transition-shadow"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-stone-900">{b.hotel?.name ?? 'Hotel'}</h3>
-                      <StatusBadge status={b.status} />
-                    </div>
-                    <p className="text-sm text-stone-600">
-                      {formatDate(b.check_in)} – {formatDate(b.check_out)}
-                    </p>
-                    {b.booking_rooms?.length > 0 && (
-                      <p className="text-sm text-stone-600 mt-0.5">
-                        {b.booking_rooms.map((br) => `${br.room?.name ?? 'Room'} × ${br.quantity}`).join(', ')}
-                      </p>
-                    )}
-                    <p className="font-semibold text-stone-900 mt-2">
-                      {formatPrice(b.total_price, b.currency)}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 shrink-0">
-                    <Link
-                      to={`/checkout/${b.uuid}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium text-stone-700"
-                    >
-                      View
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => openInvoice(b.uuid)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium text-stone-700"
-                    >
-                      <FileDown className="w-4 h-4" />
-                      Download Invoice
-                    </button>
-                    {CANCELLABLE_STATUSES.includes(b.status) && (
-                      <button
-                        type="button"
-                        onClick={() => handleCancel(b.uuid)}
-                        disabled={cancelMutation.isPending && cancelMutation.variables === b.uuid}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 hover:bg-red-50 text-sm font-medium text-red-700 disabled:opacity-50"
-                      >
-                        {cancelMutation.isPending && cancelMutation.variables === b.uuid ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                        Cancel
-                      </button>
-                    )}
-                  </div>
+        {/* Profile card */}
+        <section className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden mb-8 sm:mb-10">
+          <div className="p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
+                  <span className="text-2xl sm:text-3xl font-bold text-amber-800">
+                    {(user.name || 'U').charAt(0).toUpperCase()}
+                  </span>
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                <div className="sm:hidden">
+                  <h2 className="text-lg font-semibold text-stone-900">{user.name}</h2>
+                  <p className="text-sm text-stone-600 truncate max-w-[200px]">{user.email}</p>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="hidden sm:block">
+                  <h2 className="text-xl font-semibold text-stone-900">{user.name}</h2>
+                  <p className="text-stone-600 mt-0.5 flex items-center gap-2">
+                    <span className="truncate">{user.email}</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={openEditModal}
+                  className="mt-4 sm:mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-sm font-medium text-stone-700 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                  aria-label="Edit profile"
+                >
+                  <Pencil className="w-4 h-4" />
+                  Edit profile
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        {/* Pagination */}
-        {lastPage > 1 && (
-          <nav className="mt-6 flex items-center justify-center gap-2" aria-label="Bookings pagination">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage <= 1}
-              className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 disabled:opacity-50 text-sm font-medium"
-            >
-              Previous
-            </button>
-            <span className="px-4 py-2 text-stone-600 text-sm">
-              Page {currentPage} of {lastPage}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
-              disabled={currentPage >= lastPage}
-              className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 disabled:opacity-50 text-sm font-medium"
-            >
-              Next
-            </button>
-          </nav>
-        )}
-      </section>
+        {/* Quick link to My Bookings */}
+        <section className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
+          <Link
+            to="/bookings"
+            className="flex items-center gap-4 p-6 hover:bg-amber-50/50 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <CalendarCheck className="w-6 h-6 text-amber-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-stone-900">My Bookings</h2>
+              <p className="text-sm text-stone-600">View and manage your reservations</p>
+            </div>
+            <span className="text-amber-600 font-medium text-sm">View all →</span>
+          </Link>
+        </section>
+      </div>
 
       {/* Edit profile modal */}
       {editModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-stone-900">Edit profile</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-profile-title"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
+              <h3 id="edit-profile-title" className="text-lg font-semibold text-stone-900">
+                Edit profile
+              </h3>
               <button
                 type="button"
                 onClick={() => setEditModalOpen(false)}
-                className="p-2 rounded-lg hover:bg-stone-100"
+                className="p-2 rounded-lg hover:bg-stone-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleEditSubmit} className="space-y-4">
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-5">
               <div>
-                <label htmlFor="edit-name" className="block text-sm font-medium text-stone-700 mb-1">Name</label>
+                <label htmlFor="edit-name" className="block text-sm font-medium text-stone-700 mb-1.5">
+                  Name
+                </label>
                 <input
                   id="edit-name"
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                  className="w-full rounded-xl border border-stone-300 px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-shadow"
                   required
                   maxLength={255}
                 />
                 {editErrors.name && <p className="text-sm text-red-600 mt-1">{editErrors.name[0]}</p>}
               </div>
               <div>
-                <label htmlFor="edit-email" className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+                <label htmlFor="edit-email" className="block text-sm font-medium text-stone-700 mb-1.5">
+                  Email
+                </label>
                 <input
                   id="edit-email"
                   type="email"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                  className="w-full rounded-xl border border-stone-300 px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-shadow"
                   required
                 />
                 {editErrors.email && <p className="text-sm text-red-600 mt-1">{editErrors.email[0]}</p>}
               </div>
               <div>
-                <label htmlFor="edit-password" className="block text-sm font-medium text-stone-700 mb-1">New password (leave blank to keep)</label>
+                <label htmlFor="edit-password" className="block text-sm font-medium text-stone-700 mb-1.5">
+                  New password <span className="text-stone-500 font-normal">(leave blank to keep)</span>
+                </label>
                 <input
                   id="edit-password"
                   type="password"
                   value={editPassword}
                   onChange={(e) => setEditPassword(e.target.value)}
-                  className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                  className="w-full rounded-xl border border-stone-300 px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-shadow"
                   placeholder="••••••••"
                   autoComplete="new-password"
                 />
@@ -326,33 +212,46 @@ export default function Profile() {
               </div>
               {editPassword && (
                 <div>
-                  <label htmlFor="edit-password-confirm" className="block text-sm font-medium text-stone-700 mb-1">Confirm new password</label>
+                  <label htmlFor="edit-password-confirm" className="block text-sm font-medium text-stone-700 mb-1.5">
+                    Confirm new password
+                  </label>
                   <input
                     id="edit-password-confirm"
                     type="password"
                     value={editPasswordConfirm}
                     onChange={(e) => setEditPasswordConfirm(e.target.value)}
-                    className="w-full rounded-lg border border-stone-300 px-4 py-2.5"
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-shadow"
                     placeholder="••••••••"
                     autoComplete="new-password"
                   />
                 </div>
               )}
               {updateProfileMutation.error && !(updateProfileMutation.error?.response?.data?.errors) && (
-                <ErrorMessage message={updateProfileMutation.error?.response?.data?.message || updateProfileMutation.error?.message} />
+                <ErrorMessage
+                  message={
+                    updateProfileMutation.error?.response?.data?.message || updateProfileMutation.error?.message
+                  }
+                />
               )}
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={updateProfileMutation.isPending}
-                  className="flex-1 py-2.5 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors min-h-[44px]"
                 >
-                  {updateProfileMutation.isPending ? 'Saving…' : 'Save changes'}
+                  {updateProfileMutation.isPending ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving…
+                    </span>
+                  ) : (
+                    'Save changes'
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditModalOpen(false)}
-                  className="px-4 py-2.5 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50"
+                  className="px-5 py-3 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-50 transition-colors min-h-[44px]"
                 >
                   Cancel
                 </button>

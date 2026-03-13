@@ -107,11 +107,8 @@ class BookingController extends BaseApiController
             return $this->error($e->getMessage(), 422, 'UNAVAILABLE');
         }
 
-        $paymentIntent = $this->paymentService->initiatePayment($booking);
-
         return $this->success([
             'booking' => new BookingResource($booking->load(['hotel', 'bookingRooms.room', 'coupon'])),
-            'payment_intent' => $paymentIntent,
         ], 201);
     }
 
@@ -205,13 +202,62 @@ class BookingController extends BaseApiController
             return $this->error($e->getMessage(), 422, 'INVALID');
         }
 
-        $paymentIntent = $this->paymentService->initiatePayment($booking);
-
         return $this->success([
             'booking' => new BookingResource($booking->load(['hotel', 'bookingRooms.room', 'coupon'])),
-            'payment_intent' => $paymentIntent,
             'view_booking_url' => $this->signedGuestBookingUrl($booking),
+            'guest_checkout_url' => $this->signedGuestCheckoutUrl($booking),
         ], 201);
+    }
+
+    /**
+     * Create Stripe Checkout session for a pending booking. Returns checkout_url for redirect.
+     * Auth: customer (own booking) or guest (valid signed URL).
+     */
+    public function createCheckoutSession(Request $request, string $uuid): JsonResponse
+    {
+        $booking = Booking::where('uuid', $uuid)->with('hotel')->firstOrFail();
+
+        $user = $request->user();
+        $isOwner = $user && $booking->customer_id !== null && (int) $booking->customer_id === (int) $user->id;
+        $isGuest = ! $user && $booking->isGuest() && $request->hasValidSignature();
+        if (! $isOwner && ! $isGuest) {
+            return $this->error('You do not have access to this booking.', 403, 'FORBIDDEN');
+        }
+
+        if ($booking->status !== \App\Enums\BookingStatus::PENDING_PAYMENT->value) {
+            return $this->error('This booking is not awaiting payment.', 422, 'INVALID_STATUS');
+        }
+
+        try {
+            $result = $this->paymentService->createCheckoutSession($booking);
+            return $this->success($result);
+        } catch (\RuntimeException $e) {
+            return $this->error($e->getMessage(), 500, 'CHECKOUT_FAILED');
+        }
+    }
+
+    /**
+     * Create Stripe Checkout session for guest booking (signed URL required).
+     */
+    public function guestCheckoutSession(Request $request): JsonResponse
+    {
+        $uuid = $request->query('uuid');
+        if (! $uuid) {
+            return $this->error('Missing booking reference.', 422, 'MISSING_UUID');
+        }
+        $booking = Booking::where('uuid', $uuid)->with('hotel')->firstOrFail();
+        if (! $booking->isGuest()) {
+            return $this->error('This booking is not a guest booking.', 422, 'NOT_GUEST');
+        }
+        if ($booking->status !== \App\Enums\BookingStatus::PENDING_PAYMENT->value) {
+            return $this->error('This booking is not awaiting payment.', 422, 'INVALID_STATUS');
+        }
+        try {
+            $result = $this->paymentService->createCheckoutSession($booking);
+            return $this->success($result);
+        } catch (\RuntimeException $e) {
+            return $this->error($e->getMessage(), 500, 'CHECKOUT_FAILED');
+        }
     }
 
     /**
@@ -259,6 +305,16 @@ class BookingController extends BaseApiController
             'api.v1.bookings.guest-view',
             now()->addDays(30),
             ['uuid' => $booking->uuid]
+        );
+    }
+
+    private function signedGuestCheckoutUrl(Booking $booking): string
+    {
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'api.v1.bookings.guest-checkout-session',
+            now()->addDays(30),
+            ['uuid' => $booking->uuid],
+            true
         );
     }
 

@@ -6,7 +6,6 @@ namespace Stripe\Service\Identity;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
 class VerificationSessionService extends \Stripe\Service\AbstractService
@@ -14,12 +13,12 @@ class VerificationSessionService extends \Stripe\Service\AbstractService
     /**
      * Returns a list of VerificationSessions.
      *
-     * @param null|array{client_reference_id?: string, created?: array|int, ending_before?: string, expand?: string[], limit?: int, related_customer?: string, related_customer_account?: string, starting_after?: string, status?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\Identity\VerificationSession>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\Identity\VerificationSession>
      */
     public function all($params = null, $opts = null)
     {
@@ -35,12 +34,12 @@ class VerificationSessionService extends \Stripe\Service\AbstractService
      * <a href="/docs/identity/verification-sessions#cancel">Learn more</a>.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Identity\VerificationSession
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Identity\VerificationSession
      */
     public function cancel($id, $params = null, $opts = null)
     {
@@ -60,12 +59,12 @@ class VerificationSessionService extends \Stripe\Service\AbstractService
      * Related guide: <a href="/docs/identity/verify-identity-documents">Verify your
      * users’ identity documents</a>
      *
-     * @param null|array{client_reference_id?: string, expand?: string[], metadata?: array<string, string>, options?: array{document?: null|array{allowed_types?: string[], require_id_number?: bool, require_live_capture?: bool, require_matching_selfie?: bool}}, provided_details?: array{email?: string, phone?: string}, related_customer?: string, related_customer_account?: string, related_person?: array{account: string, person: string}, return_url?: string, type?: string, verification_flow?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Identity\VerificationSession
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Identity\VerificationSession
      */
     public function create($params = null, $opts = null)
     {
@@ -98,12 +97,12 @@ class VerificationSessionService extends \Stripe\Service\AbstractService
      * <a href="/docs/identity/verification-sessions#redact">Learn more</a>.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Identity\VerificationSession
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Identity\VerificationSession
      */
     public function redact($id, $params = null, $opts = null)
     {
@@ -118,12 +117,12 @@ class VerificationSessionService extends \Stripe\Service\AbstractService
      * re-submission.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Identity\VerificationSession
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Identity\VerificationSession
      */
     public function retrieve($id, $params = null, $opts = null)
     {
@@ -137,12 +136,12 @@ class VerificationSessionService extends \Stripe\Service\AbstractService
      * to update the verification check and options.
      *
      * @param string $id
-     * @param null|array{expand?: string[], metadata?: array<string, string>, options?: array{document?: null|array{allowed_types?: string[], require_id_number?: bool, require_live_capture?: bool, require_matching_selfie?: bool}}, provided_details?: array{email?: string, phone?: string}, type?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Identity\VerificationSession
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Identity\VerificationSession
      */
     public function update($id, $params = null, $opts = null)
     {

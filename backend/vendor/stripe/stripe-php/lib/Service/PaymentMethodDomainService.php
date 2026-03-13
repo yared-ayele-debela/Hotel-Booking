@@ -6,20 +6,19 @@ namespace Stripe\Service;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
-class PaymentMethodDomainService extends AbstractService
+class PaymentMethodDomainService extends \Stripe\Service\AbstractService
 {
     /**
      * Lists the details of existing payment method domains.
      *
-     * @param null|array{domain_name?: string, enabled?: bool, ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\PaymentMethodDomain>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\PaymentMethodDomain>
      */
     public function all($params = null, $opts = null)
     {
@@ -29,12 +28,12 @@ class PaymentMethodDomainService extends AbstractService
     /**
      * Creates a payment method domain.
      *
-     * @param null|array{domain_name: string, enabled?: bool, expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\PaymentMethodDomain
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\PaymentMethodDomain
      */
     public function create($params = null, $opts = null)
     {
@@ -45,12 +44,12 @@ class PaymentMethodDomainService extends AbstractService
      * Retrieves the details of an existing payment method domain.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\PaymentMethodDomain
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\PaymentMethodDomain
      */
     public function retrieve($id, $params = null, $opts = null)
     {
@@ -61,12 +60,12 @@ class PaymentMethodDomainService extends AbstractService
      * Updates an existing payment method domain.
      *
      * @param string $id
-     * @param null|array{enabled?: bool, expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\PaymentMethodDomain
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\PaymentMethodDomain
      */
     public function update($id, $params = null, $opts = null)
     {
@@ -74,26 +73,26 @@ class PaymentMethodDomainService extends AbstractService
     }
 
     /**
-     * Some payment methods might require additional steps to register a domain. If the
-     * requirements weren’t satisfied when the domain was created, the payment method
-     * will be inactive on the domain. The payment method doesn’t appear in Elements or
-     * Embedded Checkout for this domain until it is active.
+     * Some payment methods such as Apple Pay require additional steps to verify a
+     * domain. If the requirements weren’t satisfied when the domain was created, the
+     * payment method will be inactive on the domain. The payment method doesn’t appear
+     * in Elements for this domain until it is active.
      *
      * To activate a payment method on an existing payment method domain, complete the
-     * required registration steps specific to the payment method, and then validate
-     * the payment method domain with this endpoint.
+     * required validation steps specific to the payment method, and then validate the
+     * payment method domain with this endpoint.
      *
      * Related guides: <a
      * href="/docs/payments/payment-methods/pmd-registration">Payment method
      * domains</a>.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\PaymentMethodDomain
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\PaymentMethodDomain
      */
     public function validate($id, $params = null, $opts = null)
     {

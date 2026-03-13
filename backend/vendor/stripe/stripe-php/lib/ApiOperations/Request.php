@@ -32,16 +32,15 @@ trait Request
      * @param array $params list of parameters for the request
      * @param null|array|string $options
      * @param string[] $usage names of tracked behaviors associated with this request
-     * @param 'v1'|'v2' $apiMode
-     *
-     * @return array tuple containing (the JSON response, $options)
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return array tuple containing (the JSON response, $options)
      */
-    protected function _request($method, $url, $params = [], $options = null, $usage = [], $apiMode = 'v1')
+    protected function _request($method, $url, $params = [], $options = null, $usage = [])
     {
         $opts = $this->_opts->merge($options);
-        list($resp, $options) = static::_staticRequest($method, $url, $params, $opts, $usage, $apiMode);
+        list($resp, $options) = static::_staticRequest($method, $url, $params, $opts, $usage);
         $this->setLastResponse($resp);
 
         return [$resp->json, $options];
@@ -49,14 +48,14 @@ trait Request
 
     /**
      * @param string $url URL for the request
-     * @param class-string< \Stripe\Collection|\Stripe\SearchResult > $resultClass indicating what type of paginated result is returned
+     * @param class-string< \Stripe\SearchResult|\Stripe\Collection > $resultClass indicating what type of paginated result is returned
      * @param null|array $params list of parameters for the request
      * @param null|array|string $options
      * @param string[] $usage names of tracked behaviors associated with this request
      *
-     * @return \Stripe\Collection|\Stripe\SearchResult
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection|\Stripe\SearchResult
      */
     protected static function _requestPage($url, $resultClass, $params = null, $options = null, $usage = [])
     {
@@ -64,7 +63,7 @@ trait Request
 
         list($response, $opts) = static::_staticRequest('get', $url, $params, $options, $usage);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        if (!$obj instanceof $resultClass) {
+        if (!($obj instanceof $resultClass)) {
             throw new \Stripe\Exception\UnexpectedValueException(
                 'Expected type ' . $resultClass . ', got "' . \get_class($obj) . '" instead.'
             );
@@ -97,18 +96,17 @@ trait Request
      * @param array $params list of parameters for the request
      * @param null|array|string $options
      * @param string[] $usage names of tracked behaviors associated with this request
-     * @param 'v1'|'v2' $apiMode
-     *
-     * @return array tuple containing (the JSON response, $options)
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return array tuple containing (the JSON response, $options)
      */
-    protected static function _staticRequest($method, $url, $params, $options, $usage = [], $apiMode = 'v1')
+    protected static function _staticRequest($method, $url, $params, $options, $usage = [])
     {
         $opts = \Stripe\Util\RequestOptions::parse($options);
         $baseUrl = isset($opts->apiBase) ? $opts->apiBase : static::baseUrl();
         $requestor = new \Stripe\ApiRequestor($opts->apiKey, $baseUrl);
-        list($response, $opts->apiKey) = $requestor->request($method, $url, $params, $opts->headers, $apiMode, $usage);
+        list($response, $opts->apiKey) = $requestor->request($method, $url, $params, $opts->headers, $usage);
         $opts->discardNonPersistentHeaders();
 
         return [$response, $opts];

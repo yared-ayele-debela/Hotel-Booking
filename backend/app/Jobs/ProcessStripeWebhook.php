@@ -52,6 +52,22 @@ class ProcessStripeWebhook implements ShouldQueue
             }
         }
 
+        if ($this->type === 'checkout.session.completed') {
+            $session = $this->payload['data']['object'] ?? null;
+            if ($session && isset($session['id'])) {
+                $payment = Payment::where('provider', 'stripe')
+                    ->where('external_id', $session['id'])
+                    ->first();
+                if ($payment) {
+                    $paymentIntentId = $session['payment_intent'] ?? null;
+                    if ($paymentIntentId) {
+                        $payment->update(['external_id' => $paymentIntentId]);
+                    }
+                    $paymentService->confirmPayment($payment);
+                }
+            }
+        }
+
         $webhookEvent->update(['processed_at' => now()]);
     }
 }

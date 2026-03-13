@@ -16,9 +16,8 @@ class OAuthErrorObject extends StripeObject
      * @param array $values
      * @param null|array|string|Util\RequestOptions $opts
      * @param bool $partial defaults to false
-     * @param 'v1'|'v2' $apiMode
      */
-    public function refreshFrom($values, $opts, $partial = false, $apiMode = 'v1')
+    public function refreshFrom($values, $opts, $partial = false)
     {
         // Unlike most other API resources, the API will omit attributes in
         // error objects when they have a null value. We manually set default

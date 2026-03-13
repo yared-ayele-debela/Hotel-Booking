@@ -2,7 +2,7 @@
 
 namespace Stripe\Service;
 
-class OAuthService extends AbstractService
+class OAuthService extends \Stripe\Service\AbstractService
 {
     /**
      * Sends a request to Stripe's Connect API.
@@ -53,9 +53,9 @@ class OAuthService extends AbstractService
      * @param null|array $params
      * @param null|array $opts
      *
-     * @return \Stripe\StripeObject object containing the response from the API
-     *
      * @throws \Stripe\Exception\OAuth\OAuthErrorException if the request fails
+     *
+     * @return \Stripe\StripeObject object containing the response from the API
      */
     public function token($params = null, $opts = null)
     {
@@ -71,9 +71,9 @@ class OAuthService extends AbstractService
      * @param null|array $params
      * @param null|array $opts
      *
-     * @return \Stripe\StripeObject object containing the response from the API
-     *
      * @throws \Stripe\Exception\OAuth\OAuthErrorException if the request fails
+     *
+     * @return \Stripe\StripeObject object containing the response from the API
      */
     public function deauthorize($params = null, $opts = null)
     {
@@ -118,9 +118,9 @@ class OAuthService extends AbstractService
     /**
      * @param array|\Stripe\Util\RequestOptions $opts the special modifiers of the request
      *
-     * @return \Stripe\Util\RequestOptions
-     *
      * @throws \Stripe\Exception\InvalidArgumentException
+     *
+     * @return \Stripe\Util\RequestOptions
      */
     private function _parseOpts($opts)
     {
@@ -143,8 +143,8 @@ class OAuthService extends AbstractService
      */
     private function _getBase($opts)
     {
-        return isset($opts->apiBase)
-          ? $opts->apiBase
-          : $this->client->getConnectBase();
+        return isset($opts->apiBase) ?
+          $opts->apiBase :
+          $this->client->getConnectBase();
     }
 }

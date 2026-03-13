@@ -6,7 +6,6 @@ namespace Stripe\Service\Terminal;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
 class ConnectionTokenService extends \Stripe\Service\AbstractService
@@ -16,12 +15,12 @@ class ConnectionTokenService extends \Stripe\Service\AbstractService
      * connection token from Stripe, proxied through your server. On your backend, add
      * an endpoint that creates and returns a connection token.
      *
-     * @param null|array{expand?: string[], location?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Terminal\ConnectionToken
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Terminal\ConnectionToken
      */
     public function create($params = null, $opts = null)
     {

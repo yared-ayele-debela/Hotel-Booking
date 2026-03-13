@@ -80,6 +80,59 @@ class PaymentService
     }
 
     /**
+     * Create Stripe Checkout Session for a booking using laravel-smart-stripe.
+     * Returns checkout URL for frontend redirect.
+     *
+     * @return array{checkout_url: string}
+     */
+    public function createCheckoutSession(Booking $booking): array
+    {
+        $amount = (float) $booking->total_price;
+        $currency = strtolower($booking->currency ?? 'usd');
+        $amountInCents = max(50, (int) round($amount * 100));
+
+        $frontendUrl = config('services.stripe.frontend_url', 'http://localhost:5173');
+        $successUrl = $frontendUrl.'/checkout/'.$booking->uuid.'?success=1';
+        $cancelUrl = $frontendUrl.'/checkout/'.$booking->uuid;
+
+        $productName = $booking->hotel
+            ? "Booking at {$booking->hotel->name} ({$booking->check_in->format('M j')} – {$booking->check_out->format('M j')})"
+            : "Hotel booking #{$booking->uuid}";
+
+        $payment = Payment::create([
+            'booking_id' => $booking->id,
+            'amount' => $amount,
+            'currency' => $currency,
+            'provider' => 'stripe',
+            'external_id' => null,
+            'status' => PaymentStatus::PENDING->value,
+            'payload' => ['type' => 'checkout_session'],
+        ]);
+
+        try {
+            $session = \Yared\SmartStripe\Facades\StripePay::checkout()
+                ->product($productName)
+                ->price($amountInCents)
+                ->currency($currency)
+                ->metadata([
+                    'booking_uuid' => $booking->uuid,
+                    'booking_id' => (string) $booking->id,
+                    'payment_id' => (string) $payment->id,
+                ])
+                ->success($successUrl)
+                ->cancel($cancelUrl)
+                ->createSession();
+        } catch (\Throwable $e) {
+            $payment->update(['status' => PaymentStatus::FAILED->value, 'payload' => ['error' => $e->getMessage()]]);
+            throw new \RuntimeException('Failed to create checkout session: '.$e->getMessage(), 0, $e);
+        }
+
+        $payment->update(['external_id' => $session->id]);
+
+        return ['checkout_url' => $session->url];
+    }
+
+    /**
      * Confirm payment and booking after successful webhook. Idempotent; call from job.
      */
     public function confirmPayment(Payment $payment): void

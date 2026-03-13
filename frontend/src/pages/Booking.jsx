@@ -109,7 +109,12 @@ export default function Booking() {
       const booking = payload?.booking ?? payload;
       const uuid = booking?.uuid;
       if (uuid) {
-        navigate(`/checkout/${uuid}`, { state: { booking, paymentIntent: payload?.payment_intent ?? data?.payment_intent } });
+        navigate(`/checkout/${uuid}`, {
+          state: {
+            booking,
+            guestCheckoutUrl: payload?.guest_checkout_url,
+          },
+        });
       } else {
         navigate('/profile');
       }

@@ -12,13 +12,12 @@ interface StreamingClientInterface
      * @param bool $hasFile Whether or not $params references a file (via an @ prefix or
      *                         CURLFile)
      * @param callable $readBodyChunkCallable a function that will be called with chunks of bytes from the body if the request is successful
-     * @param null|int $maxNetworkRetries
-     *
-     * @return array an array whose first element is raw request body, second
-     *    element is HTTP status code and third array of HTTP headers
      *
      * @throws \Stripe\Exception\ApiConnectionException
      * @throws \Stripe\Exception\UnexpectedValueException
+     *
+     * @return array an array whose first element is raw request body, second
+     *    element is HTTP status code and third array of HTTP headers
      */
-    public function requestStream($method, $absUrl, $headers, $params, $hasFile, $readBodyChunkCallable, $maxNetworkRetries = null);
+    public function requestStream($method, $absUrl, $headers, $params, $hasFile, $readBodyChunkCallable);
 }

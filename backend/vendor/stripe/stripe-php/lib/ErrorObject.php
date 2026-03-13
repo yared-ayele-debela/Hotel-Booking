@@ -49,7 +49,6 @@ class ErrorObject extends StripeObject
     const CODE_ACCOUNT_INFORMATION_MISMATCH = 'account_information_mismatch';
     const CODE_ACCOUNT_INVALID = 'account_invalid';
     const CODE_ACCOUNT_NUMBER_INVALID = 'account_number_invalid';
-    const CODE_ACCOUNT_TOKEN_REQUIRED_FOR_V2_ACCOUNT = 'account_token_required_for_v2_account';
     const CODE_ACSS_DEBIT_SESSION_INCOMPLETE = 'acss_debit_session_incomplete';
     const CODE_ALIPAY_UPGRADE_REQUIRED = 'alipay_upgrade_required';
     const CODE_AMOUNT_TOO_LARGE = 'amount_too_large';
@@ -67,6 +66,10 @@ class ErrorObject extends StripeObject
     const CODE_BANK_ACCOUNT_UNVERIFIED = 'bank_account_unverified';
     const CODE_BANK_ACCOUNT_VERIFICATION_FAILED = 'bank_account_verification_failed';
     const CODE_BILLING_INVALID_MANDATE = 'billing_invalid_mandate';
+    const CODE_BILLING_POLICY_REMOTE_FUNCTION_RESPONSE_INVALID = 'billing_policy_remote_function_response_invalid';
+    const CODE_BILLING_POLICY_REMOTE_FUNCTION_TIMEOUT = 'billing_policy_remote_function_timeout';
+    const CODE_BILLING_POLICY_REMOTE_FUNCTION_UNEXPECTED_STATUS_CODE = 'billing_policy_remote_function_unexpected_status_code';
+    const CODE_BILLING_POLICY_REMOTE_FUNCTION_UNREACHABLE = 'billing_policy_remote_function_unreachable';
     const CODE_BITCOIN_UPGRADE_REQUIRED = 'bitcoin_upgrade_required';
     const CODE_CAPTURE_CHARGE_AUTHORIZATION_EXPIRED = 'capture_charge_authorization_expired';
     const CODE_CAPTURE_UNAUTHORIZED_PAYMENT = 'capture_unauthorized_payment';
@@ -77,7 +80,6 @@ class ErrorObject extends StripeObject
     const CODE_CHARGE_ALREADY_REFUNDED = 'charge_already_refunded';
     const CODE_CHARGE_DISPUTED = 'charge_disputed';
     const CODE_CHARGE_EXCEEDS_SOURCE_LIMIT = 'charge_exceeds_source_limit';
-    const CODE_CHARGE_EXCEEDS_TRANSACTION_LIMIT = 'charge_exceeds_transaction_limit';
     const CODE_CHARGE_EXPIRED_FOR_CAPTURE = 'charge_expired_for_capture';
     const CODE_CHARGE_INVALID_PARAMETER = 'charge_invalid_parameter';
     const CODE_CHARGE_NOT_REFUNDABLE = 'charge_not_refundable';
@@ -87,27 +89,21 @@ class ErrorObject extends StripeObject
     const CODE_COUPON_EXPIRED = 'coupon_expired';
     const CODE_CUSTOMER_MAX_PAYMENT_METHODS = 'customer_max_payment_methods';
     const CODE_CUSTOMER_MAX_SUBSCRIPTIONS = 'customer_max_subscriptions';
-    const CODE_CUSTOMER_SESSION_EXPIRED = 'customer_session_expired';
     const CODE_CUSTOMER_TAX_LOCATION_INVALID = 'customer_tax_location_invalid';
     const CODE_DEBIT_NOT_AUTHORIZED = 'debit_not_authorized';
     const CODE_EMAIL_INVALID = 'email_invalid';
     const CODE_EXPIRED_CARD = 'expired_card';
     const CODE_FINANCIAL_CONNECTIONS_ACCOUNT_INACTIVE = 'financial_connections_account_inactive';
-    const CODE_FINANCIAL_CONNECTIONS_ACCOUNT_PENDING_ACCOUNT_NUMBERS = 'financial_connections_account_pending_account_numbers';
-    const CODE_FINANCIAL_CONNECTIONS_ACCOUNT_UNAVAILABLE_ACCOUNT_NUMBERS = 'financial_connections_account_unavailable_account_numbers';
     const CODE_FINANCIAL_CONNECTIONS_NO_SUCCESSFUL_TRANSACTION_REFRESH = 'financial_connections_no_successful_transaction_refresh';
     const CODE_FORWARDING_API_INACTIVE = 'forwarding_api_inactive';
     const CODE_FORWARDING_API_INVALID_PARAMETER = 'forwarding_api_invalid_parameter';
-    const CODE_FORWARDING_API_RETRYABLE_UPSTREAM_ERROR = 'forwarding_api_retryable_upstream_error';
     const CODE_FORWARDING_API_UPSTREAM_CONNECTION_ERROR = 'forwarding_api_upstream_connection_error';
     const CODE_FORWARDING_API_UPSTREAM_CONNECTION_TIMEOUT = 'forwarding_api_upstream_connection_timeout';
-    const CODE_FORWARDING_API_UPSTREAM_ERROR = 'forwarding_api_upstream_error';
     const CODE_IDEMPOTENCY_KEY_IN_USE = 'idempotency_key_in_use';
     const CODE_INCORRECT_ADDRESS = 'incorrect_address';
     const CODE_INCORRECT_CVC = 'incorrect_cvc';
     const CODE_INCORRECT_NUMBER = 'incorrect_number';
     const CODE_INCORRECT_ZIP = 'incorrect_zip';
-    const CODE_INDIA_RECURRING_PAYMENT_MANDATE_CANCELED = 'india_recurring_payment_mandate_canceled';
     const CODE_INSTANT_PAYOUTS_CONFIG_DISABLED = 'instant_payouts_config_disabled';
     const CODE_INSTANT_PAYOUTS_CURRENCY_DISABLED = 'instant_payouts_currency_disabled';
     const CODE_INSTANT_PAYOUTS_LIMIT_EXCEEDED = 'instant_payouts_limit_exceeded';
@@ -121,7 +117,6 @@ class ErrorObject extends StripeObject
     const CODE_INVALID_CVC = 'invalid_cvc';
     const CODE_INVALID_EXPIRY_MONTH = 'invalid_expiry_month';
     const CODE_INVALID_EXPIRY_YEAR = 'invalid_expiry_year';
-    const CODE_INVALID_MANDATE_REFERENCE_PREFIX_FORMAT = 'invalid_mandate_reference_prefix_format';
     const CODE_INVALID_NUMBER = 'invalid_number';
     const CODE_INVALID_SOURCE_USAGE = 'invalid_source_usage';
     const CODE_INVALID_TAX_LOCATION = 'invalid_tax_location';
@@ -154,7 +149,6 @@ class ErrorObject extends StripeObject
     const CODE_PAYMENT_INTENT_MANDATE_INVALID = 'payment_intent_mandate_invalid';
     const CODE_PAYMENT_INTENT_PAYMENT_ATTEMPT_EXPIRED = 'payment_intent_payment_attempt_expired';
     const CODE_PAYMENT_INTENT_PAYMENT_ATTEMPT_FAILED = 'payment_intent_payment_attempt_failed';
-    const CODE_PAYMENT_INTENT_RATE_LIMIT_EXCEEDED = 'payment_intent_rate_limit_exceeded';
     const CODE_PAYMENT_INTENT_UNEXPECTED_STATE = 'payment_intent_unexpected_state';
     const CODE_PAYMENT_METHOD_BANK_ACCOUNT_ALREADY_VERIFIED = 'payment_method_bank_account_already_verified';
     const CODE_PAYMENT_METHOD_BANK_ACCOUNT_BLOCKED = 'payment_method_bank_account_blocked';
@@ -188,7 +182,6 @@ class ErrorObject extends StripeObject
     const CODE_RATE_LIMIT = 'rate_limit';
     const CODE_REFER_TO_CUSTOMER = 'refer_to_customer';
     const CODE_REFUND_DISPUTED_PAYMENT = 'refund_disputed_payment';
-    const CODE_REQUEST_BLOCKED = 'request_blocked';
     const CODE_RESOURCE_ALREADY_EXISTS = 'resource_already_exists';
     const CODE_RESOURCE_MISSING = 'resource_missing';
     const CODE_RETURN_INTENT_ALREADY_PROCESSED = 'return_intent_already_processed';
@@ -199,7 +192,6 @@ class ErrorObject extends StripeObject
     const CODE_SETUP_INTENT_AUTHENTICATION_FAILURE = 'setup_intent_authentication_failure';
     const CODE_SETUP_INTENT_INVALID_PARAMETER = 'setup_intent_invalid_parameter';
     const CODE_SETUP_INTENT_MANDATE_INVALID = 'setup_intent_mandate_invalid';
-    const CODE_SETUP_INTENT_MOBILE_WALLET_UNSUPPORTED = 'setup_intent_mobile_wallet_unsupported';
     const CODE_SETUP_INTENT_SETUP_ATTEMPT_EXPIRED = 'setup_intent_setup_attempt_expired';
     const CODE_SETUP_INTENT_UNEXPECTED_STATE = 'setup_intent_unexpected_state';
     const CODE_SHIPPING_ADDRESS_INVALID = 'shipping_address_invalid';
@@ -207,16 +199,12 @@ class ErrorObject extends StripeObject
     const CODE_SKU_INACTIVE = 'sku_inactive';
     const CODE_STATE_UNSUPPORTED = 'state_unsupported';
     const CODE_STATUS_TRANSITION_INVALID = 'status_transition_invalid';
-    const CODE_STORER_CAPABILITY_MISSING = 'storer_capability_missing';
-    const CODE_STORER_CAPABILITY_NOT_ACTIVE = 'storer_capability_not_active';
     const CODE_STRIPE_TAX_INACTIVE = 'stripe_tax_inactive';
     const CODE_TAX_ID_INVALID = 'tax_id_invalid';
-    const CODE_TAX_ID_PROHIBITED = 'tax_id_prohibited';
     const CODE_TAXES_CALCULATION_FAILED = 'taxes_calculation_failed';
     const CODE_TERMINAL_LOCATION_COUNTRY_UNSUPPORTED = 'terminal_location_country_unsupported';
     const CODE_TERMINAL_READER_BUSY = 'terminal_reader_busy';
     const CODE_TERMINAL_READER_HARDWARE_FAULT = 'terminal_reader_hardware_fault';
-    const CODE_TERMINAL_READER_INVALID_LOCATION_FOR_ACTIVATION = 'terminal_reader_invalid_location_for_activation';
     const CODE_TERMINAL_READER_INVALID_LOCATION_FOR_PAYMENT = 'terminal_reader_invalid_location_for_payment';
     const CODE_TERMINAL_READER_OFFLINE = 'terminal_reader_offline';
     const CODE_TERMINAL_READER_TIMEOUT = 'terminal_reader_timeout';
@@ -236,9 +224,8 @@ class ErrorObject extends StripeObject
      * @param array $values
      * @param null|array|string|Util\RequestOptions $opts
      * @param bool $partial defaults to false
-     * @param 'v1'|'v2' $apiMode
      */
-    public function refreshFrom($values, $opts, $partial = false, $apiMode = 'v1')
+    public function refreshFrom($values, $opts, $partial = false)
     {
         // Unlike most other API resources, the API will omit attributes in
         // error objects when they have a null value. We manually set default

@@ -7,12 +7,16 @@ if (\interface_exists(\Throwable::class, false)) {
     /**
      * The base interface for all Stripe exceptions.
      */
-    interface ExceptionInterface extends \Throwable {}
+    interface ExceptionInterface extends \Throwable
+    {
+    }
 } else {
     /**
      * The base interface for all Stripe exceptions.
      */
     // phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
-    interface ExceptionInterface {}
+    interface ExceptionInterface
+    {
+    }
     // phpcs:enable
 }

@@ -8,15 +8,13 @@ use App\Http\Controllers\Api\V1\LocationController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\WishlistController;
-use App\Http\Controllers\Webhook\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Webhooks (no auth; signature verification only)
+| Webhooks: handled by yared/laravel-smart-stripe at api/webhooks/stripe
 |--------------------------------------------------------------------------
 */
-Route::post('webhooks/stripe', StripeWebhookController::class)->name('webhooks.stripe');
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +53,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::post('/bookings/guest', [BookingController::class, 'storeGuest'])->name('bookings.guest.store');
     Route::get('/bookings/guest-view', [BookingController::class, 'guestView'])->name('bookings.guest-view');
     Route::get('/bookings/guest-invoice', [BookingController::class, 'guestInvoice'])->name('bookings.guest-invoice');
+    Route::post('/bookings/guest-checkout-session', [BookingController::class, 'guestCheckoutSession'])->name('bookings.guest-checkout-session')->middleware('signed');
 
     // Authenticated customer routes
     Route::middleware('auth:sanctum')->group(function (): void {
@@ -65,6 +64,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::apiResource('bookings', BookingController::class)->only(['index', 'store']);
         Route::get('/bookings/{uuid}/invoice', [BookingController::class, 'invoice'])->name('bookings.invoice');
         Route::get('/bookings/{uuid}', [BookingController::class, 'show'])->name('bookings.show');
+        Route::post('/bookings/{uuid}/checkout-session', [BookingController::class, 'createCheckoutSession'])->name('bookings.checkout-session');
         Route::post('/bookings/{uuid}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
         Route::post('/bookings/{uuid}/claim', [BookingController::class, 'claim'])->name('bookings.claim');
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');

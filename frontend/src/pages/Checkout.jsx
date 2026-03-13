@@ -13,6 +13,7 @@ export default function Checkout() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const stateBooking = location.state?.booking;
+  const guestCheckoutUrl = location.state?.guestCheckoutUrl;
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
 
@@ -36,14 +37,31 @@ export default function Checkout() {
   const isConfirmed = booking?.status === 'confirmed';
   const showSuccess = isSuccess || isConfirmed;
 
-  const handlePayClick = () => {
+  const handlePayClick = async () => {
     setPaymentError(null);
     setIsProcessing(true);
-    // Placeholder: Stripe/PayPal integration will go here
-    setTimeout(() => {
+    try {
+      let checkoutUrl;
+      if (user) {
+        const res = await api.post(`/bookings/${uuid}/checkout-session`);
+        if (!res.data?.success) throw new Error(res.data?.message || 'Failed to create checkout');
+        checkoutUrl = res.data?.data?.checkout_url;
+      } else if (guestCheckoutUrl) {
+        const res = await api.post(guestCheckoutUrl);
+        if (!res.data?.success) throw new Error(res.data?.message || 'Failed to create checkout');
+        checkoutUrl = res.data?.data?.checkout_url;
+      } else {
+        throw new Error('Please use the link from your confirmation email to complete payment.');
+      }
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (err) {
       setIsProcessing(false);
-      setPaymentError('Payment integration is being set up. You will receive a confirmation email with a link to complete payment.');
-    }, 2000);
+      setPaymentError(err?.response?.data?.message || err?.message || 'Could not start payment');
+    }
   };
 
   const handleRetry = () => {
@@ -187,7 +205,7 @@ export default function Checkout() {
               <span>Secure payment</span>
             </div>
             <p className="text-stone-600 text-sm mb-4">
-              Payment form (Stripe/PayPal) will be integrated here.
+              You will be redirected to Stripe Checkout to complete your payment securely.
             </p>
 
             {paymentError && (

@@ -6,7 +6,6 @@ namespace Stripe\Service\Treasury;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
 class TransactionEntryService extends \Stripe\Service\AbstractService
@@ -14,12 +13,12 @@ class TransactionEntryService extends \Stripe\Service\AbstractService
     /**
      * Retrieves a list of TransactionEntry objects.
      *
-     * @param null|array{created?: array|int, effective_at?: array|int, ending_before?: string, expand?: string[], financial_account: string, limit?: int, order_by?: string, starting_after?: string, transaction?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\Treasury\TransactionEntry>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\Treasury\TransactionEntry>
      */
     public function all($params = null, $opts = null)
     {
@@ -30,12 +29,12 @@ class TransactionEntryService extends \Stripe\Service\AbstractService
      * Retrieves a TransactionEntry object.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Treasury\TransactionEntry
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Treasury\TransactionEntry
      */
     public function retrieve($id, $params = null, $opts = null)
     {

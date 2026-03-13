@@ -14,7 +14,6 @@ namespace Stripe\Service;
  * @property ApplicationFeeService $applicationFees
  * @property Apps\AppsServiceFactory $apps
  * @property BalanceService $balance
- * @property BalanceSettingsService $balanceSettings
  * @property BalanceTransactionService $balanceTransactions
  * @property Billing\BillingServiceFactory $billing
  * @property BillingPortal\BillingPortalServiceFactory $billingPortal
@@ -38,18 +37,14 @@ namespace Stripe\Service;
  * @property Forwarding\ForwardingServiceFactory $forwarding
  * @property Identity\IdentityServiceFactory $identity
  * @property InvoiceItemService $invoiceItems
- * @property InvoicePaymentService $invoicePayments
- * @property InvoiceRenderingTemplateService $invoiceRenderingTemplates
  * @property InvoiceService $invoices
  * @property Issuing\IssuingServiceFactory $issuing
  * @property MandateService $mandates
- * @property PaymentAttemptRecordService $paymentAttemptRecords
  * @property PaymentIntentService $paymentIntents
  * @property PaymentLinkService $paymentLinks
  * @property PaymentMethodConfigurationService $paymentMethodConfigurations
  * @property PaymentMethodDomainService $paymentMethodDomains
  * @property PaymentMethodService $paymentMethods
- * @property PaymentRecordService $paymentRecords
  * @property PayoutService $payouts
  * @property PlanService $plans
  * @property PriceService $prices
@@ -78,11 +73,10 @@ namespace Stripe\Service;
  * @property TopupService $topups
  * @property TransferService $transfers
  * @property Treasury\TreasuryServiceFactory $treasury
- * @property V2\V2ServiceFactory $v2
  * @property WebhookEndpointService $webhookEndpoints
  * // Doc: The end of the section generated from our OpenAPI spec
  */
-class CoreServiceFactory extends AbstractServiceFactory
+class CoreServiceFactory extends \Stripe\Service\AbstractServiceFactory
 {
     /**
      * @var array<string, string>
@@ -97,7 +91,6 @@ class CoreServiceFactory extends AbstractServiceFactory
         'applicationFees' => ApplicationFeeService::class,
         'apps' => Apps\AppsServiceFactory::class,
         'balance' => BalanceService::class,
-        'balanceSettings' => BalanceSettingsService::class,
         'balanceTransactions' => BalanceTransactionService::class,
         'billing' => Billing\BillingServiceFactory::class,
         'billingPortal' => BillingPortal\BillingPortalServiceFactory::class,
@@ -121,18 +114,14 @@ class CoreServiceFactory extends AbstractServiceFactory
         'forwarding' => Forwarding\ForwardingServiceFactory::class,
         'identity' => Identity\IdentityServiceFactory::class,
         'invoiceItems' => InvoiceItemService::class,
-        'invoicePayments' => InvoicePaymentService::class,
-        'invoiceRenderingTemplates' => InvoiceRenderingTemplateService::class,
         'invoices' => InvoiceService::class,
         'issuing' => Issuing\IssuingServiceFactory::class,
         'mandates' => MandateService::class,
-        'paymentAttemptRecords' => PaymentAttemptRecordService::class,
         'paymentIntents' => PaymentIntentService::class,
         'paymentLinks' => PaymentLinkService::class,
         'paymentMethodConfigurations' => PaymentMethodConfigurationService::class,
         'paymentMethodDomains' => PaymentMethodDomainService::class,
         'paymentMethods' => PaymentMethodService::class,
-        'paymentRecords' => PaymentRecordService::class,
         'payouts' => PayoutService::class,
         'plans' => PlanService::class,
         'prices' => PriceService::class,
@@ -161,7 +150,6 @@ class CoreServiceFactory extends AbstractServiceFactory
         'topups' => TopupService::class,
         'transfers' => TransferService::class,
         'treasury' => Treasury\TreasuryServiceFactory::class,
-        'v2' => V2\V2ServiceFactory::class,
         'webhookEndpoints' => WebhookEndpointService::class,
         // Class Map: The end of the section generated from our OpenAPI spec
     ];

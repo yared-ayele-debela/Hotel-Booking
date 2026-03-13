@@ -6,21 +6,20 @@ namespace Stripe\Service;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
-class EphemeralKeyService extends AbstractService
+class EphemeralKeyService extends \Stripe\Service\AbstractService
 {
     /**
      * Invalidates a short-lived API key for a given resource.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\EphemeralKey
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\EphemeralKey
      */
     public function delete($id, $params = null, $opts = null)
     {
@@ -33,9 +32,9 @@ class EphemeralKeyService extends AbstractService
      * @param null|array $params
      * @param null|array|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\EphemeralKey
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\EphemeralKey
      */
     public function create($params = null, $opts = null)
     {

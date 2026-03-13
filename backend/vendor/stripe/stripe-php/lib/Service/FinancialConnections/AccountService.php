@@ -6,7 +6,6 @@ namespace Stripe\Service\FinancialConnections;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
 class AccountService extends \Stripe\Service\AbstractService
@@ -14,12 +13,12 @@ class AccountService extends \Stripe\Service\AbstractService
     /**
      * Returns a list of Financial Connections <code>Account</code> objects.
      *
-     * @param null|array{account_holder?: array{account?: string, customer?: string, customer_account?: string}, ending_before?: string, expand?: string[], limit?: int, session?: string, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\FinancialConnections\Account>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\FinancialConnections\Account>
      */
     public function all($params = null, $opts = null)
     {
@@ -30,12 +29,12 @@ class AccountService extends \Stripe\Service\AbstractService
      * Lists all owners for a given <code>Account</code>.
      *
      * @param string $id
-     * @param null|array{ending_before?: string, expand?: string[], limit?: int, ownership: string, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\FinancialConnections\AccountOwner>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\FinancialConnections\AccountOwner>
      */
     public function allOwners($id, $params = null, $opts = null)
     {
@@ -48,12 +47,12 @@ class AccountService extends \Stripe\Service\AbstractService
      * transactions).
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\FinancialConnections\Account
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\FinancialConnections\Account
      */
     public function disconnect($id, $params = null, $opts = null)
     {
@@ -64,12 +63,12 @@ class AccountService extends \Stripe\Service\AbstractService
      * Refreshes the data associated with a Financial Connections <code>Account</code>.
      *
      * @param string $id
-     * @param null|array{expand?: string[], features: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\FinancialConnections\Account
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\FinancialConnections\Account
      */
     public function refresh($id, $params = null, $opts = null)
     {
@@ -80,12 +79,12 @@ class AccountService extends \Stripe\Service\AbstractService
      * Retrieves the details of an Financial Connections <code>Account</code>.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\FinancialConnections\Account
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\FinancialConnections\Account
      */
     public function retrieve($id, $params = null, $opts = null)
     {
@@ -94,16 +93,15 @@ class AccountService extends \Stripe\Service\AbstractService
 
     /**
      * Subscribes to periodic refreshes of data associated with a Financial Connections
-     * <code>Account</code>. When the account status is active, data is typically
-     * refreshed once a day.
+     * <code>Account</code>.
      *
      * @param string $id
-     * @param null|array{expand?: string[], features: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\FinancialConnections\Account
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\FinancialConnections\Account
      */
     public function subscribe($id, $params = null, $opts = null)
     {
@@ -115,12 +113,12 @@ class AccountService extends \Stripe\Service\AbstractService
      * Connections <code>Account</code>.
      *
      * @param string $id
-     * @param null|array{expand?: string[], features: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\FinancialConnections\Account
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\FinancialConnections\Account
      */
     public function unsubscribe($id, $params = null, $opts = null)
     {

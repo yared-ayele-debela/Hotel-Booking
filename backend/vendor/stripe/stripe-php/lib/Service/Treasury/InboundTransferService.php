@@ -6,7 +6,6 @@ namespace Stripe\Service\Treasury;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
 class InboundTransferService extends \Stripe\Service\AbstractService
@@ -14,12 +13,12 @@ class InboundTransferService extends \Stripe\Service\AbstractService
     /**
      * Returns a list of InboundTransfers sent from the specified FinancialAccount.
      *
-     * @param null|array{ending_before?: string, expand?: string[], financial_account: string, limit?: int, starting_after?: string, status?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\Treasury\InboundTransfer>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\Treasury\InboundTransfer>
      */
     public function all($params = null, $opts = null)
     {
@@ -30,12 +29,12 @@ class InboundTransferService extends \Stripe\Service\AbstractService
      * Cancels an InboundTransfer.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Treasury\InboundTransfer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Treasury\InboundTransfer
      */
     public function cancel($id, $params = null, $opts = null)
     {
@@ -45,12 +44,12 @@ class InboundTransferService extends \Stripe\Service\AbstractService
     /**
      * Creates an InboundTransfer.
      *
-     * @param null|array{amount: int, currency: string, description?: string, expand?: string[], financial_account: string, metadata?: array<string, string>, origin_payment_method: string, statement_descriptor?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Treasury\InboundTransfer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Treasury\InboundTransfer
      */
     public function create($params = null, $opts = null)
     {
@@ -61,12 +60,12 @@ class InboundTransferService extends \Stripe\Service\AbstractService
      * Retrieves the details of an existing InboundTransfer.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Treasury\InboundTransfer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Treasury\InboundTransfer
      */
     public function retrieve($id, $params = null, $opts = null)
     {

@@ -6,21 +6,20 @@ namespace Stripe\Service;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
-class ApplicationFeeService extends AbstractService
+class ApplicationFeeService extends \Stripe\Service\AbstractService
 {
     /**
      * Returns a list of application fees you’ve previously collected. The application
      * fees are returned in sorted order, with the most recent fees appearing first.
      *
-     * @param null|array{charge?: string, created?: array|int, ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\ApplicationFee>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\ApplicationFee>
      */
     public function all($params = null, $opts = null)
     {
@@ -35,12 +34,12 @@ class ApplicationFeeService extends AbstractService
      * page through additional refunds.
      *
      * @param string $parentId
-     * @param null|array{ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\ApplicationFeeRefund>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\ApplicationFeeRefund>
      */
     public function allRefunds($parentId, $params = null, $opts = null)
     {
@@ -60,12 +59,12 @@ class ApplicationFeeService extends AbstractService
      * trying to refund more money than is left on an application fee.
      *
      * @param string $parentId
-     * @param null|array{amount?: int, expand?: string[], metadata?: array<string, string>} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\ApplicationFeeRefund
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\ApplicationFeeRefund
      */
     public function createRefund($parentId, $params = null, $opts = null)
     {
@@ -77,12 +76,12 @@ class ApplicationFeeService extends AbstractService
      * same information is returned when refunding the application fee.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\ApplicationFee
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\ApplicationFee
      */
     public function retrieve($id, $params = null, $opts = null)
     {
@@ -96,12 +95,12 @@ class ApplicationFeeService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\ApplicationFeeRefund
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\ApplicationFeeRefund
      */
     public function retrieveRefund($parentId, $id, $params = null, $opts = null)
     {
@@ -116,12 +115,12 @@ class ApplicationFeeService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[], metadata?: null|array<string, string>} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\ApplicationFeeRefund
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\ApplicationFeeRefund
      */
     public function updateRefund($parentId, $id, $params = null, $opts = null)
     {

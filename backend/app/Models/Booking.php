@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatus;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Yared\SmartStripe\Contracts\Payable;
 
-class Booking extends Model
+class Booking extends Model implements Payable
 {
     use HasFactory;
     use HasUuid;
@@ -82,6 +84,33 @@ class Booking extends Model
     public function dispute()
     {
         return $this->hasOne(BookingDispute::class);
+    }
+
+    /**
+     * Mark booking as paid (called from laravel-smart-stripe webhook).
+     */
+    public function markAsPaid(?string $sessionId = null, ?string $paymentIntentId = null): void
+    {
+        if ($this->isPaid()) {
+            return;
+        }
+        $payment = \App\Models\Payment::where('booking_id', $this->id)
+            ->where('provider', 'stripe')
+            ->where('external_id', $sessionId)
+            ->first();
+        if ($payment && $paymentIntentId) {
+            $payment->update(['external_id' => $paymentIntentId]);
+        }
+        if ($payment) {
+            app(\App\Services\PaymentService::class)->confirmPayment($payment);
+        } else {
+            $this->update(['status' => BookingStatus::CONFIRMED->value]);
+        }
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === BookingStatus::CONFIRMED->value;
     }
 }
 

@@ -6,21 +6,20 @@ namespace Stripe\Service;
 
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
- *
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
-class CustomerService extends AbstractService
+class CustomerService extends \Stripe\Service\AbstractService
 {
     /**
      * Returns a list of your customers. The customers are returned sorted by creation
      * date, with the most recent customers appearing first.
      *
-     * @param null|array{created?: array|int, email?: string, ending_before?: string, expand?: string[], limit?: int, starting_after?: string, test_clock?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\Customer>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\Customer>
      */
     public function all($params = null, $opts = null)
     {
@@ -32,12 +31,12 @@ class CustomerService extends AbstractService
      * href="/docs/billing/customer/balance">balances</a>.
      *
      * @param string $parentId
-     * @param null|array{created?: array|int, ending_before?: string, expand?: string[], invoice?: string, limit?: int, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\CustomerBalanceTransaction>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\CustomerBalanceTransaction>
      */
     public function allBalanceTransactions($parentId, $params = null, $opts = null)
     {
@@ -49,12 +48,12 @@ class CustomerService extends AbstractService
      * href="/docs/payments/customer-balance">cash balance</a>.
      *
      * @param string $parentId
-     * @param null|array{ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\CustomerCashBalanceTransaction>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\CustomerCashBalanceTransaction>
      */
     public function allCashBalanceTransactions($parentId, $params = null, $opts = null)
     {
@@ -65,12 +64,12 @@ class CustomerService extends AbstractService
      * Returns a list of PaymentMethods for a given Customer.
      *
      * @param string $id
-     * @param null|array{allow_redisplay?: string, ending_before?: string, expand?: string[], limit?: int, starting_after?: string, type?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\PaymentMethod>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\PaymentMethod>
      */
     public function allPaymentMethods($id, $params = null, $opts = null)
     {
@@ -81,12 +80,12 @@ class CustomerService extends AbstractService
      * List sources for a specified customer.
      *
      * @param string $parentId
-     * @param null|array{ending_before?: string, expand?: string[], limit?: int, object?: string, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source>
      */
     public function allSources($parentId, $params = null, $opts = null)
     {
@@ -97,12 +96,12 @@ class CustomerService extends AbstractService
      * Returns a list of tax IDs for a customer.
      *
      * @param string $parentId
-     * @param null|array{ending_before?: string, expand?: string[], limit?: int, starting_after?: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Collection<\Stripe\TaxId>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Collection<\Stripe\TaxId>
      */
     public function allTaxIds($parentId, $params = null, $opts = null)
     {
@@ -112,12 +111,12 @@ class CustomerService extends AbstractService
     /**
      * Creates a new customer object.
      *
-     * @param null|array{address?: null|array{city?: string, country?: string, line1?: string, line2?: string, postal_code?: string, state?: string}, balance?: int, business_name?: null|string, cash_balance?: array{settings?: array{reconciliation_mode?: string}}, description?: string, email?: string, expand?: string[], individual_name?: null|string, invoice_prefix?: string, invoice_settings?: array{custom_fields?: null|array{name: string, value: string}[], default_payment_method?: string, footer?: string, rendering_options?: null|array{amount_tax_display?: null|string, template?: string}}, metadata?: null|array<string, string>, name?: string, next_invoice_sequence?: int, payment_method?: string, phone?: string, preferred_locales?: string[], shipping?: null|array{address: array{city?: string, country?: string, line1?: string, line2?: string, postal_code?: string, state?: string}, name: string, phone?: string}, source?: string, tax?: array{ip_address?: null|string, validate_location?: string}, tax_exempt?: null|string, tax_id_data?: array{type: string, value: string}[], test_clock?: string, validate?: bool} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Customer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Customer
      */
     public function create($params = null, $opts = null)
     {
@@ -129,12 +128,12 @@ class CustomerService extends AbstractService
      * href="/docs/billing/customer/balance">balance</a>.
      *
      * @param string $parentId
-     * @param null|array{amount: int, currency: string, description?: string, expand?: string[], metadata?: null|array<string, string>} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\CustomerBalanceTransaction
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\CustomerBalanceTransaction
      */
     public function createBalanceTransaction($parentId, $params = null, $opts = null)
     {
@@ -149,12 +148,12 @@ class CustomerService extends AbstractService
      * the same funding instructions each time.
      *
      * @param string $id
-     * @param null|array{bank_transfer: array{eu_bank_transfer?: array{country: string}, requested_address_types?: string[], type: string}, currency: string, expand?: string[], funding_type: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\FundingInstructions
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\FundingInstructions
      */
     public function createFundingInstructions($id, $params = null, $opts = null)
     {
@@ -171,12 +170,12 @@ class CustomerService extends AbstractService
      * customer</a> to have a new <code>default_source</code>.
      *
      * @param string $parentId
-     * @param null|array{expand?: string[], metadata?: array<string, string>, source: string, validate?: bool} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
     public function createSource($parentId, $params = null, $opts = null)
     {
@@ -187,12 +186,12 @@ class CustomerService extends AbstractService
      * Creates a new <code>tax_id</code> object for a customer.
      *
      * @param string $parentId
-     * @param null|array{expand?: string[], type: string, value: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\TaxId
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\TaxId
      */
     public function createTaxId($parentId, $params = null, $opts = null)
     {
@@ -207,9 +206,9 @@ class CustomerService extends AbstractService
      * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Customer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Customer
      */
     public function delete($id, $params = null, $opts = null)
     {
@@ -223,9 +222,9 @@ class CustomerService extends AbstractService
      * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Discount
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Discount
      */
     public function deleteDiscount($id, $params = null, $opts = null)
     {
@@ -237,12 +236,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
     public function deleteSource($parentId, $id, $params = null, $opts = null)
     {
@@ -257,9 +256,9 @@ class CustomerService extends AbstractService
      * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\TaxId
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\TaxId
      */
     public function deleteTaxId($parentId, $id, $params = null, $opts = null)
     {
@@ -270,12 +269,12 @@ class CustomerService extends AbstractService
      * Retrieves a Customer object.
      *
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Customer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Customer
      */
     public function retrieve($id, $params = null, $opts = null)
     {
@@ -288,12 +287,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\CustomerBalanceTransaction
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\CustomerBalanceTransaction
      */
     public function retrieveBalanceTransaction($parentId, $id, $params = null, $opts = null)
     {
@@ -304,12 +303,12 @@ class CustomerService extends AbstractService
      * Retrieves a customer’s cash balance.
      *
      * @param string $parentId
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\CashBalance
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\CashBalance
      */
     public function retrieveCashBalance($parentId, $params = null, $opts = null)
     {
@@ -322,12 +321,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\CustomerCashBalanceTransaction
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\CustomerCashBalanceTransaction
      */
     public function retrieveCashBalanceTransaction($parentId, $id, $params = null, $opts = null)
     {
@@ -339,12 +338,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\PaymentMethod
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\PaymentMethod
      */
     public function retrievePaymentMethod($parentId, $id, $params = null, $opts = null)
     {
@@ -356,12 +355,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
     public function retrieveSource($parentId, $id, $params = null, $opts = null)
     {
@@ -373,12 +372,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\TaxId
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\TaxId
      */
     public function retrieveTaxId($parentId, $id, $params = null, $opts = null)
     {
@@ -393,12 +392,12 @@ class CustomerService extends AbstractService
      * Occasionally, propagation of new or updated data can be up to an hour behind
      * during outages. Search functionality is not available to merchants in India.
      *
-     * @param null|array{expand?: string[], limit?: int, page?: string, query: string} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\SearchResult<\Stripe\Customer>
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\SearchResult<\Stripe\Customer>
      */
     public function search($params = null, $opts = null)
     {
@@ -407,26 +406,26 @@ class CustomerService extends AbstractService
 
     /**
      * Updates the specified customer by setting the values of the parameters passed.
-     * Any parameters not provided are left unchanged. For example, if you pass the
+     * Any parameters not provided will be left unchanged. For example, if you pass the
      * <strong>source</strong> parameter, that becomes the customer’s active source
-     * (such as a card) to be used for all charges in the future. When you update a
+     * (e.g., a card) to be used for all charges in the future. When you update a
      * customer to a new valid card source by passing the <strong>source</strong>
      * parameter: for each of the customer’s current subscriptions, if the subscription
      * bills automatically and is in the <code>past_due</code> state, then the latest
-     * open invoice for the subscription with automatic collection enabled is retried.
-     * This retry doesn’t count as an automatic retry, and doesn’t affect the next
-     * regularly scheduled payment for the invoice. Changing the
-     * <strong>default_source</strong> for a customer doesn’t trigger this behavior.
+     * open invoice for the subscription with automatic collection enabled will be
+     * retried. This retry will not count as an automatic retry, and will not affect
+     * the next regularly scheduled payment for the invoice. Changing the
+     * <strong>default_source</strong> for a customer will not trigger this behavior.
      *
      * This request accepts mostly the same arguments as the customer creation call.
      *
      * @param string $id
-     * @param null|array{address?: null|array{city?: string, country?: string, line1?: string, line2?: string, postal_code?: string, state?: string}, balance?: int, business_name?: null|string, cash_balance?: array{settings?: array{reconciliation_mode?: string}}, default_source?: string, description?: string, email?: string, expand?: string[], individual_name?: null|string, invoice_prefix?: string, invoice_settings?: array{custom_fields?: null|array{name: string, value: string}[], default_payment_method?: string, footer?: string, rendering_options?: null|array{amount_tax_display?: null|string, template?: string}}, metadata?: null|array<string, string>, name?: string, next_invoice_sequence?: int, phone?: string, preferred_locales?: string[], shipping?: null|array{address: array{city?: string, country?: string, line1?: string, line2?: string, postal_code?: string, state?: string}, name: string, phone?: string}, source?: string, tax?: array{ip_address?: null|string, validate_location?: string}, tax_exempt?: null|string, validate?: bool} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Customer
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Customer
      */
     public function update($id, $params = null, $opts = null)
     {
@@ -439,12 +438,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{description?: string, expand?: string[], metadata?: null|array<string, string>} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\CustomerBalanceTransaction
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\CustomerBalanceTransaction
      */
     public function updateBalanceTransaction($parentId, $id, $params = null, $opts = null)
     {
@@ -455,12 +454,12 @@ class CustomerService extends AbstractService
      * Changes the settings on a customer’s cash balance.
      *
      * @param string $parentId
-     * @param null|array{expand?: string[], settings?: array{reconciliation_mode?: string}} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\CashBalance
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\CashBalance
      */
     public function updateCashBalance($parentId, $params = null, $opts = null)
     {
@@ -472,12 +471,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{account_holder_name?: string, account_holder_type?: string, address_city?: string, address_country?: string, address_line1?: string, address_line2?: string, address_state?: string, address_zip?: string, exp_month?: string, exp_year?: string, expand?: string[], metadata?: null|array<string, string>, name?: string, owner?: array{address?: array{city?: string, country?: string, line1?: string, line2?: string, postal_code?: string, state?: string}, email?: string, name?: string, phone?: string}} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
     public function updateSource($parentId, $id, $params = null, $opts = null)
     {
@@ -489,12 +488,12 @@ class CustomerService extends AbstractService
      *
      * @param string $parentId
      * @param string $id
-     * @param null|array{amounts?: int[], expand?: string[]} $params
+     * @param null|array $params
      * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
      *
-     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
-     *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
+     *
+     * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
     public function verifySource($parentId, $id, $params = null, $opts = null)
     {

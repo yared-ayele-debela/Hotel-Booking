@@ -16,12 +16,11 @@ abstract class WebhookSignature
      *  Stripe
      * @param string $secret secret used to generate the signature
      * @param int $tolerance maximum difference allowed between the header's
-     * timestamp and the current time, in seconds. If null or 0, timestamp validation
-     * is skipped
-     *
-     * @return bool
+     *  timestamp and the current time
      *
      * @throws Exception\SignatureVerificationException if the verification fails
+     *
+     * @return bool
      */
     public static function verifyHeader($payload, $header, $secret, $tolerance = null)
     {
@@ -94,7 +93,7 @@ abstract class WebhookSignature
                     return -1;
                 }
 
-                return (int) $itemParts[1];
+                return (int) ($itemParts[1]);
             }
         }
 

@@ -10,17 +10,28 @@ Hotel Booking is a complete SaaS solution for managing hotel reservations at sca
 
 ## ✨ Key Features
 
+### Platform & Operations
 - **Multi-Hotel Management** — Independent vendors with complete isolation and custom branding
 - **Dynamic Room Management** — Create, update, and manage multiple room types per hotel
 - **Smart Availability & Pricing** — Real-time availability tracking with dynamic pricing rules
 - **Integrated Payments** — Stripe and PayPal integration with webhooks and async confirmation
-- **Admin Dashboards** — Vendor dashboards for analytics, bookings, and revenue tracking
-- **Customer Portal** — Modern search, filtering, and booking experience
-- **Booking Management** — Full lifecycle management with status tracking and refunds
 - **Commission System** — Automatic calculation and tracking of platform commissions
-- **Role-Based Access** — Hotels managers, platform admins, and customers with granular permissions
+- **Vendor Payouts** — Super Admin generates payouts by period, marks as paid with reference, exports CSV; vendors view payout history
+- **Website Settings** — Dynamic site name, logo, and favicon in admin, vendor dashboard, and customer frontend
+- **Role-Based Access** — Hotel managers, platform admins, and customers with granular permissions
 - **Redis Queues** — Async processing for emails, webhooks, and background jobs
 - **API-First Design** — RESTful API for both customer and admin operations
+
+### Vendor Dashboard
+- **Analytics & Reports** — Revenue charts, bookings by status, top hotels
+- **Booking Management** — Full lifecycle with status tracking; mark bookings as old to clean display; view old bookings separately
+- **Business Details** — Multiple bank accounts for payouts (account holder, bank name, routing, SWIFT, currency)
+- **Payout History** — View past payouts with period, gross, commission, net, and status
+
+### Customer Experience
+- **Customer Portal** — Modern search, filtering, and booking experience
+- **Booking Management** — Full lifecycle with status tracking and refunds
+- **Dynamic Branding** — Site name, logo, and favicon from website settings across all pages
 
 ## 🏗️ Architecture
 
@@ -122,6 +133,9 @@ php artisan schedule:work
 
 **API Base URL:** `http://localhost:8000/api/v1`
 
+**Public API Endpoints (no auth):**
+- `GET /api/v1/website-settings` — Site name, logo, favicon, contact info, social links, meta tags (for frontend branding)
+
 ### Frontend Setup
 
 ```bash
@@ -142,7 +156,8 @@ npm run dev
 ### Admin Dashboard
 
 The admin dashboard is served by Laravel/Blade and is accessible at:
-- `http://localhost:8000/admin` (requires authentication)
+- **Admin/Super Admin:** `http://localhost:8000/admin` — Dashboard, vendors, commission, payouts, website settings, disputes, reviews
+- **Vendor:** `http://localhost:8000/admin/vendor` — Dashboard, hotels, rooms, bookings (with mark-as-old), payouts, business details (including bank accounts)
 
 ## 📚 Implementation Documentation
 
@@ -186,6 +201,14 @@ This repository includes comprehensive implementation guides in the root directo
 - Transaction recording
 - Refund management
 - Commission calculation
+- Vendor payouts with status (Pending → Processing → Paid) and reference tracking
+
+### Website Settings
+- Site name, description, logo, favicon
+- Contact info (email, phone, address)
+- Social links (Facebook, Twitter, Instagram, LinkedIn)
+- Meta title, description, keywords
+- Displayed dynamically in admin, vendor dashboard, and React frontend
 
 ### Reviews & Ratings
 - Guest reviews post-booking
@@ -197,7 +220,7 @@ This repository includes comprehensive implementation guides in the root directo
 - **Guest Users:** Public access to search and book
 - **Registered Customers:** Account creation, booking history, reviews
 - **Hotel Managers:** Manage own hotel properties, bookings, analytics
-- **Platform Admins:** Full platform management, vendor oversight, payouts
+- **Platform Admins:** Full platform management, vendor oversight, payouts, website settings
 
 Uses **Laravel Sanctum** for API token authentication and **Laravel Policies** for authorization.
 
@@ -208,6 +231,7 @@ Uses **Laravel Sanctum** for API token authentication and **Laravel Policies** f
 - **Async confirmation** with webhook verification
 - **Refund processing** with proper reversal
 - **Commission tracking** and vendor payouts
+- **Vendor Payouts** — Generate payouts by period, mark as paid with bank reference, export CSV
 
 ## 🔄 Async Processing
 
@@ -300,6 +324,10 @@ For issues, questions, or suggestions:
 - [x] Core booking system
 - [x] Multi-hotel support
 - [x] Payment integration
+- [x] Vendor payouts (generate, mark paid, export)
+- [x] Vendor bank accounts (multiple per vendor)
+- [x] Booking mark-as-old for clean vendor display
+- [x] Dynamic website settings (name, logo, favicon)
 - [ ] Advanced analytics
 - [ ] Mobile app
 - [ ] AI-powered recommendations

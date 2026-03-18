@@ -156,7 +156,7 @@ export default function Booking() {
 
   return (
     <div className="py-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold text-stone-900 mb-6">Complete your booking</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-6">Complete your booking</h1>
 
       {/* Step indicator */}
       <nav className="flex items-center gap-2 mb-8" aria-label="Booking steps">
@@ -184,7 +184,7 @@ export default function Booking() {
       {step === 1 && (
         <section className="space-y-6">
           <h2 className="text-lg font-semibold text-stone-900">Room selection</h2>
-          <div className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-6">
+          <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="sm:w-40 shrink-0 aspect-[4/3] sm:aspect-square rounded-xl overflow-hidden bg-stone-200">
                 {(room.images?.[0] || room.banner_image)?.url ? (
@@ -213,7 +213,7 @@ export default function Booking() {
                   <select
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                    className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm"
+                    className="w-24 rounded-xl border border-stone-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   >
                     {Array.from({ length: Math.min(room.total_rooms || 5, 5) }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>{n} room{n > 1 ? 's' : ''}</option>
@@ -228,7 +228,7 @@ export default function Booking() {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
+              className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
             >
               Continue
             </button>
@@ -245,7 +245,7 @@ export default function Booking() {
               Book as guest — no account needed. We’ll email your confirmation and a link to view the booking.
             </p>
           )}
-          <div className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-6 space-y-4">
+          <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-4 sm:p-6 space-y-4">
             {isGuest ? (
               <>
                 <div>
@@ -257,7 +257,7 @@ export default function Booking() {
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="e.g. Jane Smith"
-                    className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl border border-stone-200 px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   />
                 </div>
                 <div>
@@ -269,12 +269,12 @@ export default function Booking() {
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl border border-stone-200 px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   />
                 </div>
               </>
             ) : (
-              <div className="p-4 rounded-xl bg-stone-50 border border-stone-200">
+              <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/60">
                 <p className="text-sm font-medium text-stone-700">Booking as</p>
                 <p className="text-stone-900 font-semibold">{user.name}</p>
                 <p className="text-sm text-stone-600">{user.email}</p>
@@ -289,7 +289,7 @@ export default function Booking() {
               type="button"
               onClick={() => setStep(3)}
               disabled={!canProceedStep2}
-              className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50"
+              className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-50 transition-colors"
             >
               Continue
             </button>
@@ -301,7 +301,7 @@ export default function Booking() {
       {step === 3 && (
         <section className="space-y-6">
           <h2 className="text-lg font-semibold text-stone-900">Review & pay</h2>
-          <div className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-6 space-y-4">
+          <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-4 sm:p-6 space-y-4">
             <div className="flex gap-4">
               <div className="w-20 shrink-0 aspect-[4/3] rounded-lg overflow-hidden bg-stone-200">
                 {(room.images?.[0] || room.banner_image)?.url ? (
@@ -337,7 +337,7 @@ export default function Booking() {
                 placeholder="e.g. SAVE10"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                className="w-full rounded-lg border border-stone-300 px-4 py-2 text-sm uppercase"
+                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm uppercase focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               />
             </div>
 
@@ -348,7 +348,7 @@ export default function Booking() {
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
                 rows={3}
-                className="w-full rounded-lg border border-stone-300 px-4 py-2 text-sm resize-none"
+                className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm resize-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               />
             </div>
 
@@ -418,7 +418,7 @@ export default function Booking() {
               <button
                 type="submit"
                 disabled={createBooking.isPending || !canProceedStep3}
-                className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50"
+                className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-50 transition-colors"
               >
                 {createBooking.isPending ? 'Creating…' : 'Proceed to Payment'}
               </button>

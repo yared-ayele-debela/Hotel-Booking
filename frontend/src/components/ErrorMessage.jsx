@@ -11,7 +11,7 @@ export default function ErrorMessage({ message, code, onRetry }) {
         <button
           type="button"
           onClick={onRetry}
-          className="mt-3 px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700"
+          className="mt-3 px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
         >
           Try again
         </button>

@@ -187,7 +187,7 @@ export default function MapSearch() {
                 onChange={handleSearchInput}
                 onFocus={() => suggestions.length > 0 && setSuggestionsOpen(true)}
                 placeholder="Search city or address..."
-                className="w-full h-12 pl-10 pr-4 rounded-xl border border-stone-300 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full h-12 pl-10 pr-4 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
               />
               {suggestionsOpen && suggestions.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-stone-200 shadow-lg py-2 max-h-64 overflow-y-auto z-30">
@@ -199,7 +199,7 @@ export default function MapSearch() {
                         key={i}
                         type="button"
                         onClick={() => selectSuggestion(f)}
-                        className="w-full px-4 py-2.5 text-left text-sm text-stone-700 hover:bg-amber-50 flex items-center gap-2"
+                        className="w-full px-4 py-2.5 text-left text-sm text-stone-700 hover:bg-amber-50 flex items-center gap-2 transition-colors"
                       >
                         <MapPin className="w-4 h-4 shrink-0 text-amber-600" />
                         {label}
@@ -216,7 +216,7 @@ export default function MapSearch() {
                 <select
                   value={radius}
                   onChange={(e) => setRadius(Number(e.target.value))}
-                  className="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white"
+                  className="rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-700 bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 >
                   {RADIUS_OPTIONS.map((r) => (
                     <option key={r} value={r}>{r} km</option>
@@ -227,7 +227,7 @@ export default function MapSearch() {
                 type="button"
                 onClick={applySearch}
                 disabled={!marker}
-                className="h-12 px-6 rounded-xl bg-amber-600 text-white font-medium hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="h-12 px-6 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
               >
                 <Search className="w-5 h-5" />
                 Search hotels
@@ -305,7 +305,7 @@ export default function MapSearch() {
                       setZoom(5);
                       setSearchText('');
                     }}
-                    className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-100 text-sm font-medium"
+                    className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
                   >
                     Reset map
                   </button>
@@ -322,7 +322,7 @@ export default function MapSearch() {
                 <button
                   type="button"
                   onClick={() => setSearchParams({})}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
                 >
                   <MapPin className="w-5 h-5" />
                   Pick another location

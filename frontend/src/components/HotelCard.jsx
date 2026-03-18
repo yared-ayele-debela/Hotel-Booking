@@ -95,7 +95,7 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
 
   if (href.startsWith('http') || !href) {
     return (
-      <div className="group flex flex-col rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className="group flex flex-col rounded-2xl overflow-hidden border border-stone-200/80 bg-white shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300">
         {content}
       </div>
     );
@@ -104,7 +104,7 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
   return (
     <Link
       to={href}
-      className="group flex flex-col rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300"
+      className="group flex flex-col rounded-2xl overflow-hidden border border-stone-200/80 bg-white shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300"
     >
       {content}
     </Link>

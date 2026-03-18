@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, User, LogOut, Settings, Home, MapPin, List } from 'lucide-react';
+import { Search, Menu, X, Heart, User, LogOut, Home, MapPin } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWebsiteSettings } from '../../contexts/WebsiteSettingsContext';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 
@@ -9,6 +10,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
+  const { settings } = useWebsiteSettings();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -51,10 +53,14 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center group-hover:from-cyan-600 group-hover:to-cyan-700 transition-colors">
-              <MapPin className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-neutral-900">StayCurious</span>
+            {settings.site_logo ? (
+              <img src={settings.site_logo} alt={settings.site_name} className="h-8 w-auto object-contain" />
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center group-hover:from-cyan-600 group-hover:to-cyan-700 transition-colors">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+            )}
+            <span className="text-xl font-bold text-neutral-900">{settings.site_name}</span>
           </Link>
 
           {/* Desktop Navigation */}

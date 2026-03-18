@@ -104,26 +104,28 @@ export default function Checkout() {
 
   if (showSuccess) {
     return (
-      <div className="py-6 max-w-lg mx-auto text-center">
+      <div className="py-12 max-w-lg mx-auto text-center">
+        <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-8 sm:p-12">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-6">
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h1 className="text-2xl font-bold text-stone-900 mb-2">Booking confirmed</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">Booking confirmed</h1>
         <p className="text-stone-600 mb-4">Thank you for your booking. A confirmation has been sent to your email.</p>
-        <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 mb-6">
+        <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/60 mb-6">
           <p className="font-mono font-semibold text-stone-900">{booking?.uuid || uuid}</p>
           <p className="text-sm text-stone-600 mt-1">Your booking reference</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           {user ? (
-            <Link to="/profile" className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700">
+            <Link to="/profile" className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors">
               View my bookings
             </Link>
           ) : (
-            <Link to="/" className="px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700">
+            <Link to="/" className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors">
               Back to home
             </Link>
           )}
+        </div>
         </div>
       </div>
     );
@@ -131,12 +133,12 @@ export default function Checkout() {
 
   return (
     <div className="py-6">
-      <h1 className="text-2xl font-bold text-stone-900 mb-6">Checkout</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-6">Checkout</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left: Booking summary */}
         <div className="flex-1">
-          <div className="rounded-2xl border border-stone-200 bg-white p-6">
+          <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-6">
             <h2 className="font-semibold text-stone-900 mb-4">Booking summary</h2>
             <p className="text-stone-600 mb-1">
               <span className="font-mono font-medium text-stone-900">{booking?.uuid || uuid}</span>
@@ -199,7 +201,7 @@ export default function Checkout() {
 
         {/* Right: Payment form */}
         <div className="lg:w-96 shrink-0">
-          <div className="rounded-2xl border border-stone-200 bg-white p-6 sticky top-24">
+            <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-6 sticky top-24">
             <div className="flex items-center gap-2 text-stone-600 text-sm mb-4">
               <Lock className="w-4 h-4" />
               <span>Secure payment</span>
@@ -218,7 +220,7 @@ export default function Checkout() {
               type="button"
               onClick={handlePayClick}
               disabled={isProcessing}
-              className="w-full py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
             >
               {isProcessing ? (
                 <>

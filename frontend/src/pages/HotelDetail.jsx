@@ -322,7 +322,7 @@ export default function HotelDetail() {
                     const price = room.base_price != null ? Number(room.base_price) : null;
                     const totalPrice = price != null && nights ? price * nights : null;
                     return (
-                      <li key={room.id} className="rounded-2xl overflow-hidden border border-stone-200 bg-white shadow-sm">
+                      <li key={room.id} className="rounded-2xl overflow-hidden border border-stone-200/80 bg-white shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300">
                         <div className="flex flex-col sm:flex-row">
                           <div
                             className="sm:w-72 flex-shrink-0 aspect-[4/3] sm:aspect-auto sm:h-52 bg-stone-200 relative cursor-pointer"
@@ -370,12 +370,12 @@ export default function HotelDetail() {
                               {checkIn && checkOut ? (
                                 <Link
                                   to={`/book?hotel_id=${hotel.id}&room_id=${room.id}&check_in=${checkIn}&check_out=${checkOut}`}
-                                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700"
+                                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
                                 >
                                   Select
                                 </Link>
                               ) : (
-                                <span className="inline-block px-4 py-2 rounded-lg bg-stone-100 text-stone-500 text-sm">Select dates to book</span>
+                                <span className="inline-block px-4 py-2 rounded-xl bg-stone-100 text-stone-500 text-sm">Select dates to book</span>
                               )}
                             </div>
                           </div>
@@ -400,7 +400,7 @@ export default function HotelDetail() {
                   </div>
                   <ul className="space-y-4">
                     {reviews.map((r) => (
-                      <li key={r.id} className="p-4 rounded-xl border border-stone-200 bg-stone-50">
+                      <li key={r.id} className="p-4 rounded-2xl border border-stone-200/80 bg-white shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
                           <span className="font-semibold text-stone-900">★ {r.rating}</span>
                           <span className="text-stone-500 text-sm">Verified stay</span>
@@ -414,7 +414,7 @@ export default function HotelDetail() {
                       <button
                         onClick={() => setReviewsPage((p) => Math.max(1, p - 1))}
                         disabled={reviewsMeta.current_page <= 1}
-                        className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-amber-50 disabled:opacity-50 transition-colors"
                       >
                         Previous
                       </button>
@@ -424,7 +424,7 @@ export default function HotelDetail() {
                       <button
                         onClick={() => setReviewsPage((p) => Math.min(reviewsMeta.last_page, p + 1))}
                         disabled={reviewsMeta.current_page >= reviewsMeta.last_page}
-                        className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-amber-50 disabled:opacity-50 transition-colors"
                       >
                         Next
                       </button>
@@ -491,7 +491,7 @@ export default function HotelDetail() {
                     value={localCheckIn}
                     onChange={(e) => setLocalCheckIn(e.target.value)}
                     min={today}
-                    className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   />
                 </div>
                 <div>
@@ -501,7 +501,7 @@ export default function HotelDetail() {
                     value={localCheckOut}
                     onChange={(e) => setLocalCheckOut(e.target.value)}
                     min={localCheckIn || tomorrow}
-                    className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   />
                 </div>
               </div>
@@ -520,7 +520,7 @@ export default function HotelDetail() {
               <button
                 type="button"
                 onClick={handleDateSearch}
-                className="w-full py-2 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg"
+                className="w-full py-2.5 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-xl transition-colors"
               >
                 Check availability
               </button>
@@ -585,7 +585,7 @@ export default function HotelDetail() {
               <button
                 type="submit"
                 disabled={!bookUrl}
-                className="w-full py-3 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed transition-colors"
               >
                 Book Now
               </button>

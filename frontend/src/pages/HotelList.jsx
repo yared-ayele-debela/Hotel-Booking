@@ -88,12 +88,12 @@ function FilterDrawer({ open, onClose, children }) {
         aria-hidden="true"
       />
       <aside
-        className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-xl z-50 overflow-y-auto lg:hidden"
+        className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-xl z-50 overflow-y-auto lg:hidden rounded-l-2xl"
         role="dialog"
         aria-modal="true"
         aria-label="Filters"
       >
-        <div className="sticky top-0 bg-white border-b border-stone-200 px-4 py-3 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-stone-200 px-4 py-4 flex items-center justify-between rounded-tl-2xl">
           <h2 className="font-semibold text-stone-900">Filters</h2>
           <button
             type="button"
@@ -268,7 +268,7 @@ function HotelList() {
         <select
           value={minCapacity}
           onChange={(e) => applyFilters({ min_capacity: e.target.value })}
-          className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white"
+          className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-700 bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
         >
           <option value="">Any</option>
           {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
@@ -308,7 +308,7 @@ function HotelList() {
               value={minPrice || ''}
               onChange={(e) => applyFilters({ min_price: e.target.value })}
               placeholder="Min"
-              className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              className="w-24 rounded-xl border border-stone-200 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500"
             />
             <span className="text-stone-400">–</span>
             <input
@@ -319,7 +319,7 @@ function HotelList() {
               value={maxPrice || ''}
               onChange={(e) => applyFilters({ max_price: e.target.value })}
               placeholder="Max"
-              className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              className="w-24 rounded-xl border border-stone-200 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500"
             />
           </div>
           <div className="space-y-2">
@@ -373,7 +373,7 @@ function HotelList() {
           setFilterDrawerOpen(false);
         }}
         aria-label="Clear all filters"
-        className="w-full py-2 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg"
+        className="w-full py-2.5 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-xl transition-colors"
       >
         Clear filters
       </button>
@@ -406,7 +406,7 @@ function HotelList() {
                   list="hotel-list-location"
                   defaultValue={city && country ? `${city}, ${country}` : city || country}
                   placeholder="City or country"
-                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   autoComplete="off"
                 />
                 <datalist id="hotel-list-location">
@@ -422,7 +422,7 @@ function HotelList() {
                   type="date"
                   defaultValue={checkIn}
                   min={today}
-                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   aria-label="Check-in"
                 />
               </div>
@@ -433,7 +433,7 @@ function HotelList() {
                   type="date"
                   defaultValue={checkOut}
                   min={checkIn || tomorrow}
-                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
                   aria-label="Check-out"
                 />
               </div>
@@ -442,7 +442,7 @@ function HotelList() {
                 <select
                   name="guests"
                   defaultValue={minCapacity || '1'}
-                  className="w-full h-11 pl-10 pr-3 rounded-lg border border-stone-300 text-stone-900 focus:ring-2 focus:ring-amber-500 appearance-none bg-white"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 appearance-none bg-white"
                   aria-label="Guests"
                 >
                   {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -454,14 +454,14 @@ function HotelList() {
             <div className="flex gap-2">
               <Link
                 to={`/hotels/map${checkIn && checkOut ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`}
-                className="h-11 px-4 rounded-lg border border-stone-300 hover:bg-stone-50 flex items-center gap-2 text-stone-700 font-medium"
+                className="h-12 px-4 rounded-xl border border-stone-200 hover:bg-amber-50 flex items-center gap-2 text-stone-700 font-medium transition-colors"
               >
                 <MapPin className="w-5 h-5" />
                 Map
               </Link>
               <button
                 type="submit"
-                className="h-11 px-6 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 flex items-center justify-center gap-2"
+                className="h-12 px-6 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 focus:ring-2 focus:ring-amber-500 flex items-center justify-center gap-2 transition-colors"
               >
                 <Search className="w-5 h-5" />
                 Search
@@ -474,7 +474,7 @@ function HotelList() {
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Desktop: left sidebar filters */}
         <aside className="hidden lg:block lg:w-72 shrink-0">
-          <div className="sticky top-24 space-y-6 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+          <div className="sticky top-24 space-y-6 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm">
             <h2 className="font-semibold text-stone-900 text-lg">Filters</h2>
             <FilterContent />
           </div>
@@ -508,7 +508,7 @@ function HotelList() {
               <button
                 type="button"
                 onClick={() => setFilterDrawerOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium"
+                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
@@ -525,7 +525,7 @@ function HotelList() {
                 id="sort"
                 value={sort}
                 onChange={(e) => applyFilters({ sort: e.target.value })}
-                className="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-700 bg-white min-w-[160px]"
+                className="rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-700 bg-white min-w-[160px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               >
                 {SORT_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value} disabled={opt.disabled}>
@@ -568,7 +568,7 @@ function HotelList() {
               <p className="text-stone-500 mb-6">Try adjusting your filters or search criteria to find more options.</p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
               >
                 <Search className="w-5 h-5" />
                 Search from home
@@ -596,7 +596,7 @@ function HotelList() {
                   {meta.current_page > 1 && (
                     <Link
                       to={{ search: buildSearch({ page: meta.current_page - 1 }) }}
-                      className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium"
+                      className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
                     >
                       Previous
                     </Link>
@@ -607,7 +607,7 @@ function HotelList() {
                   {meta.current_page < meta.last_page && (
                     <Link
                       to={{ search: buildSearch({ page: meta.current_page + 1 }) }}
-                      className="px-4 py-2 rounded-lg border border-stone-300 hover:bg-stone-50 text-sm font-medium"
+                      className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
                     >
                       Next
                     </Link>

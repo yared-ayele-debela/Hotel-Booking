@@ -10,7 +10,7 @@ export function Skeleton({ className = '', ...props }) {
 
 export function HotelCardSkeleton() {
   return (
-    <article className="rounded-xl border border-stone-200 bg-white overflow-hidden shadow-sm">
+    <article className="rounded-2xl border border-stone-200/80 bg-white overflow-hidden shadow-sm">
       <Skeleton className="h-40 w-full" />
       <div className="p-4 space-y-2">
         <Skeleton className="h-5 w-3/4" />

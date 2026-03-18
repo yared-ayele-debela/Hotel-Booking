@@ -29,7 +29,7 @@ const STATUS_STYLES = {
   pending_payment: 'bg-amber-100 text-amber-800',
   confirmed: 'bg-green-100 text-green-800',
   cancelled: 'bg-stone-200 text-stone-600',
-  completed: 'bg-cyan-100 text-cyan-800',
+  completed: 'bg-stone-100 text-stone-700',
 };
 
 const CANCELLABLE_STATUSES = ['pending', 'pending_payment', 'confirmed'];

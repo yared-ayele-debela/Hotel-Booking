@@ -22,6 +22,7 @@ class Booking extends Model implements Payable
         'guest_name',
         'hotel_id',
         'status',
+        'marked_old',
         'check_in',
         'check_out',
         'total_price',
@@ -47,6 +48,7 @@ class Booking extends Model implements Payable
             'discount_amount' => 'decimal:2',
             'tax_amount' => 'decimal:2',
             'late_checkout' => 'boolean',
+            'marked_old' => 'boolean',
             'late_checkout_amount' => 'decimal:2',
         ];
     }

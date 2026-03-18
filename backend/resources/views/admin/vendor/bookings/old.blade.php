@@ -1,12 +1,12 @@
 @extends('admin.layouts.app')
-@section('title', 'Bookings')
+@section('title', 'Old Bookings')
 @section('content')
 <div class="container-fluid">
-    <x-page-title title="Bookings" :breadcrumbs="[['label' => 'Vendor', 'url' => route('admin.vendor.dashboard')], ['label' => 'Bookings']]" />
+    <x-page-title title="Old Bookings" :breadcrumbs="[['label' => 'Vendor', 'url' => route('admin.vendor.dashboard')], ['label' => 'Bookings', 'url' => route('admin.vendor.bookings.index')], ['label' => 'Old Bookings']]" />
     <x-alert />
     <div class="mb-3">
-        <a href="{{ route('admin.vendor.bookings.old') }}" class="btn btn-outline-secondary btn-sm">
-            <i data-feather="archive" class="icon-sm me-1"></i>View old bookings
+        <a href="{{ route('admin.vendor.bookings.index') }}" class="btn btn-outline-primary btn-sm">
+            <i data-feather="arrow-left" class="icon-sm me-1"></i>Back to bookings
         </a>
     </div>
     <div class="card mb-3">
@@ -61,14 +61,14 @@
                         <td>${{ number_format($b->total_price ?? 0, 2) }}</td>
                         <td>
                             <a href="{{ route('admin.vendor.bookings.invoice', $b->uuid) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="View invoice">Invoice</a>
-                            <form method="POST" action="{{ route('admin.vendor.bookings.mark-old', $b->uuid) }}" class="d-inline" onsubmit="return confirm('Mark this booking as old? It will be moved to the old bookings list.');">
+                            <form method="POST" action="{{ route('admin.vendor.bookings.unmark-old', $b->uuid) }}" class="d-inline" onsubmit="return confirm('Restore this booking to the main list?');">
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Mark as old">Mark as old</button>
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Restore to main list">Restore</button>
                             </form>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="8" class="text-muted">No bookings match your filters.</td></tr>
+                    <tr><td colspan="8" class="text-muted">No old bookings match your filters.</td></tr>
                     @endforelse
                 </tbody>
             </table>

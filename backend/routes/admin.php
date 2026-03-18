@@ -47,6 +47,13 @@ use Illuminate\Support\Facades\Route;
         Route::get('/commission', [\App\Http\Controllers\Admin\CommissionController::class, 'index'])->name('commission.index');
         Route::get('/commission/edit', [\App\Http\Controllers\Admin\CommissionController::class, 'edit'])->name('commission.edit');
         Route::put('/commission', [\App\Http\Controllers\Admin\CommissionController::class, 'update'])->name('commission.update');
+        Route::get('/payouts', [\App\Http\Controllers\Admin\PayoutController::class, 'index'])->name('payouts.index');
+        Route::get('/payouts/create', [\App\Http\Controllers\Admin\PayoutController::class, 'create'])->name('payouts.create');
+        Route::post('/payouts', [\App\Http\Controllers\Admin\PayoutController::class, 'store'])->name('payouts.store');
+        Route::get('/payouts/export', [\App\Http\Controllers\Admin\PayoutController::class, 'export'])->name('payouts.export');
+        Route::get('/payouts/{payout}', [\App\Http\Controllers\Admin\PayoutController::class, 'show'])->name('payouts.show');
+        Route::patch('/payouts/{payout}', [\App\Http\Controllers\Admin\PayoutController::class, 'update'])->name('payouts.update');
+        Route::post('/payouts/{payout}/mark-paid', [\App\Http\Controllers\Admin\PayoutController::class, 'markPaid'])->name('payouts.mark-paid');
         
         // Website Settings
         Route::get('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'index'])->name('website-settings.index');

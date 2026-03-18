@@ -98,6 +98,12 @@
                         <span>Commission</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.payouts.index') }}">
+                        <i data-feather="credit-card"></i>
+                        <span>Payouts</span>
+                    </a>
+                </li>
                 {{-- Moderation & support --}}
                 <li>
                     <a href="{{ route('admin.disputes.index') }}">

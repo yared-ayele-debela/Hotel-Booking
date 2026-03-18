@@ -64,6 +64,11 @@ class User extends Authenticatable
         return $this->hasOne(VendorProfile::class);
     }
 
+    public function payouts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Payout::class, 'vendor_id');
+    }
+
     public function isVendorApproved(): bool
     {
         if ($this->role !== \App\Enums\Role::VENDOR) {

@@ -30,7 +30,7 @@
                     <h5 class="card-title mb-0">Commission by vendor</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Payout status and detailed payouts can be added here.</p>
+                    <p class="text-muted mb-2"><a href="{{ route('admin.payouts.index') }}">Manage payouts</a> to process vendor payments.</p>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>

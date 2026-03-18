@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::get('/ping', fn () => response()->json(['ok' => true, 'version' => 'v1']))->name('ping');
+    Route::get('/website-settings', [\App\Http\Controllers\Api\V1\WebsiteSettingsController::class, 'index'])->name('website-settings.index');
 
     // Auth (no token)
     Route::post('/login', [AuthController::class, 'login'])->name('login');

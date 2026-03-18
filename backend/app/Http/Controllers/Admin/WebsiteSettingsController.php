@@ -38,7 +38,7 @@ class WebsiteSettingsController extends Controller
     public function update(WebsiteSettingsRequest $request)
     {
         $validated = $request->validated();
-        dd($validated);
+        // dd($validated);
 
         // Handle file uploads
         if ($request->hasFile('site_logo')) {

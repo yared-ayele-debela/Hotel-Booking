@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<div class="right-bar">
+{{-- <div class="right-bar">
     <div data-simplebar class="h-100">
         <div class="rightbar-title d-flex align-items-center p-3">
 
@@ -145,7 +145,7 @@
         </div>
 
     </div> <!-- end slimscroll-menu-->
-</div>
+</div> --}}
 <!-- /Right-bar -->
 
 <!-- Right bar overlay-->

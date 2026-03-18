@@ -1,24 +1,47 @@
+@php
+    $siteName = \App\Services\WebsiteSettingsService::getSiteName();
+    $siteLogo = \App\Services\WebsiteSettingsService::getSiteLogo();
+    $defaultLogo = asset('admin/dist/assets/images/logo-sm.svg');
+@endphp
 <header id="page-topbar">
     <div class="navbar-header">
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                <a href="index.html" class="logo logo-dark">
-                                <span class="logo-sm">
-                                    <img src={{asset('admin/dist/assets/images/logo-sm.svg')}} alt="" height="24">
-                                </span>
+                <a href="{{ auth()->user()->role === \App\Enums\Role::VENDOR ? route('admin.vendor.dashboard') : route('admin.dashboard') }}" class="logo logo-dark">
+                    <span class="logo-sm">
+                        @if($siteLogo)
+                            <img src="{{ $siteLogo }}" alt="{{ $siteName }}" height="24">
+                        @else
+                            <img src="{{ $defaultLogo }}" alt="" height="24">
+                        @endif
+                    </span>
                     <span class="logo-lg">
-                                    <img src={{asset('admin/dist/assets/images/logo-sm.svg')}} alt="" height="24"> <span class="logo-txt">Minia</span>
-                                </span>
+                        @if($siteLogo)
+                            <img src="{{ $siteLogo }}" alt="{{ $siteName }}" height="24">
+                        @else
+                            <img src="{{ $defaultLogo }}" alt="" height="24">
+                        @endif
+                        <span class="logo-txt">{{ $siteName }}</span>
+                    </span>
                 </a>
 
-                <a href="index.html" class="logo logo-light">
-                                <span class="logo-sm">
-                                    <img src={{asset('admin/dist/assets/images/logo-sm.svg')}} alt="" height="24">
-                                </span>
+                <a href="{{ auth()->user()->role === \App\Enums\Role::VENDOR ? route('admin.vendor.dashboard') : route('admin.dashboard') }}" class="logo logo-light">
+                    <span class="logo-sm">
+                        @if($siteLogo)
+                            <img src="{{ $siteLogo }}" alt="{{ $siteName }}" height="24">
+                        @else
+                            <img src="{{ $defaultLogo }}" alt="" height="24">
+                        @endif
+                    </span>
                     <span class="logo-lg">
-                                    <img src={{asset('admin/dist/assets/images/logo-sm.svg')}} alt="" height="24"> <span class="logo-txt">Minia</span>
-                                </span>
+                        @if($siteLogo)
+                            <img src="{{ $siteLogo }}" alt="{{ $siteName }}" height="24">
+                        @else
+                            <img src="{{ $defaultLogo }}" alt="" height="24">
+                        @endif
+                        <span class="logo-txt">{{ $siteName }}</span>
+                    </span>
                 </a>
             </div>
 
@@ -174,7 +197,6 @@
                 <div class="dropdown-menu dropdown-menu-end">
                     <!-- item-->
                     <a class="dropdown-item" href="{{route('admin.profile')}}"><i class="mdi mdi mdi-face-man font-size-16 align-middle me-1"></i> Profile</a>
-                    <a class="dropdown-item" href="auth-lock-screen.html"><i class="mdi mdi-lock font-size-16 align-middle me-1"></i> Lock Screen</a>
                     <div class="dropdown-divider"></div>
 
                     <form method="POST" action="{{ route('logout') }}">

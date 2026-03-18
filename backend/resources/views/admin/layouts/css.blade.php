@@ -1,13 +1,18 @@
+@php
+    $adminSiteName = \App\Services\WebsiteSettingsService::getSiteName();
+    $adminSiteLogo = \App\Services\WebsiteSettingsService::getSiteLogo();
+    $adminFavicon = \App\Services\WebsiteSettingsService::getSiteFavicon();
+    $adminFaviconHref = $adminFavicon ?: asset('admin/dist/assets/images/favicon.ico');
+@endphp
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Dashboard | Minia - Minimal Admin &amp; Dashboard Template</title>
+    <title>@yield('title', 'Dashboard') | {{ $adminSiteName }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin &amp; Dashboard Template" name="description">
-    <meta content="Themesbrand" name="author">
+    <meta content="{{ \App\Services\WebsiteSettingsService::getMetaDescription() }}" name="description">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('admin/dist/assets/images/favicon.ico')}}">
+    <link rel="shortcut icon" href="{{ $adminFaviconHref }}">
 
     <!-- plugin css -->
     <link href="{{ asset('admin/dist/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css">

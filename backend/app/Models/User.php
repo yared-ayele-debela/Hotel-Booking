@@ -69,6 +69,11 @@ class User extends Authenticatable
         return $this->hasMany(Payout::class, 'vendor_id');
     }
 
+    public function bankAccounts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VendorBankAccount::class, 'vendor_id')->orderBy('is_default', 'desc')->orderBy('sort_order');
+    }
+
     public function isVendorApproved(): bool
     {
         if ($this->role !== \App\Enums\Role::VENDOR) {

@@ -27,14 +27,32 @@
 
     function fillFromResult(feature) {
         var p = feature.properties || {};
+        var cityVal = (p.city || p.county || p.state || '').trim();
+        var countryVal = (p.country || '').trim();
         if (addressInput) addressInput.value = p.formatted || p.address_line1 || p.address_line2 || '';
-        if (cityInput) cityInput.value = p.city || p.county || p.state || '';
-        if (countryInput) countryInput.value = p.country || '';
+        if (cityInput) cityInput.value = cityVal;
+        if (countryInput) countryInput.value = countryVal;
         if (latInput) latInput.value = p.lat || '';
         if (lngInput) lngInput.value = p.lon || '';
         updateCoordsDisplay();
         searchInput.value = p.formatted || '';
         suggestionsEl.style.display = 'none';
+        // Try to select matching city_id/country_id from dropdowns
+        var countrySelect = document.getElementById('country_id');
+        var citySelect = document.getElementById('city_id');
+        if (countrySelect && countryVal) {
+            var countryOpt = Array.from(countrySelect.options).find(function(o) {
+                return o.value && o.text && o.text.toLowerCase().indexOf(countryVal.toLowerCase()) === 0;
+            });
+            if (countryOpt) { countrySelect.value = countryOpt.value; }
+            if (typeof filterCities === 'function') filterCities();
+        }
+        if (citySelect && cityVal) {
+            var cityOpt = Array.from(citySelect.options).find(function(o) {
+                return o.value && o.text && o.text.toLowerCase().indexOf(cityVal.toLowerCase()) !== -1;
+            });
+            if (cityOpt) { citySelect.value = cityOpt.value; }
+        }
     }
 
     function fetchSuggestions(text) {

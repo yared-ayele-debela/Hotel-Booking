@@ -27,16 +27,16 @@ export default function Login() {
   };
 
   return (
-    <div className="py-12 sm:py-16 lg:py-20">
+    <div className="py-16 sm:py-20 lg:py-24">
       <div className="max-w-md mx-auto">
-        <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-6 sm:p-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">Log in</h1>
-          <p className="text-stone-600 mb-6">Welcome back. Sign in to manage your bookings.</p>
+        <div className="rounded-2xl border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] p-8 sm:p-10">
+          <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1a1a] mb-2">Log in</h1>
+          <p className="text-[#5c5852] mb-6 leading-relaxed">Welcome back. Sign in to manage your bookings.</p>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1.5">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium text-[#45423d] mb-1.5">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7a756d] pointer-events-none" />
                 <input
                   id="email"
                   type="email"
@@ -44,15 +44,15 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-12 pl-10 pr-4 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                  className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#e8e4dd] text-[#1a1a1a] placeholder-[#7a756d] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-1.5">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-[#45423d] mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7a756d] pointer-events-none" />
                 <input
                   id="password"
                   type="password"
@@ -60,7 +60,7 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-12 pl-10 pr-4 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                  className="w-full h-12 pl-11 pr-4 rounded-xl border border-[#e8e4dd] text-[#1a1a1a] placeholder-[#7a756d] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   placeholder="••••••••"
                 />
               </div>
@@ -69,7 +69,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 px-6 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 focus:ring-2 focus:ring-amber-500 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
+              className="w-full h-12 px-6 rounded-xl bg-[#1a1a1a] text-white font-semibold hover:bg-[#2d2a28] focus:ring-2 focus:ring-[#b8860b]/30 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
             >
               {loading ? (
                 <>
@@ -81,9 +81,9 @@ export default function Login() {
               )}
             </button>
           </form>
-          <p className="mt-6 text-stone-600 text-sm text-center">
+          <p className="mt-6 text-[#5c5852] text-sm text-center">
             Don&apos;t have an account?{' '}
-            <Link to="/register" className="text-amber-600 font-semibold hover:text-amber-700">
+            <Link to="/register" className="text-[#b8860b] font-semibold hover:text-[#996f09]">
               Sign up
             </Link>
           </p>

@@ -1,7 +1,7 @@
 export default function ErrorMessage({ message, code, onRetry }) {
   return (
     <div
-      className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900"
+      className="rounded-xl border border-[#e5c261]/60 bg-[#f9edd1]/50 p-4 text-[#1a1a1a]"
       role="alert"
       aria-live="polite"
     >
@@ -11,7 +11,7 @@ export default function ErrorMessage({ message, code, onRetry }) {
         <button
           type="button"
           onClick={onRetry}
-          className="mt-3 px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
+          className="mt-3 px-4 py-2 rounded-xl bg-[#1a1a1a] text-white font-semibold hover:bg-[#2d2a28] transition-colors"
         >
           Try again
         </button>

@@ -3,12 +3,12 @@ import { cn } from '../../lib/utils';
 
 const buttonVariants = {
   variant: {
-    primary: 'bg-cyan-600 text-white hover:bg-cyan-700 focus:ring-cyan-500',
-    secondary: 'bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500',
-    outline: 'border border-cyan-600 text-cyan-600 hover:bg-cyan-50 focus:ring-cyan-500',
-    ghost: 'text-cyan-600 hover:bg-cyan-50 focus:ring-cyan-500',
+    primary: 'bg-[#1a1a1a] text-white hover:bg-[#2d2a28] focus:ring-[#b8860b]/30',
+    secondary: 'bg-[#b8860b] text-white hover:bg-[#996f09] focus:ring-[#b8860b]/30',
+    outline: 'border border-[#1a1a1a] text-[#1a1a1a] hover:bg-[#faf8f5] focus:ring-[#b8860b]/30',
+    ghost: 'text-[#1a1a1a] hover:bg-[#faf8f5] focus:ring-[#b8860b]/30',
     destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    link: 'text-cyan-600 underline-offset-4 hover:underline focus:ring-cyan-500',
+    link: 'text-[#b8860b] underline-offset-4 hover:underline focus:ring-[#b8860b]/30',
   },
   size: {
     sm: 'h-9 px-3 text-sm',

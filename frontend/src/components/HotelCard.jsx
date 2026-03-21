@@ -9,17 +9,6 @@ function getHotelMinPrice(hotel) {
   return prices.length ? Math.min(...prices) : null;
 }
 
-/**
- * Hotel card: image on top, then name, city/country, rating + label, review count, optional deal badge, nights, price.
- * @param {Object} props
- * @param {Object} props.hotel - hotel object (name, city, country, average_rating, review_count, images, rooms…)
- * @param {number} [props.nights] - optional number of nights (e.g. for "2 nights")
- * @param {string} [props.dealLabel] - optional badge e.g. "Early 2026 Deal"
- * @param {number} [props.originalPrice] - optional original price (shown strikethrough when dealPrice present)
- * @param {string} [props.to] - link href (default: /hotels/:id)
- * @param {string} [props.currency] - default USD
- * @param {React.ReactNode} [props.imageOverlay] - e.g. wishlist heart, rendered in top-right of image
- */
 export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currency = 'USD', imageOverlay, children }) {
   const minPrice = getHotelMinPrice(hotel);
   const dealPrice = minPrice != null && originalPrice != null && originalPrice > minPrice ? minPrice : null;
@@ -31,31 +20,35 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
 
   const content = (
     <>
-      <div className="aspect-[4/3] bg-stone-200 relative overflow-hidden flex-shrink-0">
+      <div className="aspect-[4/3] bg-[#e8e4dd] relative overflow-hidden flex-shrink-0">
         {img?.url ? (
           <img
             src={img.url}
             alt={img.alt_text || hotel.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-stone-400">
+          <div className="w-full h-full flex items-center justify-center text-[#a39e94]">
             <MapPin className="w-12 h-12" />
           </div>
         )}
-        {imageOverlay && <div className="absolute inset-0 pointer-events-none"><div className="absolute top-2 right-2 pointer-events-auto">{imageOverlay}</div></div>}
+        {imageOverlay && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-3 right-3 pointer-events-auto">{imageOverlay}</div>
+          </div>
+        )}
       </div>
-      <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-semibold text-stone-900 group-hover:text-amber-700 transition-colors truncate">
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="font-serif font-semibold text-lg text-[#1a1a1a] group-hover:text-[#b8860b] transition-colors truncate">
           {hotel.name}
         </h3>
-        <p className="text-sm text-stone-600 mt-0.5">
+        <p className="text-sm text-[#5c5852] mt-0.5">
           {[hotel.city, hotel.country].filter(Boolean).join(', ') || '—'}
         </p>
         {hotel.amenities?.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Amenities">
             {hotel.amenities.slice(0, 5).map((a) => (
-              <span key={a.id} className="inline-flex items-center gap-1 text-stone-500" title={a.name}>
+              <span key={a.id} className="inline-flex items-center gap-1 text-[#7a756d]" title={a.name}>
                 <AmenityIcon slug={a.slug} className="w-3.5 h-3.5" />
               </span>
             ))}
@@ -63,29 +56,29 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
         )}
         {rating != null && (
           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-semibold text-stone-900">{rating.toFixed(1)}</span>
-            <span className="text-stone-600 text-sm">{getRatingLabel(rating)}</span>
+            <span className="font-semibold text-[#1a1a1a]">{rating.toFixed(1)}</span>
+            <span className="text-[#5c5852] text-sm">{getRatingLabel(rating)}</span>
             {reviewCount > 0 && (
-              <span className="text-stone-500 text-sm">{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</span>
+              <span className="text-[#7a756d] text-sm">
+                {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+              </span>
             )}
           </div>
         )}
         {dealLabel && (
-          <span className="inline-block mt-2 px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-sm font-medium w-fit">
+          <span className="inline-block mt-2 px-2.5 py-1 rounded-lg bg-[#f9edd1] text-[#996f09] text-sm font-medium w-fit">
             {dealLabel}
           </span>
         )}
         {nights != null && nights > 0 && (
-          <p className="text-sm text-stone-600 mt-1">{nights} {nights === 1 ? 'night' : 'nights'}</p>
+          <p className="text-sm text-[#5c5852] mt-1">{nights} {nights === 1 ? 'night' : 'nights'}</p>
         )}
         {displayPrice != null && (
           <div className="mt-2 flex items-baseline gap-2 flex-wrap">
             {originalPrice != null && dealPrice != null && (
-              <span className="text-stone-400 line-through text-sm">{formatPrice(originalPrice, currency)}</span>
+              <span className="text-[#7a756d] line-through text-sm">{formatPrice(originalPrice, currency)}</span>
             )}
-            <span className="font-semibold text-stone-900">
-              {formatPrice(dealPrice ?? displayPrice, currency)}
-            </span>
+            <span className="font-semibold text-[#1a1a1a]">{formatPrice(dealPrice ?? displayPrice, currency)}</span>
           </div>
         )}
         {children}
@@ -95,7 +88,7 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
 
   if (href.startsWith('http') || !href) {
     return (
-      <div className="group flex flex-col rounded-2xl overflow-hidden border border-stone-200/80 bg-white shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300">
+      <div className="group flex flex-col rounded-2xl overflow-hidden border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] hover:shadow-[0_12px_28px_rgb(26_26_26_/0.1)] hover:border-[#d4cec4] transition-all duration-300">
         {content}
       </div>
     );
@@ -104,7 +97,7 @@ export function HotelCard({ hotel, nights, dealLabel, originalPrice, to, currenc
   return (
     <Link
       to={href}
-      className="group flex flex-col rounded-2xl overflow-hidden border border-stone-200/80 bg-white shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300"
+      className="group flex flex-col rounded-2xl overflow-hidden border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] hover:shadow-[0_12px_28px_rgb(26_26_26_/0.1)] hover:border-[#d4cec4] transition-all duration-300"
     >
       {content}
     </Link>

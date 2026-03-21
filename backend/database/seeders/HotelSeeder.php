@@ -3,272 +3,186 @@
 namespace Database\Seeders;
 
 use App\Models\Amenity;
+use App\Models\City;
+use App\Models\Country;
 use App\Models\Hotel;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class HotelSeeder extends Seeder
 {
+    /** Italian city coordinates (lat, lng) for realistic placement */
+    private array $cityCoordinates = [
+        'Rome' => [41.9028, 12.4964],
+        'Milan' => [45.4642, 9.1900],
+        'Venice' => [45.4408, 12.3155],
+        'Florence' => [43.7696, 11.2558],
+        'Naples' => [40.8518, 14.2681],
+        'Turin' => [45.0703, 7.6869],
+        'Bologna' => [44.4949, 11.3426],
+        'Palermo' => [38.1157, 13.3615],
+        'Genoa' => [44.4056, 8.9463],
+        'Verona' => [45.4384, 10.9916],
+        'Pisa' => [43.7228, 10.4017],
+        'Siena' => [43.3188, 11.3308],
+        'Padua' => [45.4064, 11.8768],
+        'Bari' => [41.1171, 16.8719],
+        'Catania' => [37.5079, 15.0830],
+        'Cagliari' => [39.2238, 9.1217],
+        'Modena' => [44.6471, 10.9252],
+        'Perugia' => [43.1107, 12.3908],
+        'Lecce' => [40.3515, 18.1750],
+        'Rimini' => [44.0678, 12.5695],
+        'Bergamo' => [45.6983, 9.6773],
+        'Trento' => [46.0664, 11.1257],
+        'Bolzano' => [46.4983, 11.3548],
+        'Sorrento' => [40.6263, 14.3758],
+        'Taormina' => [37.8537, 15.2930],
+        'Como' => [45.8081, 9.0852],
+        'Lucca' => [43.8376, 10.4950],
+        'Ravenna' => [44.4184, 12.2035],
+        'Parma' => [44.8015, 10.3279],
+        'Ferrara' => [44.8381, 11.6198],
+        'Vicenza' => [45.5455, 11.5354],
+        'Mantua' => [45.1564, 10.7914],
+        'Treviso' => [45.6669, 12.2430],
+        'Udine' => [46.0710, 13.2345],
+        'Trieste' => [45.6495, 13.7768],
+        'Livorno' => [43.5485, 10.3106],
+        'La Spezia' => [44.1023, 9.8246],
+        'Salerno' => [40.6824, 14.7681],
+        'Amalfi' => [40.6340, 14.6027],
+        'Positano' => [40.6281, 14.4850],
+        'Capri' => [40.5508, 14.2430],
+        'Sanremo' => [43.8159, 7.7761],
+        'Portofino' => [44.3036, 9.2100],
+        'Cortona' => [43.2747, 11.9875],
+        'Assisi' => [43.0711, 12.6195],
+        'Orvieto' => [42.7190, 12.1134],
+        'Ravello' => [40.6519, 14.6128],
+        'Montepulciano' => [43.0993, 11.7867],
+        'San Gimignano' => [43.4681, 11.0435],
+        'Alberobello' => [40.7863, 17.2360],
+        'Matera' => [40.6663, 16.6043],
+    ];
+
+    private array $hotelNames = [
+        'Grand Hotel',
+        'Boutique Hotel',
+        'Villa Resort',
+        'Palace Hotel',
+        'Hotel & Spa',
+        'Historic Inn',
+        'Seaside Resort',
+        'Mountain Lodge',
+        'City Center Hotel',
+        'Garden Hotel',
+        'Design Hotel',
+        'Luxury Suites',
+        'Riverside Hotel',
+        'Château Hotel',
+        'Vintage Hotel',
+        'Spa & Wellness Resort',
+        'View Hotel',
+        'Relais & Châteaux',
+        'Albergo Diffuso',
+        'Agriturismo',
+        'Casa Vacanze',
+        'Hotel Residence',
+        'Executive Hotel',
+        'Family Resort',
+        'Romantic Retreat',
+        'Business Hotel',
+        'Art Hotel',
+        'Wine Hotel',
+        'Beach Resort',
+        'Lakefront Hotel',
+    ];
+
+    private array $descriptions = [
+        'Elegant accommodation with stunning views and premium amenities in the heart of the city.',
+        'Charming historic property with modern comforts and personalized service.',
+        'Luxury retreat with spa, pool, and gourmet dining overlooking the landscape.',
+        'Boutique hotel offering unique design and exceptional hospitality.',
+        'Family-friendly resort with activities for all ages and direct beach access.',
+        'Refined accommodation blending tradition with contemporary luxury.',
+        'Romantic hideaway perfect for couples, with panoramic views.',
+        'Central location steps from landmarks, shops, and restaurants.',
+        'Peaceful escape surrounded by vineyards and rolling hills.',
+        'Upscale property with rooftop terrace and fine dining.',
+        'Restored historic building with original features and modern amenities.',
+        'Seaside property with private beach and water sports.',
+        'Cozy inn with fireplace lounges and mountain views.',
+        'Urban retreat with rooftop pool and skyline views.',
+        'Country estate with gardens, pool, and farm-to-table dining.',
+    ];
+
+    private array $addressParts = [
+        'Via Roma', 'Piazza Garibaldi', 'Corso Vittorio Emanuele', 'Via Dante', 'Lungomare',
+        'Via Mazzini', 'Piazza Duomo', 'Corso Italia', 'Via Nazionale', 'Largo Colombo',
+        'Via Cavour', 'Piazza San Marco', 'Via Garibaldi', 'Corso Umberto', 'Lungarno',
+    ];
+
     public function run(): void
     {
+        $italy = Country::where('code', 'IT')->first();
+        if (! $italy) {
+            return;
+        }
+
+        $cities = City::where('country_id', $italy->id)->get();
+        if ($cities->isEmpty()) {
+            return;
+        }
+
         $vendors = User::where('role', 'vendor')->get();
         if ($vendors->isEmpty()) {
             return;
         }
 
-        $hotels = [
-            [
-                'vendor_id' => $vendors->get(0)->id,
-                'name' => 'Grand Plaza Hotel',
-                'description' => 'Luxury 5-star hotel in the heart of the city with stunning views and premium amenities.',
-                'address' => '123 Main Street',
-                'city' => 'New York',
-                'country' => 'USA',
-                'latitude' => 40.7128,
-                'longitude' => -74.0060,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(0)->id,
-                'name' => 'Seaside Resort & Spa',
-                'description' => 'Beachfront resort with spa, pool, and direct beach access.',
-                'address' => '456 Ocean Drive',
-                'city' => 'Miami',
-                'country' => 'USA',
-                'latitude' => 25.7617,
-                'longitude' => -80.1918,
-                'check_in' => '14:00:00',
-                'check_out' => '12:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(0)->id,
-                'name' => 'Mountain View Lodge',
-                'description' => 'Cozy lodge with mountain views, fireplace lounges, and hiking trails.',
-                'address' => '789 Pine Road',
-                'city' => 'Denver',
-                'country' => 'USA',
-                'latitude' => 39.7392,
-                'longitude' => -104.9903,
-                'check_in' => '16:00:00',
-                'check_out' => '10:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(1)->id,
-                'name' => 'Urban Boutique Hotel',
-                'description' => 'Modern boutique hotel with contemporary design and personalized service.',
-                'address' => '321 Fashion Avenue',
-                'city' => 'Los Angeles',
-                'country' => 'USA',
-                'latitude' => 34.0522,
-                'longitude' => -118.2437,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(1)->id,
-                'name' => 'Historic Inn & Suites',
-                'description' => 'Charming historic inn with vintage decor and modern comforts.',
-                'address' => '55 Heritage Lane',
-                'city' => 'Boston',
-                'country' => 'USA',
-                'latitude' => 42.3601,
-                'longitude' => -71.0589,
-                'check_in' => '16:00:00',
-                'check_out' => '12:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(2)->id,
-                'name' => 'Desert Oasis Resort',
-                'description' => 'Luxury desert resort with golf course, spa, and stunning sunset views.',
-                'address' => '888 Dune Drive',
-                'city' => 'Phoenix',
-                'country' => 'USA',
-                'latitude' => 33.4484,
-                'longitude' => -112.0740,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(2)->id,
-                'name' => 'Lakeside Retreat',
-                'description' => 'Peaceful lakeside hotel with water sports and nature activities.',
-                'address' => '42 Lake Shore Drive',
-                'city' => 'Chicago',
-                'country' => 'USA',
-                'latitude' => 41.8781,
-                'longitude' => -87.6298,
-                'check_in' => '14:00:00',
-                'check_out' => '10:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(3)->id,
-                'name' => 'Airport Transit Hotel',
-                'description' => 'Convenient airport hotel with shuttle service and business facilities.',
-                'address' => '1 Terminal Road',
-                'city' => 'Atlanta',
-                'country' => 'USA',
-                'latitude' => 33.6407,
-                'longitude' => -84.4277,
-                'check_in' => '12:00:00',
-                'check_out' => '12:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(3)->id,
-                'name' => 'Wine Country Inn',
-                'description' => 'Elegant inn nestled in vineyards with wine tasting and gourmet dining.',
-                'address' => '777 Vineyard Way',
-                'city' => 'Napa',
-                'country' => 'USA',
-                'latitude' => 38.2975,
-                'longitude' => -122.2869,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(4)->id,
-                'name' => 'Coastal Cliff Hotel',
-                'description' => 'Dramatic cliff-top hotel with ocean views and fine dining.',
-                'address' => '100 Cliffside Boulevard',
-                'city' => 'San Francisco',
-                'country' => 'USA',
-                'latitude' => 37.7749,
-                'longitude' => -122.4194,
-                'check_in' => '16:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(4)->id,
-                'name' => 'Forest Cabin Resort',
-                'description' => 'Rustic cabins in the forest with hiking trails and wildlife viewing.',
-                'address' => '200 Wilderness Trail',
-                'city' => 'Portland',
-                'country' => 'USA',
-                'latitude' => 45.5152,
-                'longitude' => -122.6784,
-                'check_in' => '15:00:00',
-                'check_out' => '10:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(0)->id,
-                'name' => 'City Center Marriott',
-                'description' => 'Modern business hotel with conference facilities and rooftop bar.',
-                'address' => '500 Business Plaza',
-                'city' => 'Houston',
-                'country' => 'USA',
-                'latitude' => 29.7604,
-                'longitude' => -95.3698,
-                'check_in' => '15:00:00',
-                'check_out' => '12:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(1)->id,
-                'name' => 'Tropical Paradise Resort',
-                'description' => 'All-inclusive tropical resort with private beach and water park.',
-                'address' => '333 Paradise Island',
-                'city' => 'Orlando',
-                'country' => 'USA',
-                'latitude' => 28.5383,
-                'longitude' => -81.3792,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(2)->id,
-                'name' => 'Ski Lodge Chalet',
-                'description' => 'Luxury ski-in/ski-out lodge with spa and après-ski bar.',
-                'address' => '999 Mountain Peak',
-                'city' => 'Aspen',
-                'country' => 'USA',
-                'latitude' => 39.1911,
-                'longitude' => -106.8175,
-                'check_in' => '16:00:00',
-                'check_out' => '10:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(3)->id,
-                'name' => 'Riverfront Hotel',
-                'description' => 'Scenic riverside hotel with boat tours and fishing excursions.',
-                'address' => '150 River Walk',
-                'city' => 'New Orleans',
-                'country' => 'USA',
-                'latitude' => 29.9511,
-                'longitude' => -90.0715,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(4)->id,
-                'name' => 'Garden Villa Hotel',
-                'description' => 'Tranquil hotel surrounded by botanical gardens and meditation spaces.',
-                'address' => '88 Garden Path',
-                'city' => 'Seattle',
-                'country' => 'USA',
-                'latitude' => 47.6062,
-                'longitude' => -122.3321,
-                'check_in' => '14:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(0)->id,
-                'name' => 'Tech Hub Hotel',
-                'description' => 'Modern hotel with smart rooms, co-working space, and tech amenities.',
-                'address' => '250 Innovation Drive',
-                'city' => 'Austin',
-                'country' => 'USA',
-                'latitude' => 30.2672,
-                'longitude' => -97.7431,
-                'check_in' => '15:00:00',
-                'check_out' => '11:00:00',
-                'status' => 'active',
-            ],
-            [
-                'vendor_id' => $vendors->get(1)->id,
-                'name' => 'Historic Downtown Hotel',
-                'description' => 'Restored 1920s hotel with vintage charm and modern amenities.',
-                'address' => '75 Heritage Square',
-                'city' => 'Charleston',
-                'country' => 'USA',
-                'latitude' => 32.7765,
-                'longitude' => -79.9311,
-                'check_in' => '16:00:00',
-                'check_out' => '12:00:00',
-                'status' => 'active',
-            ],
-        ];
-
-        $allAmenityIds = Amenity::pluck('id')->toArray();
-        if (empty($allAmenityIds)) {
+        $amenityIds = Amenity::pluck('id')->toArray();
+        if (empty($amenityIds)) {
             return;
         }
 
-        foreach ($hotels as $data) {
+        $target = 50;
+        $vendorIds = $vendors->pluck('id')->toArray();
+
+        for ($i = 0; $i < $target; $i++) {
+            $city = $cities->get($i % $cities->count());
+            $vendorId = $vendorIds[$i % count($vendorIds)];
+            $coords = $this->cityCoordinates[$city->name] ?? [41.9, 12.5];
+
+            $baseName = $this->hotelNames[$i % count($this->hotelNames)];
+            $name = $baseName . ' ' . $city->name . ' ' . ($i + 1);
+            $address = $this->addressParts[$i % count($this->addressParts)] . ' ' . (rand(1, 99) + $i);
+
             $hotel = Hotel::firstOrCreate(
-                ['name' => $data['name'], 'vendor_id' => $data['vendor_id']],
-                $data
+                ['name' => $name],
+                [
+                    'vendor_id' => $vendorId,
+                    'name' => $name,
+                    'description' => $this->descriptions[$i % count($this->descriptions)],
+                    'address' => $address,
+                    'country_id' => $italy->id,
+                    'city_id' => $city->id,
+                    'city' => $city->name,
+                    'country' => 'Italy',
+                    'latitude' => $coords[0] + (rand(-100, 100) / 10000),
+                    'longitude' => $coords[1] + (rand(-100, 100) / 10000),
+                    'check_in' => ['14:00:00', '15:00:00', '16:00:00'][$i % 3],
+                    'check_out' => ['10:00:00', '11:00:00', '12:00:00'][$i % 3],
+                    'status' => 'active',
+                    'tax_rate' => 0.10,
+                    'tax_name' => 'IVA',
+                    'tax_inclusive' => false,
+                ]
             );
-            // Assign 4–10 random amenities per hotel
-            $count = rand(4, min(10, count($allAmenityIds)));
-            $shuffled = $allAmenityIds;
+
+            $count = rand(4, min(10, count($amenityIds)));
+            $shuffled = $amenityIds;
             shuffle($shuffled);
-            $ids = array_slice($shuffled, 0, $count);
-            $hotel->amenities()->sync($ids);
+            $hotel->amenities()->sync(array_slice($shuffled, 0, $count));
         }
     }
 }

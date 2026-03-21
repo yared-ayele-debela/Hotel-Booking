@@ -332,7 +332,7 @@ export default function MapSearch() {
               <>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-stone-900">
-                    {total} propert{total === 1 ? 'y' : 'ies'} in this area
+                    {total} Hotel{total === 1 ? '' : 's'} in this area
                   </h2>
                   <Link
                     to={`/hotels?latitude=${latParam}&longitude=${lngParam}&radius_km=${radiusParam}${checkIn ? `&check_in=${checkIn}&check_out=${checkOut}` : ''}`}
@@ -341,7 +341,7 @@ export default function MapSearch() {
                     View all <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {hotels.map((h) => (
                     <HotelCard
                       key={h.id}

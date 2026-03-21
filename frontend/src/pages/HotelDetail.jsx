@@ -17,7 +17,7 @@ function WishlistHeart({ hotelId, checkIn, checkOut }) {
   const { isInWishlist, addToWishlist, removeFromWishlist, addPending, removePending } = useWishlist(!!user);
   if (!user) {
     return (
-      <Link to="/login" className="p-2 rounded-full border border-stone-200 hover:bg-stone-50 inline-flex" aria-label="Log in to save to wishlist">
+      <Link to="/login" className="p-2 rounded-full border border-[#e8e4dd] hover:bg-[#faf8f5] inline-flex" aria-label="Log in to save to wishlist">
         <HeartIcon filled={false} />
       </Link>
     );
@@ -32,7 +32,7 @@ function WishlistHeart({ hotelId, checkIn, checkOut }) {
     } catch (_) {}
   };
   return (
-    <button type="button" onClick={handleClick} disabled={pending} className="p-2 rounded-full border border-stone-200 hover:bg-stone-50 disabled:opacity-60 inline-flex" aria-label={inList ? 'Remove from wishlist' : 'Add to wishlist'}>
+    <button type="button" onClick={handleClick} disabled={pending} className="p-2 rounded-full border border-[#e8e4dd] hover:bg-[#faf8f5] disabled:opacity-60 inline-flex" aria-label={inList ? 'Remove from wishlist' : 'Add to wishlist'}>
       <HeartIcon filled={inList} />
     </button>
   );
@@ -40,7 +40,7 @@ function WishlistHeart({ hotelId, checkIn, checkOut }) {
 
 function HeartIcon({ filled }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={filled ? '#b45309' : 'none'} stroke="#b45309" strokeWidth="2" className="w-5 h-5">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={filled ? '#b8860b' : 'none'} stroke="#b8860b" strokeWidth="2" className="w-5 h-5">
       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
     </svg>
   );
@@ -63,11 +63,11 @@ function StarDistribution({ reviews }) {
         const pct = total > 0 ? (counts[stars] / total) * 100 : 0;
         return (
           <div key={stars} className="flex items-center gap-3">
-            <span className="text-sm text-stone-600 w-16">{stars} star{stars > 1 ? 's' : ''}</span>
-            <div className="flex-1 h-2 bg-stone-200 rounded-full overflow-hidden">
-              <div className="h-full bg-amber-500 rounded-full" style={{ width: `${pct}%` }} />
+            <span className="text-sm text-[#5c5852] w-16">{stars} star{stars > 1 ? 's' : ''}</span>
+            <div className="flex-1 h-2 bg-[#e8e4dd] rounded-full overflow-hidden">
+              <div className="h-full bg-[#b8860b] rounded-full" style={{ width: `${pct}%` }} />
             </div>
-            <span className="text-sm text-stone-600 w-12">{counts[stars]}</span>
+            <span className="text-sm text-[#5c5852] w-12">{counts[stars]}</span>
           </div>
         );
       })}
@@ -174,7 +174,7 @@ export default function HotelDetail() {
     <div className="py-4 sm:py-6">
       {/* Header: Image gallery + name, location, rating, wishlist */}
       <div className="mb-6">
-        <div className="relative rounded-2xl overflow-hidden bg-stone-200 aspect-[21/9] sm:aspect-[3/1] max-h-[400px]">
+        <div className="relative rounded-2xl overflow-hidden bg-[#e8e4dd] aspect-[21/9] sm:aspect-[3/1] max-h-[400px]">
           {images.length > 0 ? (
             <>
               <img
@@ -212,7 +212,7 @@ export default function HotelDetail() {
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-stone-500">
+            <div className="w-full h-full flex items-center justify-center text-[#5c5852]">
               <MapPin className="w-16 h-16" />
             </div>
           )}
@@ -226,7 +226,7 @@ export default function HotelDetail() {
                 onClick={() => setSelectedImageIndex(idx)}
                 className={cn(
                   'flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all',
-                  selectedImageIndex === idx ? 'border-amber-500 scale-105' : 'border-stone-300 hover:border-stone-400'
+                  selectedImageIndex === idx ? 'border-[#b8860b]500 scale-105' : 'border-[#d4cec4] hover:border-[#e8e4dd]400'
                 )}
               >
                 <img src={img.url} alt={img.alt_text || ''} className="w-full h-full object-cover" />
@@ -241,20 +241,20 @@ export default function HotelDetail() {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">{hotel.name}</h1>
-              <p className="text-stone-600 mt-1 flex items-center gap-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1a1a]">{hotel.name}</h1>
+              <p className="text-[#5c5852] mt-1 flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
                 {[hotel.city, hotel.country].filter(Boolean).join(', ')}
               </p>
               <div className="flex items-center gap-3 mt-2">
                 {hotel.average_rating != null && (
-                  <span className="inline-flex items-center gap-1 font-semibold text-stone-900">
-                    <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                  <span className="inline-flex items-center gap-1 font-semibold text-[#1a1a1a]">
+                    <Star className="w-5 h-5 fill-amber-400 text-[#b8860b]400" />
                     {Number(hotel.average_rating).toFixed(1)} {getRatingLabel(hotel.average_rating)}
                   </span>
                 )}
                 {hotel.review_count != null && hotel.review_count > 0 && (
-                  <span className="text-stone-600 text-sm">{hotel.review_count} reviews</span>
+                  <span className="text-[#5c5852] text-sm">{hotel.review_count} reviews</span>
                 )}
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function HotelDetail() {
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-stone-200 mb-6">
+          <div className="border-b border-[#e8e4dd] mb-6">
             <nav className="flex gap-4 overflow-x-auto" aria-label="Sections">
               {TABS.map((tab) => (
                 <button
@@ -270,7 +270,7 @@ export default function HotelDetail() {
                   onClick={() => setActiveTab(tab)}
                   className={cn(
                     'py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors',
-                    activeTab === tab ? 'border-amber-600 text-amber-600' : 'border-transparent text-stone-600 hover:text-stone-900'
+                    activeTab === tab ? 'border-[#b8860b] text-[#b8860b]600' : 'border-transparent text-[#5c5852] hover:text-[#1a1a1a]'
                   )}
                 >
                   {tab}
@@ -282,14 +282,14 @@ export default function HotelDetail() {
           {/* Tab content */}
           {activeTab === 'Overview' && (
             <section className="space-y-6">
-              {hotel.description && <p className="text-stone-700 leading-relaxed">{hotel.description}</p>}
+              {hotel.description && <p className="text-[#45423d] leading-relaxed">{hotel.description}</p>}
               {hotel.amenities?.length > 0 && (
                 <div>
-                  <h3 className="font-semibold text-stone-900 mb-3">Amenities</h3>
+                  <h3 className="font-semibold text-[#1a1a1a] mb-3">Amenities</h3>
                   <div className="flex flex-wrap gap-3">
                     {hotel.amenities.map((a) => (
-                      <span key={a.id} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-100 text-stone-700 text-sm">
-                        <AmenityIcon slug={a.slug} className="w-4 h-4 text-amber-600" />
+                      <span key={a.id} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#f5f2ed] text-[#45423d] text-sm">
+                        <AmenityIcon slug={a.slug} className="w-4 h-4 text-[#b8860b]600" />
                         {a.name}
                       </span>
                     ))}
@@ -298,14 +298,14 @@ export default function HotelDetail() {
               )}
               {(hotel.check_in || hotel.check_out) && (
                 <div>
-                  <h3 className="font-semibold text-stone-900 mb-2">Check-in / Check-out</h3>
-                  <p className="text-stone-600 text-sm">Check-in: {hotel.check_in ?? '—'} · Check-out: {hotel.check_out ?? '—'}</p>
+                  <h3 className="font-semibold text-[#1a1a1a] mb-2">Check-in / Check-out</h3>
+                  <p className="text-[#5c5852] text-sm">Check-in: {hotel.check_in ?? '—'} · Check-out: {hotel.check_out ?? '—'}</p>
                 </div>
               )}
               {(hotel.cancellation_policy_summary || hotel.cancellation_policy) && (
                 <div>
-                  <h3 className="font-semibold text-stone-900 mb-2">Cancellation policy</h3>
-                  <p className="text-stone-600 text-sm">{hotel.cancellation_policy_summary || 'See cancellation terms at booking.'}</p>
+                  <h3 className="font-semibold text-[#1a1a1a] mb-2">Cancellation policy</h3>
+                  <p className="text-[#5c5852] text-sm">{hotel.cancellation_policy_summary || 'See cancellation terms at booking.'}</p>
                 </div>
               )}
             </section>
@@ -314,7 +314,7 @@ export default function HotelDetail() {
           {activeTab === 'Rooms' && (
             <section className="space-y-6">
               {rooms.length === 0 ? (
-                <p className="text-stone-600">No rooms available.</p>
+                <p className="text-[#5c5852]">No rooms available.</p>
               ) : (
                 <ul className="space-y-6">
                   {rooms.map((room) => {
@@ -322,31 +322,31 @@ export default function HotelDetail() {
                     const price = room.base_price != null ? Number(room.base_price) : null;
                     const totalPrice = price != null && nights ? price * nights : null;
                     return (
-                      <li key={room.id} className="rounded-2xl overflow-hidden border border-stone-200/80 bg-white shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300">
+                      <li key={room.id} className="rounded-2xl overflow-hidden border border-[#e8e4dd]/80 bg-white shadow-sm hover:shadow-xl hover:border-[#b8860b]200/60 transition-all duration-300">
                         <div className="flex flex-col sm:flex-row">
                           <div
-                            className="sm:w-72 flex-shrink-0 aspect-[4/3] sm:aspect-auto sm:h-52 bg-stone-200 relative cursor-pointer"
+                            className="sm:w-72 flex-shrink-0 aspect-[4/3] sm:aspect-auto sm:h-52 bg-[#e8e4dd] relative cursor-pointer"
                             onClick={() => room.images?.length > 0 && (setCurrentGalleryImages(room.images), setSelectedImageIndex(0), setIsGalleryOpen(true))}
                           >
                             {roomImg?.url ? (
                               <img src={roomImg.url} alt={roomImg.alt_text || room.name} className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-stone-400">
+                              <div className="w-full h-full flex items-center justify-center text-[#7a756d]">
                                 <MapPin className="w-12 h-12" />
                               </div>
                             )}
                           </div>
                           <div className="p-4 sm:p-5 flex-1 flex flex-col sm:flex-row sm:justify-between gap-4">
                             <div>
-                              <h3 className="font-semibold text-stone-900 text-lg">{room.name}</h3>
-                              <p className="text-sm text-stone-600 mt-0.5">Up to {room.capacity} guests</p>
+                              <h3 className="font-semibold text-[#1a1a1a] text-lg">{room.name}</h3>
+                              <p className="text-sm text-[#5c5852] mt-0.5">Up to {room.capacity} guests</p>
                               {nights != null && nights > 0 && (
-                                <p className="text-sm text-stone-600 mt-1">{nights} {nights === 1 ? 'night' : 'nights'}</p>
+                                <p className="text-sm text-[#5c5852] mt-1">{nights} {nights === 1 ? 'night' : 'nights'}</p>
                               )}
                               {room.amenities?.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-2">
                                   {room.amenities?.slice(0, 5).map((a) => (
-                                    <span key={a.id} className="inline-flex items-center gap-1 text-stone-600 text-sm" title={a.name}>
+                                    <span key={a.id} className="inline-flex items-center gap-1 text-[#5c5852] text-sm" title={a.name}>
                                       <AmenityIcon slug={a.slug} className="w-3.5 h-3.5" />
                                       {a.name}
                                     </span>
@@ -354,28 +354,28 @@ export default function HotelDetail() {
                                 </div>
                               )}
                               {room.cancellation_policy_summary && (
-                                <p className="text-sm text-stone-500 mt-2">{room.cancellation_policy_summary}</p>
+                                <p className="text-sm text-[#5c5852] mt-2">{room.cancellation_policy_summary}</p>
                               )}
                               {totalPrice != null && (
                                 <div className="mt-2">
-                                  <span className="font-semibold text-stone-900">{formatPrice(totalPrice)}</span>
-                                  <span className="text-stone-600 text-sm">{nights > 0 ? ` total` : ''}</span>
+                                  <span className="font-semibold text-[#1a1a1a]">{formatPrice(totalPrice)}</span>
+                                  <span className="text-[#5c5852] text-sm">{nights > 0 ? ` total` : ''}</span>
                                 </div>
                               )}
                               {price != null && !checkIn && !checkOut && (
-                                <p className="mt-2 text-stone-700 font-medium">From {formatPrice(price)} / night</p>
+                                <p className="mt-2 text-[#45423d] font-medium">From {formatPrice(price)} / night</p>
                               )}
                             </div>
                             <div className="flex items-end">
                               {checkIn && checkOut ? (
                                 <Link
                                   to={`/book?hotel_id=${hotel.id}&room_id=${room.id}&check_in=${checkIn}&check_out=${checkOut}`}
-                                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
+                                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#b8860b] text-white font-semibold hover:bg-[#996f09] transition-colors"
                                 >
                                   Select
                                 </Link>
                               ) : (
-                                <span className="inline-block px-4 py-2 rounded-xl bg-stone-100 text-stone-500 text-sm">Select dates to book</span>
+                                <span className="inline-block px-4 py-2 rounded-xl bg-[#f5f2ed] text-[#5c5852] text-sm">Select dates to book</span>
                               )}
                             </div>
                           </div>
@@ -391,21 +391,21 @@ export default function HotelDetail() {
           {activeTab === 'Reviews' && (
             <section className="space-y-6">
               {reviews.length === 0 ? (
-                <p className="text-stone-600">No reviews yet.</p>
+                <p className="text-[#5c5852]">No reviews yet.</p>
               ) : (
                 <>
                   <div className="max-w-xs">
-                    <h3 className="font-semibold text-stone-900 mb-3">Star distribution</h3>
+                    <h3 className="font-semibold text-[#1a1a1a] mb-3">Star distribution</h3>
                     <StarDistribution reviews={reviews} />
                   </div>
                   <ul className="space-y-4">
                     {reviews.map((r) => (
-                      <li key={r.id} className="p-4 rounded-2xl border border-stone-200/80 bg-white shadow-sm">
+                      <li key={r.id} className="p-4 rounded-2xl border border-[#e8e4dd]/80 bg-white shadow-sm">
                         <div className="flex items-center gap-2 mb-4">
-                          <span className="font-semibold text-stone-900">★ {r.rating}</span>
-                          <span className="text-stone-500 text-sm">Verified stay</span>
+                          <span className="font-semibold text-[#1a1a1a]">★ {r.rating}</span>
+                          <span className="text-[#5c5852] text-sm">Verified stay</span>
                         </div>
-                        {r.comment && <p className="text-stone-700">{r.comment}</p>}
+                        {r.comment && <p className="text-[#45423d]">{r.comment}</p>}
                       </li>
                     ))}
                   </ul>
@@ -414,17 +414,17 @@ export default function HotelDetail() {
                       <button
                         onClick={() => setReviewsPage((p) => Math.max(1, p - 1))}
                         disabled={reviewsMeta.current_page <= 1}
-                        className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-amber-50 disabled:opacity-50 transition-colors"
+                        className="px-4 py-2 rounded-xl border border-[#e8e4dd] hover:bg-[#faf8f5] disabled:opacity-50 transition-colors"
                       >
                         Previous
                       </button>
-                      <span className="px-4 py-2 text-stone-600 text-sm">
+                      <span className="px-4 py-2 text-[#5c5852] text-sm">
                         Page {reviewsMeta.current_page} of {reviewsMeta.last_page}
                       </span>
                       <button
                         onClick={() => setReviewsPage((p) => Math.min(reviewsMeta.last_page, p + 1))}
                         disabled={reviewsMeta.current_page >= reviewsMeta.last_page}
-                        className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-amber-50 disabled:opacity-50 transition-colors"
+                        className="px-4 py-2 rounded-xl border border-[#e8e4dd] hover:bg-[#faf8f5] disabled:opacity-50 transition-colors"
                       >
                         Next
                       </button>
@@ -437,11 +437,11 @@ export default function HotelDetail() {
 
           {activeTab === 'Location' && (
             <section>
-              <h3 className="font-semibold text-stone-900 mb-3">Location</h3>
-              {hotel.address && <p className="text-stone-600 mb-2">{hotel.address}</p>}
-              <p className="text-stone-600 mb-4">{[hotel.city, hotel.country].filter(Boolean).join(', ')}</p>
+              <h3 className="font-semibold text-[#1a1a1a] mb-3">Location</h3>
+              {hotel.address && <p className="text-[#5c5852] mb-2">{hotel.address}</p>}
+              <p className="text-[#5c5852] mb-4">{[hotel.city, hotel.country].filter(Boolean).join(', ')}</p>
               {hotel.latitude != null && hotel.longitude != null ? (
-                <div className="rounded-xl overflow-hidden border border-stone-200 shadow-sm">
+                <div className="rounded-xl overflow-hidden border border-[#e8e4dd] shadow-sm">
                   <div className="aspect-video w-full">
                     <iframe
                       title="Hotel location map"
@@ -451,22 +451,22 @@ export default function HotelDetail() {
                       referrerPolicy="no-referrer-when-downgrade"
                     />
                   </div>
-                  <div className="px-4 py-2 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
-                    <span className="text-sm text-stone-600">
+                  <div className="px-4 py-2 bg-[#faf8f5] border-t border-[#e8e4dd] flex items-center justify-between">
+                    <span className="text-sm text-[#5c5852]">
                       {Number(hotel.latitude).toFixed(6)}, {Number(hotel.longitude).toFixed(6)}
                     </span>
                     <a
                       href={`https://www.openstreetmap.org/?mlat=${hotel.latitude}&mlon=${hotel.longitude}#map=15/${hotel.latitude}/${hotel.longitude}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-medium text-amber-600 hover:text-amber-700"
+                      className="text-sm font-medium text-[#b8860b]600 hover:text-[#b8860b]700"
                     >
                       Open in Maps →
                     </a>
                   </div>
                 </div>
               ) : (
-                <div className="aspect-video rounded-xl bg-stone-200 flex items-center justify-center text-stone-500">
+                <div className="aspect-video rounded-xl bg-[#e8e4dd] flex items-center justify-center text-[#5c5852]">
                   <div className="text-center">
                     <MapPin className="w-12 h-12 mx-auto mb-2" />
                     <p>Coordinates not available</p>
@@ -480,37 +480,37 @@ export default function HotelDetail() {
 
         {/* Sticky Booking Widget */}
         <aside className="lg:w-96 shrink-0">
-          <div className="lg:sticky lg:top-24 rounded-2xl border border-stone-200 bg-white shadow-lg p-6">
-            <h2 className="font-semibold text-stone-900 text-lg mb-4">Booking</h2>
+          <div className="lg:sticky lg:top-24 rounded-2xl border border-[#e8e4dd] bg-white shadow-lg p-6">
+            <h2 className="font-semibold text-[#1a1a1a] text-lg mb-4">Booking</h2>
             <form onSubmit={(e) => { e.preventDefault(); if (bookUrl) window.location.href = bookUrl; }} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Check-in</label>
+                  <label className="block text-sm font-medium text-[#45423d] mb-1">Check-in</label>
                   <input
                     type="date"
                     value={localCheckIn}
                     onChange={(e) => setLocalCheckIn(e.target.value)}
                     min={today}
-                    className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                    className="w-full rounded-xl border border-[#e8e4dd] px-4 py-2.5 text-sm text-[#1a1a1a] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Check-out</label>
+                  <label className="block text-sm font-medium text-[#45423d] mb-1">Check-out</label>
                   <input
                     type="date"
                     value={localCheckOut}
                     onChange={(e) => setLocalCheckOut(e.target.value)}
                     min={localCheckIn || tomorrow}
-                    className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                    className="w-full rounded-xl border border-[#e8e4dd] px-4 py-2.5 text-sm text-[#1a1a1a] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Guests</label>
+                <label className="block text-sm font-medium text-[#45423d] mb-1">Guests</label>
                 <select
                   value={guests}
                   onChange={(e) => setGuests(Number(e.target.value))}
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 bg-white"
+                  className="w-full rounded-lg border border-[#d4cec4] px-3 py-2 text-sm text-[#1a1a1a] bg-white"
                 >
                   {[1, 2, 3, 4, 5, 6].map((n) => (
                     <option key={n} value={n}>{n} {n === 1 ? 'guest' : 'guests'}</option>
@@ -520,7 +520,7 @@ export default function HotelDetail() {
               <button
                 type="button"
                 onClick={handleDateSearch}
-                className="w-full py-2.5 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-xl transition-colors"
+                className="w-full py-2.5 text-sm font-medium text-[#b8860b]600 hover:text-[#b8860b]700 border border-[#b8860b]200 rounded-xl transition-colors"
               >
                 Check availability
               </button>
@@ -528,7 +528,7 @@ export default function HotelDetail() {
               {effectiveCheckIn && effectiveCheckOut && rooms.length > 0 && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Room</label>
+                    <label className="block text-sm font-medium text-[#45423d] mb-2">Room</label>
                     <select
                       value={selectedRoom?.id ?? ''}
                       onChange={(e) => {
@@ -536,7 +536,7 @@ export default function HotelDetail() {
                         setSelectedRoom(r || null);
                         setRoomQuantity(1);
                       }}
-                      className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 bg-white"
+                      className="w-full rounded-lg border border-[#d4cec4] px-3 py-2 text-sm text-[#1a1a1a] bg-white"
                     >
                       <option value="">Select a room</option>
                       {roomsForGuests.map((r) => (
@@ -548,11 +548,11 @@ export default function HotelDetail() {
                   </div>
                   {selectedRoom && (
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-1">Quantity</label>
+                      <label className="block text-sm font-medium text-[#45423d] mb-1">Quantity</label>
                       <select
                         value={roomQuantity}
                         onChange={(e) => setRoomQuantity(Number(e.target.value))}
-                        className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 bg-white"
+                        className="w-full rounded-lg border border-[#d4cec4] px-3 py-2 text-sm text-[#1a1a1a] bg-white"
                       >
                         {Array.from({ length: Math.min(selectedRoom.total_rooms || 5, 5) }, (_, i) => i + 1).map((n) => (
                           <option key={n} value={n}>{n} room{n > 1 ? 's' : ''}</option>
@@ -564,18 +564,18 @@ export default function HotelDetail() {
               )}
 
               {priceSummary && (
-                <div className="border-t border-stone-200 pt-4 space-y-2">
+                <div className="border-t border-[#e8e4dd] pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-stone-600">Subtotal</span>
+                    <span className="text-[#5c5852]">Subtotal</span>
                     <span>{formatPrice(priceSummary.subTotal)}</span>
                   </div>
                   {priceSummary.taxAmount > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-stone-600">Tax ({priceSummary.taxRatePct}%)</span>
+                      <span className="text-[#5c5852]">Tax ({priceSummary.taxRatePct}%)</span>
                       <span>{formatPrice(priceSummary.taxAmount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between font-semibold text-stone-900 pt-2">
+                  <div className="flex justify-between font-semibold text-[#1a1a1a] pt-2">
                     <span>Total</span>
                     <span>{formatPrice(priceSummary.total)}</span>
                   </div>
@@ -585,7 +585,7 @@ export default function HotelDetail() {
               <button
                 type="submit"
                 disabled={!bookUrl}
-                className="w-full py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed transition-colors"
+                className="w-full py-3 rounded-xl bg-[#b8860b] text-white font-semibold hover:bg-[#996f09] disabled:bg-[#d4cec4] disabled:text-[#7a756d] disabled:cursor-not-allowed transition-colors"
               >
                 Book Now
               </button>

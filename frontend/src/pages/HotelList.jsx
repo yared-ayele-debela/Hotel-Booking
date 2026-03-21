@@ -88,17 +88,17 @@ function FilterDrawer({ open, onClose, children }) {
         aria-hidden="true"
       />
       <aside
-        className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-xl z-50 overflow-y-auto lg:hidden rounded-l-2xl"
+        className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white shadow-[0_20px_40px_rgb(26_26_26_/0.1)] z-50 overflow-y-auto lg:hidden rounded-l-2xl"
         role="dialog"
         aria-modal="true"
         aria-label="Filters"
       >
-        <div className="sticky top-0 bg-white border-b border-stone-200 px-4 py-4 flex items-center justify-between rounded-tl-2xl">
-          <h2 className="font-semibold text-stone-900">Filters</h2>
+        <div className="sticky top-0 bg-white border-b border-[#e8e4dd] px-4 py-4 flex items-center justify-between rounded-tl-2xl">
+          <h2 className="font-semibold text-[#1a1a1a]">Filters</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-stone-100"
+            className="p-2 rounded-lg hover:bg-[#f5f2ed]"
             aria-label="Close filters"
           >
             <X className="w-5 h-5" />
@@ -263,12 +263,12 @@ function HotelList() {
   const FilterContent = () => (
     <div className="space-y-6">
       <section>
-        <h3 className="text-sm font-medium text-stone-700 mb-3">Guests</h3>
-        <p className="text-xs text-stone-500 mb-2">Rooms that fit at least</p>
+        <h3 className="text-sm font-medium text-[#45423d] mb-3">Guests</h3>
+        <p className="text-xs text-[#5c5852] mb-2">Rooms that fit at least</p>
         <select
           value={minCapacity}
           onChange={(e) => applyFilters({ min_capacity: e.target.value })}
-          className="w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-700 bg-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+          className="w-full rounded-xl border border-[#e8e4dd]200 px-4 py-2.5 text-sm text-[#45423d] bg-white focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b]"
         >
           <option value="">Any</option>
           {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
@@ -278,8 +278,8 @@ function HotelList() {
       </section>
 
       <section>
-        <h3 className="text-sm font-medium text-stone-700 mb-3">Minimum rating</h3>
-        <p className="text-xs text-stone-500 mb-2">Based on guest reviews</p>
+        <h3 className="text-sm font-medium text-[#45423d] mb-3">Minimum rating</h3>
+        <p className="text-xs text-[#5c5852] mb-2">Based on guest reviews</p>
         <div className="space-y-2">
           {REVIEW_SCORE_OPTIONS.map((opt) => (
             <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
@@ -288,16 +288,16 @@ function HotelList() {
                 name="min_rating"
                 checked={minRating === String(opt.value)}
                 onChange={() => applyFilters({ min_rating: minRating === String(opt.value) ? '' : opt.value })}
-                className="rounded-full border-stone-300 text-amber-600 focus:ring-amber-500"
+                className="rounded-full border-[#e8e4dd]300 text-[#b8860b] focus:ring-[#b8860b]/30"
               />
-              <span className="text-sm text-stone-700">{opt.label}</span>
+              <span className="text-sm text-[#45423d]">{opt.label}</span>
             </label>
           ))}
         </div>
       </section>
 
       <section>
-        <h3 className="text-sm font-medium text-stone-700 mb-3">Price range (per night)</h3>
+        <h3 className="text-sm font-medium text-[#45423d] mb-3">Price range (per night)</h3>
         <div className="space-y-4">
           <div className="flex gap-2 items-center">
             <input
@@ -308,9 +308,9 @@ function HotelList() {
               value={minPrice || ''}
               onChange={(e) => applyFilters({ min_price: e.target.value })}
               placeholder="Min"
-              className="w-24 rounded-xl border border-stone-200 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500"
+              className="w-24 rounded-xl border border-[#e8e4dd]200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#b8860b]/30"
             />
-            <span className="text-stone-400">–</span>
+            <span className="text-[#7a756d]">–</span>
             <input
               type="number"
               min="0"
@@ -319,7 +319,7 @@ function HotelList() {
               value={maxPrice || ''}
               onChange={(e) => applyFilters({ max_price: e.target.value })}
               placeholder="Max"
-              className="w-24 rounded-xl border border-stone-200 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500"
+              className="w-24 rounded-xl border border-[#e8e4dd]200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#b8860b]/30"
             />
           </div>
           <div className="space-y-2">
@@ -330,16 +330,16 @@ function HotelList() {
               step="10"
               value={priceMax}
               onChange={(e) => applyFilters({ max_price: e.target.value })}
-              className="w-full h-2 rounded-lg appearance-none bg-stone-200 accent-amber-600"
+              className="w-full h-2 rounded-lg appearance-none bg-stone-200 accent-[#b8860b]"
             />
-            <p className="text-xs text-stone-500">Max: ${priceMax}</p>
+            <p className="text-xs text-[#5c5852]">Max: ${priceMax}</p>
           </div>
         </div>
       </section>
 
       {amenities.length > 0 && (
         <section>
-          <h3 className="text-sm font-medium text-stone-700 mb-3">Amenities</h3>
+          <h3 className="text-sm font-medium text-[#45423d] mb-3">Amenities</h3>
           <div className="grid grid-cols-2 gap-2">
             {amenities.map((a) => (
               <label key={a.id} className="flex items-center gap-2 cursor-pointer">
@@ -352,9 +352,9 @@ function HotelList() {
                       : [...selectedAmenities, a.slug];
                     applyFilters({ amenities: next.join(',') });
                   }}
-                  className="rounded border-stone-300 text-amber-600 focus:ring-amber-500"
+                  className="rounded border-[#e8e4dd]300 text-[#b8860b] focus:ring-[#b8860b]/30"
                 />
-                <span className="text-sm text-stone-700 truncate">{a.name}</span>
+                <span className="text-sm text-[#45423d] truncate">{a.name}</span>
               </label>
             ))}
           </div>
@@ -373,7 +373,7 @@ function HotelList() {
           setFilterDrawerOpen(false);
         }}
         aria-label="Clear all filters"
-        className="w-full py-2.5 text-sm font-medium text-amber-600 hover:text-amber-700 border border-amber-200 rounded-xl transition-colors"
+        className="w-full py-2.5 text-sm font-medium text-[#b8860b] hover:text-[#996f09] border border-[#e5c261] rounded-xl transition-colors hover:bg-[#f9edd1]"
       >
         Clear filters
       </button>
@@ -389,24 +389,24 @@ function HotelList() {
   }
 
   return (
-    <div className="py-4 sm:py-6">
+    <div className="py-6 sm:py-8">
       {/* Sticky search bar — persist params from home, editable */}
       <form
         onSubmit={handleSearch}
-        className="sticky top-14 z-30 bg-white/95 backdrop-blur border-b border-stone-200 -mx-4 px-4 py-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 mb-6"
+        className="sticky top-16 z-30 bg-white/98 backdrop-blur-md border-b border-[#e8e4dd] -mx-4 px-4 py-5 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 mb-8 shadow-sm"
       >
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <div className="flex-1 lg:col-span-2 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7a756d] pointer-events-none" />
                 <input
                   name="location"
                   type="text"
                   list="hotel-list-location"
                   defaultValue={city && country ? `${city}, ${country}` : city || country}
                   placeholder="City or country"
-                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 placeholder-stone-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-[#e8e4dd] text-[#1a1a1a] placeholder-[#7a756d] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   autoComplete="off"
                 />
                 <datalist id="hotel-list-location">
@@ -416,33 +416,33 @@ function HotelList() {
                 </datalist>
               </div>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7a756d] pointer-events-none" />
                 <input
                   name="check_in"
                   type="date"
                   defaultValue={checkIn}
                   min={today}
-                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-[#e8e4dd]200 text-[#1a1a1a] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   aria-label="Check-in"
                 />
               </div>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400 pointer-events-none" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7a756d] pointer-events-none" />
                 <input
                   name="check_out"
                   type="date"
                   defaultValue={checkOut}
                   min={checkIn || tomorrow}
-                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-[#e8e4dd]200 text-[#1a1a1a] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] bg-white"
                   aria-label="Check-out"
                 />
               </div>
               <div className="relative flex items-center">
-                <Users className="absolute left-3 w-5 h-5 text-stone-400 pointer-events-none" />
+                <Users className="absolute left-3 w-5 h-5 text-[#7a756d] pointer-events-none" />
                 <select
                   name="guests"
                   defaultValue={minCapacity || '1'}
-                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-stone-200 text-stone-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 appearance-none bg-white"
+                  className="w-full h-12 pl-10 pr-3 rounded-xl border border-[#e8e4dd]200 text-[#1a1a1a] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b] appearance-none bg-white"
                   aria-label="Guests"
                 >
                   {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -454,14 +454,14 @@ function HotelList() {
             <div className="flex gap-2">
               <Link
                 to={`/hotels/map${checkIn && checkOut ? `?check_in=${checkIn}&check_out=${checkOut}` : ''}`}
-                className="h-12 px-4 rounded-xl border border-stone-200 hover:bg-amber-50 flex items-center gap-2 text-stone-700 font-medium transition-colors"
+                className="h-12 px-4 rounded-xl border border-[#e8e4dd] hover:bg-[#faf8f5] flex items-center gap-2 text-[#45423d] font-medium transition-colors"
               >
                 <MapPin className="w-5 h-5" />
                 Map
               </Link>
               <button
                 type="submit"
-                className="h-12 px-6 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 focus:ring-2 focus:ring-amber-500 flex items-center justify-center gap-2 transition-colors"
+                className="h-12 px-6 rounded-xl bg-[#1a1a1a] text-white font-semibold hover:bg-[#2d2a28] focus:ring-2 focus:ring-[#b8860b]/30 flex items-center justify-center gap-2 transition-colors"
               >
                 <Search className="w-5 h-5" />
                 Search
@@ -474,8 +474,8 @@ function HotelList() {
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Desktop: left sidebar filters */}
         <aside className="hidden lg:block lg:w-72 shrink-0">
-          <div className="sticky top-24 space-y-6 rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm">
-            <h2 className="font-semibold text-stone-900 text-lg">Filters</h2>
+          <div className="sticky top-24 space-y-6 rounded-2xl border border-[#e8e4dd] bg-white p-6 shadow-[0_4px_12px_rgb(26_26_26_/0.06)]">
+            <h2 className="font-semibold text-[#1a1a1a] text-lg">Filters</h2>
             <FilterContent />
           </div>
         </aside>
@@ -487,45 +487,45 @@ function HotelList() {
 
         {/* Main: results */}
         <div className="flex-1 min-w-0">
-          <nav className="text-sm text-stone-600 mb-4" aria-label="Breadcrumb">
-            <Link to="/" className="hover:text-amber-600">Home</Link>
+          <nav className="text-sm text-[#5c5852] mb-4" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-[#b8860b]">Home</Link>
             {(country || city || (latitude && longitude)) && (
               <>
                 <span className="mx-1">›</span>
-                <span className="text-stone-900 font-medium">
+                <span className="text-[#1a1a1a] font-medium">
                   {city || country || (latitude && longitude ? 'Map search' : 'Search results')}
                 </span>
               </>
             )}
-            {!country && !city && !latitude && !longitude && <span className="text-stone-900 font-medium">Search results</span>}
+            {!country && !city && !latitude && !longitude && <span className="text-[#1a1a1a] font-medium">Search results</span>}
           </nav>
 
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-stone-900">
+              <h1 className="font-serif text-xl sm:text-2xl font-semibold text-[#1a1a1a]">
                 {city ? `${city}: ` : ''}{total} propert{total === 1 ? 'y' : 'ies'} found
               </h1>
               <button
                 type="button"
                 onClick={() => setFilterDrawerOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
+                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl border border-[#e8e4dd]200 hover:bg-[#faf8f5] text-sm font-medium transition-colors"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
                 {filterCount > 0 && (
-                  <span className="ml-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-medium">
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-[#f9edd1] text-[#996f09] text-xs font-medium">
                     {filterCount}
                   </span>
                 )}
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="sort" className="text-sm text-stone-600">Sort by</label>
+              <label htmlFor="sort" className="text-sm text-[#5c5852]">Sort by</label>
               <select
                 id="sort"
                 value={sort}
                 onChange={(e) => applyFilters({ sort: e.target.value })}
-                className="rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-700 bg-white min-w-[160px] focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="rounded-xl border border-[#e8e4dd] px-4 py-2.5 text-sm text-[#45423d] bg-white min-w-[160px] focus:ring-2 focus:ring-[#b8860b]/30 focus:border-[#b8860b]"
               >
                 {SORT_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value} disabled={opt.disabled}>
@@ -549,7 +549,7 @@ function HotelList() {
                       const next = selectedAmenities.filter((s) => s !== slug);
                       applyFilters({ amenities: next.join(',') });
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-sm font-medium hover:bg-amber-200"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f9edd1] text-[#996f09] text-sm font-medium hover:bg-[#f0d999]"
                   >
                     <AmenityIcon slug={slug} className="w-3.5 h-3.5" />
                     {a?.name || slug}
@@ -564,11 +564,11 @@ function HotelList() {
             <HotelListSkeleton count={6} />
           ) : hotels.length === 0 ? (
             <div className="py-16 text-center" role="status">
-              <p className="text-stone-600 text-lg font-medium mb-2">No hotels found</p>
-              <p className="text-stone-500 mb-6">Try adjusting your filters or search criteria to find more options.</p>
+              <p className="text-[#5c5852] text-lg font-medium mb-2">No hotels found</p>
+              <p className="text-[#5c5852] mb-6">Try adjusting your filters or search criteria to find more options.</p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1a1a1a] text-white font-semibold hover:bg-[#2d2a28] transition-colors"
               >
                 <Search className="w-5 h-5" />
                 Search from home
@@ -585,7 +585,7 @@ function HotelList() {
                     nights={nights ?? undefined}
                     imageOverlay={<WishlistHeart hotelId={h.id} checkIn={checkIn || undefined} checkOut={checkOut || undefined} />}
                   >
-                    <span className="mt-3 inline-flex items-center text-sm font-medium text-amber-600">
+                    <span className="mt-3 inline-flex items-center text-sm font-medium text-[#b8860b]">
                       View details →
                     </span>
                   </HotelCard>
@@ -596,18 +596,18 @@ function HotelList() {
                   {meta.current_page > 1 && (
                     <Link
                       to={{ search: buildSearch({ page: meta.current_page - 1 }) }}
-                      className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
+                      className="px-4 py-2.5 rounded-xl border border-[#e8e4dd]200 hover:bg-[#faf8f5] text-sm font-medium transition-colors"
                     >
                       Previous
                     </Link>
                   )}
-                  <span className="px-4 py-2 text-stone-600 text-sm">
+                  <span className="px-4 py-2 text-[#5c5852] text-sm">
                     Page {meta.current_page} of {meta.last_page}
                   </span>
                   {meta.current_page < meta.last_page && (
                     <Link
                       to={{ search: buildSearch({ page: meta.current_page + 1 }) }}
-                      className="px-4 py-2.5 rounded-xl border border-stone-200 hover:bg-amber-50 text-sm font-medium transition-colors"
+                      className="px-4 py-2.5 rounded-xl border border-[#e8e4dd]200 hover:bg-[#faf8f5] text-sm font-medium transition-colors"
                     >
                       Next
                     </Link>
@@ -617,7 +617,7 @@ function HotelList() {
             </>
           )}
 
-          <p className="mt-8 text-xs text-stone-500">
+          <p className="mt-8 text-xs text-[#5c5852]">
             Commission paid on bookings, and other factors can affect property rankings.
           </p>
         </div>

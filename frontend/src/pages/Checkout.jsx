@@ -79,9 +79,9 @@ export default function Checkout() {
   if (!booking && !user && !stateBooking) {
     return (
       <div className="py-6">
-        <p className="text-stone-600 mb-2">This checkout session has expired or the page was refreshed.</p>
-        <p className="text-stone-600 mb-4">We'll send a link to your email after you complete the booking — use that link to view and pay.</p>
-        <Link to="/hotels" className="text-amber-600 underline">Search hotels</Link>
+        <p className="text-[#5c5852] mb-2">This checkout session has expired or the page was refreshed.</p>
+        <p className="text-[#5c5852] mb-4">We'll send a link to your email after you complete the booking — use that link to view and pay.</p>
+        <Link to="/hotels" className="text-[#b8860b] underline hover:text-[#996f09]">Search hotels</Link>
       </div>
     );
   }
@@ -89,7 +89,7 @@ export default function Checkout() {
   if (!stateBooking && !booking && isLoading) {
     return (
       <div className="py-6 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#b8860b]600" />
       </div>
     );
   }
@@ -105,23 +105,23 @@ export default function Checkout() {
   if (showSuccess) {
     return (
       <div className="py-12 max-w-lg mx-auto text-center">
-        <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-8 sm:p-12">
+        <div className="rounded-2xl border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] p-8 sm:p-12">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-6">
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">Booking confirmed</h1>
-        <p className="text-stone-600 mb-4">Thank you for your booking. A confirmation has been sent to your email.</p>
-        <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/60 mb-6">
-          <p className="font-mono font-semibold text-stone-900">{booking?.uuid || uuid}</p>
-          <p className="text-sm text-stone-600 mt-1">Your booking reference</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1a1a] mb-2">Booking confirmed</h1>
+        <p className="text-[#5c5852] mb-4">Thank you for your booking. A confirmation has been sent to your email.</p>
+        <div className="p-4 rounded-xl bg-[#f9edd1]/60 border border-[#e5c261]/60 mb-6">
+          <p className="font-mono font-semibold text-[#1a1a1a]">{booking?.uuid || uuid}</p>
+          <p className="text-sm text-[#5c5852] mt-1">Your booking reference</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           {user ? (
-            <Link to="/profile" className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors">
+            <Link to="/profile" className="px-6 py-3 rounded-xl bg-[#b8860b] text-white font-semibold hover:bg-[#996f09] transition-colors">
               View my bookings
             </Link>
           ) : (
-            <Link to="/" className="px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition-colors">
+            <Link to="/" className="px-6 py-3 rounded-xl bg-[#b8860b] text-white font-semibold hover:bg-[#996f09] transition-colors">
               Back to home
             </Link>
           )}
@@ -133,27 +133,27 @@ export default function Checkout() {
 
   return (
     <div className="py-6">
-      <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-6">Checkout</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1a1a] mb-6">Checkout</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left: Booking summary */}
         <div className="flex-1">
-          <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-6">
-            <h2 className="font-semibold text-stone-900 mb-4">Booking summary</h2>
-            <p className="text-stone-600 mb-1">
-              <span className="font-mono font-medium text-stone-900">{booking?.uuid || uuid}</span>
+          <div className="rounded-2xl border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] p-6">
+            <h2 className="font-semibold text-[#1a1a1a] mb-4">Booking summary</h2>
+            <p className="text-[#5c5852] mb-1">
+              <span className="font-mono font-medium text-[#1a1a1a]">{booking?.uuid || uuid}</span>
             </p>
             {booking?.hotel && (
-              <p className="text-stone-600 mb-1">{booking.hotel.name}</p>
+              <p className="text-[#5c5852] mb-1">{booking.hotel.name}</p>
             )}
             {booking?.guest_name && (
-              <p className="text-stone-600 mb-1">Guest: {booking.guest_name}</p>
+              <p className="text-[#5c5852] mb-1">Guest: {booking.guest_name}</p>
             )}
             {booking?.check_in && booking?.check_out && (
-              <p className="text-stone-600 mb-4">{formatDate(booking.check_in)} – {formatDate(booking.check_out)}</p>
+              <p className="text-[#5c5852] mb-4">{formatDate(booking.check_in)} – {formatDate(booking.check_out)}</p>
             )}
             {booking?.booking_rooms?.length > 0 && (
-              <ul className="text-sm text-stone-600 mb-4">
+              <ul className="text-sm text-[#5c5852] mb-4">
                 {booking.booking_rooms.map((br) => (
                   <li key={br.id}>
                     {br.room?.name} × {br.quantity}
@@ -162,10 +162,10 @@ export default function Checkout() {
               </ul>
             )}
             {booking?.total_price != null && (
-              <div className="border-t border-stone-200 pt-4 space-y-2">
+              <div className="border-t border-[#e8e4dd] pt-4 space-y-2">
                 {booking.subtotal != null && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-stone-600">Subtotal</span>
+                    <span className="text-[#5c5852]">Subtotal</span>
                     <span>{formatPrice(booking.subtotal, booking.currency)}</span>
                   </div>
                 )}
@@ -177,36 +177,36 @@ export default function Checkout() {
                 )}
                 {(booking.late_checkout_amount ?? 0) > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-stone-600">Late checkout</span>
+                    <span className="text-[#5c5852]">Late checkout</span>
                     <span>{formatPrice(booking.late_checkout_amount, booking.currency)}</span>
                   </div>
                 )}
                 {(booking.tax_amount ?? 0) > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-stone-600">{booking.hotel?.tax_name || 'Tax'}</span>
+                    <span className="text-[#5c5852]">{booking.hotel?.tax_name || 'Tax'}</span>
                     <span>{formatPrice(booking.tax_amount, booking.currency)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-semibold text-stone-900 pt-2">
+                <div className="flex justify-between font-semibold text-[#1a1a1a] pt-2">
                   <span>Total</span>
                   <span>{formatPrice(booking.total_price, booking.currency)}</span>
                 </div>
               </div>
             )}
             {booking?.cancellation_policy_summary && (
-              <p className="text-sm text-stone-500 mt-4">{booking.cancellation_policy_summary}</p>
+              <p className="text-sm text-[#5c5852] mt-4">{booking.cancellation_policy_summary}</p>
             )}
           </div>
         </div>
 
         {/* Right: Payment form */}
         <div className="lg:w-96 shrink-0">
-            <div className="rounded-2xl border border-stone-200/80 bg-white shadow-sm p-6 sticky top-24">
-            <div className="flex items-center gap-2 text-stone-600 text-sm mb-4">
+            <div className="rounded-2xl border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] p-6 sticky top-24">
+            <div className="flex items-center gap-2 text-[#5c5852] text-sm mb-4">
               <Lock className="w-4 h-4" />
               <span>Secure payment</span>
             </div>
-            <p className="text-stone-600 text-sm mb-4">
+            <p className="text-[#5c5852] text-sm mb-4">
               You will be redirected to Stripe Checkout to complete your payment securely.
             </p>
 
@@ -220,7 +220,7 @@ export default function Checkout() {
               type="button"
               onClick={handlePayClick}
               disabled={isProcessing}
-              className="w-full py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+              className="w-full py-3 rounded-xl bg-[#b8860b] text-white font-semibold hover:bg-[#996f09] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
             >
               {isProcessing ? (
                 <>
@@ -237,7 +237,7 @@ export default function Checkout() {
 
       <Link
         to={user ? '/profile' : '/'}
-        className="inline-block mt-6 text-stone-600 hover:text-stone-900 text-sm"
+        className="inline-block mt-6 text-[#5c5852] hover:text-[#1a1a1a] text-sm"
       >
         ← Back to {user ? 'profile' : 'home'}
       </Link>

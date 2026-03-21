@@ -16,7 +16,7 @@ class WishlistController extends BaseApiController
     public function index(Request $request): JsonResponse
     {
         $items = SavedHotel::where('user_id', $request->user()->id)
-            ->with(['hotel.rooms'])
+            ->with(['hotel.rooms', 'hotel.images'])
             ->latest()
             ->get();
 
@@ -64,7 +64,7 @@ class WishlistController extends BaseApiController
             }
         }
 
-        $saved->load(['hotel.rooms']);
+        $saved->load(['hotel.rooms', 'hotel.images']);
         return $this->success(new SavedHotelResource($saved), 201);
     }
 

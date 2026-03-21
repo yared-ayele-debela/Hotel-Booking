@@ -58,6 +58,7 @@ class HotelController extends Controller
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
         $this->syncCityCountryFromIds($validated);
+        $this->syncCityCountryFromText($validated);
         if (! empty($validated['check_in'])) {
             $validated['check_in'] = \Carbon\Carbon::parse($validated['check_in'])->format('H:i:s');
         }
@@ -112,6 +113,7 @@ class HotelController extends Controller
         $validated['cancellation_policy'] = $this->buildCancellationPolicyFromRequest($request);
         unset($validated['cancellation_policy_preset'], $validated['cancellation_policy_custom']);
         $this->syncCityCountryFromIds($validated);
+        $this->syncCityCountryFromText($validated);
         if (! empty($validated['check_in'])) {
             $validated['check_in'] = \Carbon\Carbon::parse($validated['check_in'])->format('H:i:s');
         }
@@ -149,6 +151,50 @@ class HotelController extends Controller
             $country = Country::find($validated['country_id']);
             if ($country) {
                 $validated['country'] = $country->name;
+            }
+        }
+    }
+
+    /**
+     * When address search (Geoapify) fills city/country as text but not city_id/country_id,
+     * try to resolve them from the database so hotels link to cities for search/filtering.
+     *
+     * @param array<string, mixed> $validated
+     */
+    private function syncCityCountryFromText(array &$validated): void
+    {
+        $cityName = trim((string) ($validated['city'] ?? ''));
+        $countryName = trim((string) ($validated['country'] ?? ''));
+
+        if (empty($cityName) && empty($countryName)) {
+            return;
+        }
+
+        // Resolve country_id from country text if not already set
+        if (empty($validated['country_id']) && ! empty($countryName)) {
+            $country = Country::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($countryName)])
+                ->orWhereRaw('LOWER(TRIM(code)) = ?', [strtolower($countryName)])
+                ->first();
+            if ($country) {
+                $validated['country_id'] = $country->id;
+                $validated['country'] = $country->name;
+            }
+        }
+
+        // Resolve city_id from city text (optionally scoped by country)
+        if (empty($validated['city_id']) && ! empty($cityName)) {
+            $cityQuery = City::whereRaw('LOWER(TRIM(name)) = ?', [strtolower($cityName)]);
+            if (! empty($validated['country_id'])) {
+                $cityQuery->where('country_id', $validated['country_id']);
+            }
+            $city = $cityQuery->first();
+            if ($city) {
+                $validated['city_id'] = $city->id;
+                $validated['city'] = $city->name;
+                if (empty($validated['country_id']) && $city->country_id) {
+                    $validated['country_id'] = $city->country_id;
+                    $validated['country'] = $city->country->name ?? $validated['country'];
+                }
             }
         }
     }

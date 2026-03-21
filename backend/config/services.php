@@ -40,6 +40,10 @@ return [
     | Stripe (payments)
     |--------------------------------------------------------------------------
     */
+    'unsplash' => [
+        'key' => env('UNSPLASH_ACCESS_KEY'),
+    ],
+
     'stripe' => [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),

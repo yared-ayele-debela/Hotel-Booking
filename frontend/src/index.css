@@ -1,24 +1,46 @@
 @import "tailwindcss";
+@import "./styles/design-tokens.css";
 
 @theme {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  @apply antialiased text-stone-800 bg-stone-50 min-h-screen;
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  @apply antialiased text-[#1a1a1a] min-h-screen;
+  background-color: var(--color-bg, #faf8f5);
 }
 
-/* Touch targets min 44px, focus visible */
+/* Serif headings for luxury feel */
+h1, h2, h3, .font-serif {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+/* Touch targets, focus visible */
 a, button {
   @apply min-h-[44px] min-w-[44px] inline-flex items-center justify-center;
 }
-
-/* Reset for Leaflet map controls */
 .leaflet-container a,
 .leaflet-container button {
   min-height: unset;
   min-width: unset;
 }
 a:focus-visible, button:focus-visible {
-  @apply outline-2 outline-offset-2 outline-amber-500;
+  @apply outline-2 outline-offset-2 outline-[#b8860b];
+}
+
+/* Refined scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f2ed;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d1c8;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a39e94;
 }

@@ -4,8 +4,8 @@
     <x-page-title
         title="Users"
         :breadcrumbs="[
-        ['label' => 'Admin', 'url' => route('dashboard')],
-        ['label' => 'Roles']
+        ['label' => 'Admin', 'url' => route('admin.dashboard')],
+        ['label' => 'Users']
     ]"
     />
     @can('create users')
@@ -13,9 +13,11 @@
     @endcan
     <x-alert />
 
+    <div class="table-responsive">
     <table class="table mt-3">
         <thead>
         <tr>
+            <th width="56">Photo</th>
             <th>Name</th>
             <th>Email</th>
             <th>Roles</th>
@@ -25,6 +27,7 @@
         <tbody>
         @foreach($users as $user)
             <tr>
+                <td class="align-middle">@include('admin.partials.user-avatar', ['user' => $user, 'size' => 40])</td>
                 <td>{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>
                 <td>
@@ -51,5 +54,6 @@
         @endforeach
         </tbody>
     </table>
+    </div>
 </div>
 @endsection

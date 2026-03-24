@@ -10,8 +10,13 @@
     ]"
         />
 
-        <form method="POST" action="{{ route('admin.users.store') }}">
+        <form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data">
         @csrf
+
+        <div class="mb-3">
+            <label>Profile photo (optional)</label>
+            <input type="file" name="avatar" class="form-control" accept="image/*">
+        </div>
 
         <div class="mb-3">
             <label>Name</label>

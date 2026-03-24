@@ -5,6 +5,28 @@
     <x-page-title title="Vendor Dashboard" :breadcrumbs="[['label' => 'Dashboard']]" />
     <x-alert />
 
+    @php
+        $vendorUser = auth()->user();
+        $vendorUser->loadMissing('vendorProfile');
+    @endphp
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                    @include('admin.partials.user-avatar', ['user' => $vendorUser, 'size' => 56])
+                    <div>
+                        <h5 class="mb-0">Welcome back, {{ $vendorUser->name }}</h5>
+                        @if($vendorUser->vendorProfile?->business_name)
+                            <p class="text-muted mb-0 small">{{ $vendorUser->vendorProfile->business_name }}</p>
+                        @else
+                            <p class="text-muted mb-0 small">Vendor account</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if(isset($vendorApproved) && !$vendorApproved)
     <div class="alert alert-warning mb-4" role="alert">
         <strong>Pending approval.</strong> Your account is under review. You will be able to add hotels and receive bookings once approved by our team.

@@ -5,6 +5,28 @@
     <x-page-title title="Dashboard" :breadcrumbs="[['label' => 'Dashboard']]" />
     <x-alert />
 
+    @php
+        $dashUser = auth()->user();
+        $dashRoleLabel = match ($dashUser->role) {
+            \App\Enums\Role::SUPER_ADMIN => 'Super administrator',
+            \App\Enums\Role::ADMIN => 'Administrator',
+            default => 'Dashboard',
+        };
+    @endphp
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body d-flex flex-wrap align-items-center gap-3">
+                    @include('admin.partials.user-avatar', ['user' => $dashUser, 'size' => 56])
+                    <div>
+                        <h5 class="mb-0">Welcome back, {{ $dashUser->name }}</h5>
+                        <p class="text-muted mb-0 small">{{ $dashRoleLabel }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Platform KPIs --}}
     <div class="row">
         <div class="col-xl-3 col-md-6">
@@ -185,17 +207,6 @@
     </div>
     @endif
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Admin users</h5>
-                    <p class="text-muted mb-0">Manage admin users and roles.</p>
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-primary mt-2">Users</a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

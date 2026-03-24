@@ -1,10 +1,9 @@
 
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
-    use App\Http\Controllers\Admin\DashboardController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
      */
 
-    Route::middleware(['auth','admin','web'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'web'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/geoapify/autocomplete', [\App\Http\Controllers\Admin\GeoapifyController::class, 'autocomplete'])->name('geoapify.autocomplete');
 
@@ -41,6 +40,7 @@ use Illuminate\Support\Facades\Route;
     Route::middleware('super_admin')->group(function () {
         Route::get('/vendors', [\App\Http\Controllers\Admin\VendorController::class, 'index'])->name('vendors.index');
         Route::get('/vendors/{vendor}', [\App\Http\Controllers\Admin\VendorController::class, 'show'])->name('vendors.show');
+        Route::get('/vendors/{vendor}/documents/{documentId}/download', [\App\Http\Controllers\Admin\VendorController::class, 'downloadDocument'])->name('vendors.documents.download');
         Route::post('/vendors/{vendor}/approve', [\App\Http\Controllers\Admin\VendorController::class, 'approve'])->name('vendors.approve');
         Route::post('/vendors/{vendor}/reject', [\App\Http\Controllers\Admin\VendorController::class, 'reject'])->name('vendors.reject');
         Route::patch('/vendors/{vendor}/status', [\App\Http\Controllers\Admin\VendorController::class, 'updateStatus'])->name('vendors.update-status');
@@ -54,7 +54,7 @@ use Illuminate\Support\Facades\Route;
         Route::get('/payouts/{payout}', [\App\Http\Controllers\Admin\PayoutController::class, 'show'])->name('payouts.show');
         Route::patch('/payouts/{payout}', [\App\Http\Controllers\Admin\PayoutController::class, 'update'])->name('payouts.update');
         Route::post('/payouts/{payout}/mark-paid', [\App\Http\Controllers\Admin\PayoutController::class, 'markPaid'])->name('payouts.mark-paid');
-        
+
         // Website Settings
         Route::get('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'index'])->name('website-settings.index');
         Route::put('/website-settings', [\App\Http\Controllers\Admin\WebsiteSettingsController::class, 'update'])->name('website-settings.update');
@@ -71,6 +71,9 @@ use Illuminate\Support\Facades\Route;
         Route::get('/dashboard', [\App\Http\Controllers\Admin\Vendor\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/profile', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/documents', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'storeDocuments'])->name('profile.documents.store');
+        Route::delete('/profile/documents/{documentId}', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'destroyDocument'])->name('profile.documents.destroy');
+        Route::get('/profile/documents/{documentId}/download', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'downloadDocument'])->name('profile.documents.download');
         Route::post('/profile/bank-accounts', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'storeBankAccount'])->name('profile.bank-accounts.store');
         Route::put('/profile/bank-accounts/{bankAccount}', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'updateBankAccount'])->name('profile.bank-accounts.update');
         Route::delete('/profile/bank-accounts/{bankAccount}', [\App\Http\Controllers\Admin\Vendor\ProfileController::class, 'destroyBankAccount'])->name('profile.bank-accounts.destroy');
@@ -90,14 +93,14 @@ use Illuminate\Support\Facades\Route;
         Route::get('/support-tickets/create', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'create'])->name('support-tickets.create');
         Route::post('/support-tickets', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'store'])->name('support-tickets.store');
         Route::get('/support-tickets/{supportTicket}', [\App\Http\Controllers\Admin\Vendor\SupportTicketController::class, 'show'])->name('support-tickets.show');
-        
+
         // Room Images
         Route::get('rooms/{room}/images', [\App\Http\Controllers\Admin\Vendor\RoomImageController::class, 'index'])->name('rooms.images.index');
         Route::post('rooms/{room}/images', [\App\Http\Controllers\Admin\Vendor\RoomImageController::class, 'store'])->name('rooms.images.store');
         Route::put('rooms/{room}/images/{image}', [\App\Http\Controllers\Admin\Vendor\RoomImageController::class, 'update'])->name('rooms.images.update');
         Route::delete('rooms/{room}/images/{image}', [\App\Http\Controllers\Admin\Vendor\RoomImageController::class, 'destroy'])->name('rooms.images.destroy');
         Route::post('rooms/{room}/images/reorder', [\App\Http\Controllers\Admin\Vendor\RoomImageController::class, 'reorder'])->name('rooms.images.reorder');
-        
+
         // Hotel Images
         Route::get('hotels/{hotel}/images', [\App\Http\Controllers\Admin\Vendor\HotelImageController::class, 'index'])->name('hotels.images.index');
         Route::post('hotels/{hotel}/images', [\App\Http\Controllers\Admin\Vendor\HotelImageController::class, 'store'])->name('hotels.images.store');

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -44,13 +45,7 @@ class AuthController extends Controller
             'data' => [
                 'token' => $token,
                 'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'uuid' => $user->uuid,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role->value,
-                ],
+                'user' => $this->userApiPayload($user),
             ],
         ]);
     }
@@ -93,14 +88,7 @@ class AuthController extends Controller
             'data' => [
                 'token' => $token,
                 'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'uuid' => $user->uuid,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role->value,
-                    'vendor_approved' => false,
-                ],
+                'user' => $this->userApiPayload($user),
             ],
         ], 201);
     }
@@ -131,13 +119,7 @@ class AuthController extends Controller
             'data' => [
                 'token' => $token,
                 'token_type' => 'Bearer',
-                'user' => [
-                    'id' => $user->id,
-                    'uuid' => $user->uuid,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role->value,
-                ],
+                'user' => $this->userApiPayload($user),
             ],
         ], 201);
     }
@@ -156,30 +138,22 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $data = [
-            'id' => $user->id,
-            'uuid' => $user->uuid,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role->value,
-        ];
-        if ($user->role === Role::VENDOR) {
-            $data['vendor_approved'] = $user->isVendorApproved();
-        }
-        return response()->json(['success' => true, 'data' => $data]);
+        return response()->json(['success' => true, 'data' => $this->userApiPayload($request->user())]);
     }
 
     /**
-     * Update current user profile (name, email, optional password).
+     * Update current user profile (name, email, optional password, optional avatar).
+     * Send JSON as usual, or multipart/form-data to upload/remove a profile photo.
      */
     public function update(Request $request): JsonResponse
     {
         $user = $request->user();
 
         $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+            'avatar' => 'nullable|image|max:2048',
+            'remove_avatar' => 'nullable|boolean',
         ];
 
         if ($request->filled('password')) {
@@ -188,24 +162,47 @@ class AuthController extends Controller
 
         $validated = $request->validate($rules);
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        if (! empty($validated['password'])) {
+        if ($request->boolean('remove_avatar') && $user->avatar) {
+            if (Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $user->avatar = null;
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $user->avatar = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->name = $validated['name'] ?? $user->name;
+        $user->email = $validated['email'] ?? $user->email;
+        if (! empty($validated['password'] ?? null)) {
             $user->password = Hash::make($validated['password']);
         }
         $user->save();
 
+        return response()->json(['success' => true, 'data' => $this->userApiPayload($user->fresh())]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function userApiPayload(User $user): array
+    {
         $data = [
             'id' => $user->id,
             'uuid' => $user->uuid,
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role->value,
+            'avatar_url' => $user->avatarUrl(),
         ];
         if ($user->role === Role::VENDOR) {
             $data['vendor_approved'] = $user->isVendorApproved();
         }
 
-        return response()->json(['success' => true, 'data' => $data]);
+        return $data;
     }
 }

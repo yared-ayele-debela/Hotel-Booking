@@ -114,6 +114,68 @@
         </div>
     </div>
 
+    @php
+        $businessDocs = [];
+        if ($profile && is_array($profile->documents)) {
+            $businessDocs = array_values(array_filter($profile->documents, fn ($d) => is_array($d) && !empty($d['path']) && !empty($d['id'])));
+        }
+    @endphp
+    @if(count($businessDocs) > 0)
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Business documents</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Files uploaded by the vendor for verification or records.</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>File</th>
+                                    <th>Size</th>
+                                    <th>Uploaded</th>
+                                    <th width="140"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($businessDocs as $doc)
+                                <tr>
+                                    <td>
+                                        <i class="mdi mdi-file-document-outline me-1 text-muted"></i>
+                                        {{ $doc['original_name'] ?? basename($doc['path'] ?? '') }}
+                                    </td>
+                                    <td class="text-muted small">
+                                        @if(!empty($doc['size']))
+                                            {{ number_format($doc['size'] / 1024, 1) }} KB
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+                                    <td class="text-muted small">
+                                        @if(!empty($doc['uploaded_at']))
+                                            {{ \Carbon\Carbon::parse($doc['uploaded_at'])->format('M j, Y') }}
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.vendors.documents.download', ['vendor' => $vendor->id, 'documentId' => $doc['id']]) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="mdi mdi-download"></i> Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Actions</h5>

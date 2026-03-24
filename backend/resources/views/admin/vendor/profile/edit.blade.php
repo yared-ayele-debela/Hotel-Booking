@@ -58,6 +58,76 @@
         </div>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-2">Business documents</h5>
+            <p class="text-muted small mb-4">Upload licenses, registration, tax certificates, or other supporting files (PDF, images, Word). Admins can view and download these from your vendor profile. Maximum 25 files total, up to 10 MB each.</p>
+
+            @if($businessDocuments && count($businessDocuments) > 0)
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>File</th>
+                            <th>Size</th>
+                            <th>Uploaded</th>
+                            <th class="text-end" width="200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($businessDocuments as $doc)
+                        <tr>
+                            <td>
+                                <i class="mdi mdi-file-document-outline me-1 text-primary"></i>
+                                <span class="text-break">{{ $doc['original_name'] ?? basename($doc['path'] ?? '') }}</span>
+                            </td>
+                            <td class="text-muted small">
+                                @if(!empty($doc['size']))
+                                    {{ number_format($doc['size'] / 1024, 1) }} KB
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td class="text-muted small">
+                                @if(!empty($doc['uploaded_at']))
+                                    {{ \Carbon\Carbon::parse($doc['uploaded_at'])->format('M j, Y g:i a') }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ route('admin.vendor.profile.documents.download', ['documentId' => $doc['id']]) }}" class="btn btn-sm btn-outline-primary me-1">Download</a>
+                                <form action="{{ route('admin.vendor.profile.documents.destroy', ['documentId' => $doc['id']]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove this file?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <p class="text-muted small mb-4">No documents uploaded yet.</p>
+            @endif
+
+            <h6 class="mb-3">Upload files</h6>
+            <form action="{{ route('admin.vendor.profile.documents.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <input type="file" name="document_files[]" class="form-control @error('document_files') is-invalid @enderror @error('document_files.*') is-invalid @enderror" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,application/pdf,image/*">
+                    @error('document_files')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    @error('document_files.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                </div>
+                <button type="submit" class="btn btn-primary" {{ count($businessDocuments ?? []) >= 25 ? 'disabled' : '' }}>Upload</button>
+                @if(count($businessDocuments ?? []) >= 25)
+                    <span class="text-muted small ms-2">Maximum number of files reached.</span>
+                @endif
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">Bank accounts</h5>

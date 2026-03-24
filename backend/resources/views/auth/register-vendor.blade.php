@@ -1,4 +1,9 @@
+@php
+    $authPageTitle = 'Vendor registration';
+    $authHotelBackground = asset('images/auth/vendor-bg.png');
+@endphp
 @include('admin.layouts.css')
+@include('auth.partials.auth-hotel-bg-styles')
 <div class="auth-page">
     <div class="container-fluid p-0">
         <div class="row g-0">
@@ -6,15 +11,11 @@
                 <div class="auth-full-page-content d-flex p-sm-5 p-4">
                     <div class="w-100">
                         <div class="d-flex flex-column h-100">
-                            <div class="mb-4 mb-md-5 text-center">
-                                <a href="{{ url('/') }}" class="d-block auth-logo">
-                                    <img src="{{ asset('admin/dist/assets/images/logo-sm.svg') }}" alt="" height="28"> <span class="logo-txt">YD</span>
-                                </a>
-                            </div>
+                            @include('auth.partials.auth-brand')
                             <div class="auth-content my-auto">
                                 <div class="text-center">
-                                    <h5 class="mb-0">Register as Vendor</h5>
-                                    <p class="text-muted mt-2">Apply to list your hotels on our platform.</p>
+                                    <h5 class="mb-0">Register as vendor</h5>
+                                    <p class="text-muted mt-2">Apply to list your properties and manage bookings.</p>
                                 </div>
                                 <form class="mt-4 pt-2" method="POST" action="{{ route('register.vendor') }}">
                                     @csrf
@@ -79,7 +80,7 @@
                 </div>
             </div>
             <div class="col-xxl-9 col-lg-8 col-md-7">
-                <div class="auth-bg pt-md-5 p-4 d-flex">
+                <div class="auth-bg auth-bg--hotel-booking position-relative pt-md-5 p-4 d-flex">
                     <div class="bg-overlay bg-primary"></div>
                     <ul class="bg-bubbles">
                         @for($i = 0; $i < 10; $i++)<li></li>@endfor

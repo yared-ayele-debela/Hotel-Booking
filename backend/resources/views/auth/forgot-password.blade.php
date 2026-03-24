@@ -1,4 +1,9 @@
+@php
+    $authPageTitle = 'Forgot password';
+    $authHotelBackground = asset('images/auth/login-bg.jpg');
+@endphp
 @include('admin.layouts.css')
+@include('auth.partials.auth-hotel-bg-styles')
 <div class="auth-page">
     <div class="container-fluid p-0">
         <div class="row g-0">
@@ -66,7 +71,7 @@
             </div>
             <!-- end col -->
             <div class="col-xxl-9 col-lg-8 col-md-7">
-                <div class="auth-bg pt-md-5 p-4 d-flex">
+                <div class="auth-bg auth-bg--hotel-booking position-relative pt-md-5 p-4 d-flex">
                     <div class="bg-overlay bg-primary"></div>
                     <ul class="bg-bubbles">
                         <li></li>

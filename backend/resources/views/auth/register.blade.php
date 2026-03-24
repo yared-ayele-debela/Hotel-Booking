@@ -1,4 +1,9 @@
+@php
+    $authPageTitle = 'Register';
+    $authHotelBackground = asset('images/auth/register-bg.jpg');
+@endphp
 @include('admin.layouts.css')
+@include('auth.partials.auth-hotel-bg-styles')
 <div class="auth-page">
     <div class="container-fluid p-0">
         <div class="row g-0">
@@ -6,15 +11,11 @@
                 <div class="auth-full-page-content d-flex p-sm-5 p-4">
                     <div class="w-100">
                         <div class="d-flex flex-column h-100">
-                            <div class="mb-4 mb-md-5 text-center">
-                                <a href="{{ url('/') }}" class="d-block auth-logo">
-                                    <img src="{{asset('admin/dist/assets/images/logo-sm.svg')}}" alt="" height="28"> <span class="logo-txt">YD</span>
-                                </a>
-                            </div>
+                            @include('auth.partials.auth-brand')
                             <div class="auth-content my-auto">
                                 <div class="text-center">
-                                    <h5 class="mb-0">Welcome Back !</h5>
-                                    <p class="text-muted mt-2">Sign in to continue to YD.</p>
+                                    <h5 class="mb-0">Create your account</h5>
+                                    <p class="text-muted mt-2">Register as a guest to book hotels and manage your trips.</p>
                                 </div>
                                 <form class="mt-4 pt-2" method="POST" action="{{ route('register') }}">
                                     @csrf
@@ -116,7 +117,7 @@
             </div>
             <!-- end col -->
             <div class="col-xxl-9 col-lg-8 col-md-7">
-                <div class="auth-bg pt-md-5 p-4 d-flex">
+                <div class="auth-bg auth-bg--hotel-booking position-relative pt-md-5 p-4 d-flex">
                     <div class="bg-overlay bg-primary"></div>
                     <ul class="bg-bubbles">
                         <li></li>

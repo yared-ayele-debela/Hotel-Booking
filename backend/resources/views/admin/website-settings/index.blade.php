@@ -23,6 +23,16 @@
                     </div>
                 @endif
 
+                @if($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0 ps-3">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <form action="{{ route('admin.website-settings.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -31,33 +41,33 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="site_name" class="form-label">Site Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="site_name" name="site_name" value="{{ $settings['site_name'] }}" required>
+                                <input type="text" class="form-control" id="site_name" name="site_name" value="{{ old('site_name', $settings['site_name']) }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="site_email" class="form-label">Contact Email</label>
-                                <input type="email" class="form-control" id="site_email" name="site_email" value="{{ $settings['site_email'] }}">
+                                <input type="email" class="form-control" id="site_email" name="site_email" value="{{ old('site_email', $settings['site_email']) }}">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="site_description" class="form-label">Site Description</label>
-                        <textarea class="form-control" id="site_description" name="site_description" rows="3">{{ $settings['site_description'] }}</textarea>
+                        <textarea class="form-control" id="site_description" name="site_description" rows="3">{{ old('site_description', $settings['site_description']) }}</textarea>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="site_phone" class="form-label">Contact Phone</label>
-                                <input type="text" class="form-control" id="site_phone" name="site_phone" value="{{ $settings['site_phone'] }}">
+                                <input type="text" class="form-control" id="site_phone" name="site_phone" value="{{ old('site_phone', $settings['site_phone']) }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="site_address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="site_address" name="site_address" value="{{ $settings['site_address'] }}">
+                                <input type="text" class="form-control" id="site_address" name="site_address" value="{{ old('site_address', $settings['site_address']) }}">
                             </div>
                         </div>
                     </div>
@@ -74,7 +84,11 @@
                                 @if($settings['site_logo'])
                                     <div class="mt-2">
                                         <img src="{{ asset('storage/' . $settings['site_logo']) }}" alt="Logo" style="max-height: 60px;" class="img-thumbnail">
-                                        <a href="{{ route('admin.website-settings.remove-logo') }}" class="btn btn-sm btn-danger ms-2" onclick="return confirm('Are you sure you want to remove the logo?')">Remove</a>
+                                        {{-- Nested <form> is invalid HTML and closes the outer form early, breaking Save. Use a sibling form + button. --}}
+                                        <button type="button" class="btn btn-sm btn-danger ms-2"
+                                            onclick="if (confirm('Are you sure you want to remove the logo?')) document.getElementById('website-settings-remove-logo-form').submit();">
+                                            Remove
+                                        </button>
                                     </div>
                                 @endif
                             </div>
@@ -86,7 +100,10 @@
                                 @if($settings['site_favicon'])
                                     <div class="mt-2">
                                         <img src="{{ asset('storage/' . $settings['site_favicon']) }}" alt="Favicon" style="max-height: 32px;" class="img-thumbnail">
-                                        <a href="{{ route('admin.website-settings.remove-favicon') }}" class="btn btn-sm btn-danger ms-2" onclick="return confirm('Are you sure you want to remove the favicon?')">Remove</a>
+                                        <button type="button" class="btn btn-sm btn-danger ms-2"
+                                            onclick="if (confirm('Are you sure you want to remove the favicon?')) document.getElementById('website-settings-remove-favicon-form').submit();">
+                                            Remove
+                                        </button>
                                     </div>
                                 @endif
                             </div>
@@ -101,13 +118,13 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="social_facebook" class="form-label">Facebook URL</label>
-                                <input type="url" class="form-control" id="social_facebook" name="social_facebook" value="{{ $settings['social_facebook'] }}">
+                                <input type="url" class="form-control" id="social_facebook" name="social_facebook" value="{{ old('social_facebook', $settings['social_facebook']) }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="social_twitter" class="form-label">Twitter URL</label>
-                                <input type="url" class="form-control" id="social_twitter" name="social_twitter" value="{{ $settings['social_twitter'] }}">
+                                <input type="url" class="form-control" id="social_twitter" name="social_twitter" value="{{ old('social_twitter', $settings['social_twitter']) }}">
                             </div>
                         </div>
                     </div>
@@ -116,13 +133,13 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="social_instagram" class="form-label">Instagram URL</label>
-                                <input type="url" class="form-control" id="social_instagram" name="social_instagram" value="{{ $settings['social_instagram'] }}">
+                                <input type="url" class="form-control" id="social_instagram" name="social_instagram" value="{{ old('social_instagram', $settings['social_instagram']) }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="social_linkedin" class="form-label">LinkedIn URL</label>
-                                <input type="url" class="form-control" id="social_linkedin" name="social_linkedin" value="{{ $settings['social_linkedin'] }}">
+                                <input type="url" class="form-control" id="social_linkedin" name="social_linkedin" value="{{ old('social_linkedin', $settings['social_linkedin']) }}">
                             </div>
                         </div>
                     </div>
@@ -133,22 +150,22 @@
                     
                     <div class="mb-3">
                         <label for="meta_title" class="form-label">Meta Title</label>
-                        <input type="text" class="form-control" id="meta_title" name="meta_title" value="{{ $settings['meta_title'] }}">
+                        <input type="text" class="form-control" id="meta_title" name="meta_title" value="{{ old('meta_title', $settings['meta_title']) }}">
                     </div>
 
                     <div class="mb-3">
                         <label for="meta_description" class="form-label">Meta Description</label>
-                        <textarea class="form-control" id="meta_description" name="meta_description" rows="2">{{ $settings['meta_description'] }}</textarea>
+                        <textarea class="form-control" id="meta_description" name="meta_description" rows="2">{{ old('meta_description', $settings['meta_description']) }}</textarea>
                     </div>
 
                     <div class="mb-3">
                         <label for="meta_keywords" class="form-label">Meta Keywords</label>
-                        <input type="text" class="form-control" id="meta_keywords" name="meta_keywords" value="{{ $settings['meta_keywords'] }}">
+                        <input type="text" class="form-control" id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords', $settings['meta_keywords']) }}">
                     </div>
 
                     <div class="mb-3">
                         <label for="google_analytics" class="form-label">Google Analytics Code</label>
-                        <textarea class="form-control" id="google_analytics" name="google_analytics" rows="3" placeholder="Paste your Google Analytics tracking code here">{{ $settings['google_analytics'] }}</textarea>
+                        <textarea class="form-control" id="google_analytics" name="google_analytics" rows="3" placeholder="Paste your Google Analytics tracking code here">{{ old('google_analytics', $settings['google_analytics']) }}</textarea>
                     </div>
 
                     <hr>
@@ -157,7 +174,9 @@
                     
                     <div class="mb-3">
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode" value="1" {{ $settings['maintenance_mode'] == '1' ? 'checked' : '' }}>
+                            {{-- Unchecked checkboxes are not submitted; hidden ensures maintenance_mode is always present for validation. --}}
+                            <input type="hidden" name="maintenance_mode" value="0">
+                            <input class="form-check-input" type="checkbox" id="maintenance_mode" name="maintenance_mode" value="1" {{ old('maintenance_mode', $settings['maintenance_mode'] == '1' ? '1' : '0') == '1' ? 'checked' : '' }}>
                             <label class="form-check-label" for="maintenance_mode">
                                 Enable Maintenance Mode
                             </label>
@@ -166,7 +185,7 @@
 
                     <div class="mb-3">
                         <label for="maintenance_message" class="form-label">Maintenance Message</label>
-                        <textarea class="form-control" id="maintenance_message" name="maintenance_message" rows="2">{{ $settings['maintenance_message'] }}</textarea>
+                        <textarea class="form-control" id="maintenance_message" name="maintenance_message" rows="2">{{ old('maintenance_message', $settings['maintenance_message']) }}</textarea>
                     </div>
 
                     <div class="text-end">
@@ -175,6 +194,19 @@
                         </button>
                     </div>
                 </form>
+
+                @if($settings['site_logo'])
+                    <form id="website-settings-remove-logo-form" action="{{ route('admin.website-settings.remove-logo') }}" method="POST" class="d-none" aria-hidden="true">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endif
+                @if($settings['site_favicon'])
+                    <form id="website-settings-remove-favicon-form" action="{{ route('admin.website-settings.remove-favicon') }}" method="POST" class="d-none" aria-hidden="true">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endif
             </div>
         </div>
     </div>

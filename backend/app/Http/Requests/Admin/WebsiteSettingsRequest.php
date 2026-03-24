@@ -11,6 +11,17 @@ class WebsiteSettingsRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Unchecked HTML checkboxes are not sent. Default here so validation never
+     * treats maintenance mode as "missing" (avoids a confusing "required" error).
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'maintenance_mode' => $this->boolean('maintenance_mode'),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
@@ -27,7 +38,7 @@ class WebsiteSettingsRequest extends FormRequest
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
             'google_analytics' => 'nullable|string|max:500',
-            'maintenance_mode' => 'required|boolean',
+            'maintenance_mode' => 'boolean',
             'maintenance_message' => 'nullable|string|max:1000',
             'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'site_favicon' => 'nullable|image|mimes:ico,png,jpg,jpeg|max:1024',
@@ -52,7 +63,6 @@ class WebsiteSettingsRequest extends FormRequest
             'meta_description.max' => 'The meta description may not be greater than 500 characters.',
             'meta_keywords.max' => 'The meta keywords may not be greater than 500 characters.',
             'google_analytics.max' => 'The Google Analytics code may not be greater than 500 characters.',
-            'maintenance_mode.required' => 'The maintenance mode field is required.',
             'maintenance_mode.boolean' => 'The maintenance mode must be true or false.',
             'maintenance_message.max' => 'The maintenance message may not be greater than 1000 characters.',
             'site_logo.image' => 'The logo must be an image file.',

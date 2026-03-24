@@ -8,6 +8,7 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -25,6 +26,7 @@ class User extends Authenticatable
         'uuid',
         'name',
         'email',
+        'avatar',
         'password',
         'role',
         'status',
@@ -81,5 +83,25 @@ class User extends Authenticatable
         }
         $profile = $this->vendorProfile;
         return $profile && $profile->isApproved();
+    }
+
+    /** Public URL for stored avatar, or null if none. */
+    public function avatarUrl(): ?string
+    {
+        if (! $this->avatar || ! Storage::disk('public')->exists($this->avatar)) {
+            return null;
+        }
+
+        return asset('storage/'.$this->avatar);
+    }
+
+    public function avatarInitial(): string
+    {
+        $name = trim((string) $this->name);
+        if ($name === '') {
+            return '?';
+        }
+
+        return mb_strtoupper(mb_substr($name, 0, 1));
     }
 }

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, User, Headphones, LogOut, CalendarCheck, MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWebsiteSettings } from '../contexts/WebsiteSettingsContext';
+import UserAvatar from './UserAvatar';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -32,18 +33,16 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link
           to="/"
-          className="flex items-center gap-2.5 group transition-opacity hover:opacity-90"
+          aria-label={settings.site_name ? `${settings.site_name} — home` : 'Home'}
+          className="flex items-center group transition-opacity hover:opacity-90"
         >
           {settings.site_logo ? (
-            <img src={settings.site_logo} alt={settings.site_name} className="h-9 w-auto object-contain" />
+            <img src={settings.site_logo} alt="" className="h-9 w-auto max-h-10 object-contain" />
           ) : (
-            <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-[#1a1a1a] flex items-center justify-center" aria-hidden>
               <MapPin className="w-5 h-5 text-[#f9edd1]" />
             </div>
           )}
-          <span className="font-serif text-xl sm:text-2xl font-semibold text-[#1a1a1a] tracking-tight">
-            {settings.site_name}
-          </span>
         </Link>
 
         <nav className="flex items-center gap-1" aria-label="Main navigation">
@@ -65,12 +64,13 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setDropdownOpen((o) => !o)}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-[#5c5852] hover:text-[#1a1a1a] hover:bg-[#f5f2ed] font-medium text-sm transition-colors"
+                  className="flex items-center gap-1.5 px-2 py-2 rounded-lg text-[#5c5852] hover:text-[#1a1a1a] hover:bg-[#f5f2ed] font-medium text-sm transition-colors"
                   aria-expanded={dropdownOpen}
                   aria-haspopup="true"
+                  aria-label={`Account menu for ${user.name}`}
                 >
-                  <span className="font-medium text-[#1a1a1a]">{user.name}</span>
-                  <ChevronDown className={`w-4 h-4 text-[#7a756d] transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  <UserAvatar user={user} size={36} />
+                  <ChevronDown className={`w-4 h-4 text-[#7a756d] shrink-0 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-1.5 w-52 py-1.5 bg-white rounded-xl shadow-lg border border-[#e8e4dd]">

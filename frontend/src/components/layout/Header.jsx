@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useWebsiteSettings } from '../../contexts/WebsiteSettingsContext';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
+import UserAvatar from '../UserAvatar';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -121,9 +122,7 @@ const Header = () => {
                     isUserMenuOpen && 'bg-neutral-100'
                   )}
                 >
-                  <div className="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center">
-                    <User className="w-4 h-4 text-neutral-600" />
-                  </div>
+                  <UserAvatar user={user} size={32} fallbackClassName="bg-neutral-200 text-neutral-800" />
                   <span className="max-w-[120px] truncate">{user.name}</span>
                   <ChevronDown className={cn('w-4 h-4 text-neutral-600 transition-transform', isUserMenuOpen && 'rotate-180')} />
                 </button>
@@ -245,7 +244,10 @@ const Header = () => {
                 </div>
               ) : (
                 <div className="px-4">
-                  <p className="text-xs text-neutral-600 mb-2">{user.name}</p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <UserAvatar user={user} size={40} fallbackClassName="bg-neutral-200 text-neutral-800" />
+                    <span className="text-sm font-medium text-[#1a1a1a] truncate">{user.name}</span>
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"

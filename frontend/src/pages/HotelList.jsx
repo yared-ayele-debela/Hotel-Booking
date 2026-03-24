@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { MapPin, Calendar, Users, Search, SlidersHorizontal, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,6 +10,7 @@ import { HotelListSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
 import { AmenityIcon } from '../components/AmenityIcon';
 import { calculateNights } from '../lib/utils';
+import { parseHotelSearchResponse } from '../lib/hotelSearch';
 
 const PRICE_MAX = 500;
 const REVIEW_SCORE_OPTIONS = [
@@ -209,7 +210,7 @@ function HotelList() {
 
   const amenities = Array.isArray(amenitiesData?.data) ? amenitiesData.data : amenitiesData?.data?.data ?? [];
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  const { data, isLoading, isError, isFetching, error, refetch } = useQuery({
     queryKey: ['hotels', city, country, cityId, countryId, latitude, longitude, radiusKm, checkIn, checkOut, page, minRating, minCapacity, minPrice, maxPrice, sort, selectedAmenities.join(',')],
     queryFn: async () => {
       const params = { page, per_page: 12 };
@@ -235,12 +236,10 @@ function HotelList() {
       if (!res.data?.success) throw new Error(res.data?.message || 'Failed to load');
       return res.data;
     },
+    placeholderData: keepPreviousData,
   });
 
-  const rawData = data?.data;
-  const hotels = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
-  const meta = data?.meta ?? {};
-  const total = meta.total ?? hotels.length;
+  const { hotels, meta, total } = useMemo(() => parseHotelSearchResponse(data), [data]);
   const nights = checkIn && checkOut ? calculateNights(checkIn, checkOut) : null;
 
   const buildSearch = (overrides = {}) => {
@@ -249,6 +248,21 @@ function HotelList() {
   };
 
   const filterCount = [minRating, minCapacity, minPrice, maxPrice].filter(Boolean).length + (selectedAmenities.length ? 1 : 0);
+
+  const resultsHeadline = useMemo(() => {
+    const n = total;
+    const unit = n === 1 ? 'hotel' : 'hotels';
+    if (latitude && longitude && radiusKm) {
+      return { line1: `${n} ${unit} within ${radiusKm} km`, line2: 'Results follow your map area and filters.' };
+    }
+    if (city) {
+      return { line1: `${city}: ${n} ${unit}`, line2: 'Totals update when you change filters or dates.' };
+    }
+    if (country && !city) {
+      return { line1: `${country}: ${n} ${unit}`, line2: 'Totals update when you change filters or dates.' };
+    }
+    return { line1: `${n} ${unit} found`, line2: 'Totals update when you change filters or dates.' };
+  }, [total, city, country, latitude, longitude, radiusKm]);
 
   const { today, tomorrow } = useMemo(() => {
     const d = new Date();
@@ -500,20 +514,39 @@ function HotelList() {
             {!country && !city && !latitude && !longitude && <span className="text-[#1a1a1a] font-medium">Search results</span>}
           </nav>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <h1 className="font-serif text-xl sm:text-2xl font-semibold text-[#1a1a1a]">
-                {city ? `${city}: ` : ''}{total} propert{total === 1 ? 'y' : 'ies'} found
-              </h1>
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                {isLoading && !data ? (
+                  <>
+                    <div className="h-8 w-56 max-w-full rounded-lg bg-[#e8e4dd] animate-pulse" />
+                    <div className="h-4 w-72 max-w-full rounded bg-[#f5f2ed] animate-pulse" />
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <h1 className="font-serif text-xl sm:text-2xl font-semibold text-[#1a1a1a]">
+                        {resultsHeadline.line1}
+                      </h1>
+                      {isFetching && !isLoading && (
+                        <span className="text-xs font-medium whitespace-nowrap text-[#b8860b]" aria-live="polite">
+                          Updating…
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-[#5c5852]">{resultsHeadline.line2}</p>
+                  </>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => setFilterDrawerOpen(true)}
-                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-xl border border-[#e8e4dd]200 hover:bg-[#faf8f5] text-sm font-medium transition-colors"
+                className="flex shrink-0 items-center gap-2 self-start rounded-xl border border-[#e8e4dd] px-4 py-2 text-sm font-medium transition-colors hover:bg-[#faf8f5] lg:hidden"
               >
-                <SlidersHorizontal className="w-4 h-4" />
+                <SlidersHorizontal className="h-4 w-4" />
                 Filters
                 {filterCount > 0 && (
-                  <span className="ml-1 px-2 py-0.5 rounded-full bg-[#f9edd1] text-[#996f09] text-xs font-medium">
+                  <span className="ml-1 rounded-full bg-[#f9edd1] px-2 py-0.5 text-xs font-medium text-[#996f09]">
                     {filterCount}
                   </span>
                 )}

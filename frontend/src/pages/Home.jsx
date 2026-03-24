@@ -15,7 +15,6 @@ import {
   Mountain,
   Quote,
   ArrowRight,
-  Star,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -27,26 +26,37 @@ function LocationCard({ to, name, subtext, image, className = '' }) {
   return (
     <Link
       to={to}
-      className={`group block rounded-2xl overflow-hidden border border-[#e8e4dd] bg-white shadow-[0_4px_12px_rgb(26_26_26_/0.06)] hover:shadow-[0_12px_28px_rgb(26_26_26_/0.1)] hover:border-[#d4cec4] transition-all duration-300 ${className}`}
+      className={`group relative block rounded-3xl overflow-hidden bg-[#1a1a1a] ring-1 ring-black/5 shadow-[0_8px_30px_rgb(26_26_26_/0.08)] hover:shadow-[0_20px_40px_rgb(26_26_26_/0.14)] hover:ring-[#b8860b]/30 transition-all duration-500 ${className}`}
     >
-      <div className="aspect-[3/2] bg-[#e8e4dd] relative overflow-hidden">
+      <div className="aspect-[4/5] sm:aspect-[3/4] relative overflow-hidden">
         {image ? (
           <img
             src={image}
             alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[800ms] ease-out"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#f5f2ed] via-[#faf8f5] to-[#e8e4dd] text-[#a39e94]">
-            <MapPin className="w-12 h-12" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2d2a28] via-[#45423d] to-[#1a1a1a] text-[#a39e94]">
+            <MapPin className="w-14 h-14 opacity-60" strokeWidth={1.25} />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white">
-          <span className="font-serif text-lg font-semibold block">{name}</span>
-          {subtext && <span className="text-sm text-white/90">{subtext}</span>}
-          <span className="mt-2 inline-flex items-center text-sm font-medium text-[#c9a227] opacity-0 group-hover:opacity-100 transition-opacity">
-            Explore <ArrowRight className="w-4 h-4 ml-1" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/50 to-transparent opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#b8860b]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {subtext && (
+          <div className="absolute top-4 left-4 right-4 flex justify-start">
+            <span className="inline-block rounded-full bg-black/35 backdrop-blur-md px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white/95 ring-1 ring-white/15">
+              {subtext}
+            </span>
+          </div>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 pt-12">
+          <span className="font-serif text-xl sm:text-2xl font-semibold text-white tracking-tight block leading-snug">
+            {name}
+          </span>
+          <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 group-hover:text-[#f9edd1] transition-colors">
+            <span className="h-px w-8 bg-[#b8860b] group-hover:w-10 transition-all" />
+            View stays
+            <ArrowRight className="w-4 h-4 text-[#c9a227] group-hover:translate-x-0.5 transition-transform" />
           </span>
         </div>
       </div>
@@ -55,10 +65,26 @@ function LocationCard({ to, name, subtext, image, className = '' }) {
 }
 
 const TRUST_BADGES = [
-  { icon: CreditCard, label: 'Secure payment', description: 'Industry-standard encryption.' },
-  { icon: RotateCcw, label: 'Free cancellation', description: 'Cancel free up to 48h before.' },
-  { icon: Headphones, label: '24/7 support', description: "We're here around the clock." },
-  { icon: Shield, label: 'Verified reviews', description: 'Real reviews from real guests.' },
+  {
+    icon: CreditCard,
+    label: 'Encrypted checkout',
+    description: 'Card details are handled over secure connections with payment partners you already trust.',
+  },
+  {
+    icon: RotateCcw,
+    label: 'Flexible cancellation',
+    description: 'Change of plans? On qualifying rates you can cancel at no charge up to 48 hours before arrival.',
+  },
+  {
+    icon: Headphones,
+    label: 'Support, not scripts',
+    description: 'Reach a real team any time — whether it’s a booking tweak or a question before you travel.',
+  },
+  {
+    icon: Shield,
+    label: 'Reviews from real stays',
+    description: 'Ratings come from guests who completed a booking — so you see feedback that actually reflects the stay.',
+  },
 ];
 
 const PROPERTY_TYPES = [
@@ -70,19 +96,20 @@ const PROPERTY_TYPES = [
 
 const TESTIMONIALS = [
   {
-    quote: 'Found the perfect boutique hotel in Rome. The map search made it so easy to pick the right neighborhood.',
+    quote:
+      'I chose our Rome stay by dropping a pin on the map — no guesswork about which quarter we’d wake up in. The hotel matched what we saw online.',
     author: 'Maria K.',
-    trip: 'Rome, Italy',
+    trip: 'Rome',
   },
   {
-    quote: 'Smooth booking, great prices, and the free cancellation gave me peace of mind. Will book again!',
+    quote: 'Booking took minutes. When our dates shifted, cancelling was straightforward. I’ve already used it again for Venice.',
     author: 'James L.',
-    trip: 'Venice, Italy',
+    trip: 'Venice',
   },
   {
-    quote: 'Love that I can search by map and see exactly where hotels are. Game changer for planning trips.',
+    quote: 'Seeing every hotel on the map before paying made comparing neighborhoods effortless. Exactly what planning a city trip should feel like.',
     author: 'Sofia R.',
-    trip: 'Florence, Italy',
+    trip: 'Florence',
   },
 ];
 
@@ -323,17 +350,35 @@ export default function Home() {
         </section>
 
         {/* Popular Destinations */}
-        <section aria-labelledby="popular-destinations-heading">
-          <h2 id="popular-destinations-heading" className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1a1a] mb-2">
-            Popular destinations
-          </h2>
-          <p className="text-[#5c5852] mb-10 max-w-2xl leading-relaxed">
-            Explore Rome, Milan, Venice, Florence and more. Find hotels in the places guests love.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+        <section aria-labelledby="popular-destinations-heading" className="relative">
+          <div className="absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#b8860b]/40 to-transparent" aria-hidden />
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10 sm:mb-12">
+            <div className="max-w-2xl">
+              <p className="text-[#b8860b] text-xs font-semibold tracking-[0.22em] uppercase mb-3">
+                Destinations
+              </p>
+              <h2
+                id="popular-destinations-heading"
+                className="font-serif text-3xl sm:text-4xl font-semibold text-[#1a1a1a] tracking-tight mb-3"
+              >
+                Popular destinations
+              </h2>
+              <p className="text-[#5c5852] text-base sm:text-lg leading-relaxed">
+                From Rome and Milan to Venice and Florence — curated cities where travelers love to stay.
+              </p>
+            </div>
+            <Link
+              to="/hotels"
+              className="inline-flex items-center gap-2 self-start lg:self-auto shrink-0 px-5 py-3 rounded-xl border border-[#e8e4dd] bg-white text-[#1a1a1a] text-sm font-semibold hover:border-[#b8860b]/50 hover:bg-[#faf8f5] transition-all shadow-[0_2px_8px_rgb(26_26_26_/0.04)]"
+            >
+              Browse all cities
+              <ArrowRight className="w-4 h-4 text-[#b8860b]" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
             {cities.length === 0 ? (
               [...Array(8)].map((_, i) => (
-                <Skeleton key={i} className="aspect-[3/2] rounded-2xl" />
+                <Skeleton key={i} className="aspect-[4/5] sm:aspect-[3/4] rounded-3xl" />
               ))
             ) : (
               cities.slice(0, 8).map((c) => (
@@ -349,24 +394,54 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trust badges */}
-        <section aria-labelledby="why-book-heading" className="py-14 sm:py-20 bg-white rounded-3xl border border-[#e8e4dd] px-6 sm:px-10 shadow-[0_4px_12px_rgb(26_26_26_/0.04)]">
-          <h2 id="why-book-heading" className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1a1a] mb-10 text-center">
-            Why book with us
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {TRUST_BADGES.map((badge, i) => {
-              const Icon = badge.icon;
-              return (
-                <div key={i} className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-[#f9edd1] flex items-center justify-center mb-4">
-                    <Icon className="w-8 h-8 text-[#b8860b]" />
+        {/* Trust — editorial split layout */}
+        <section
+          aria-labelledby="why-book-heading"
+          className="rounded-3xl border border-[#e8e4dd] bg-white px-6 sm:px-10 lg:px-14 py-14 sm:py-20 shadow-[0_4px_24px_rgb(26_26_26_/0.05)]"
+        >
+          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 lg:items-start">
+            <div className="lg:col-span-4 lg:sticky lg:top-28">
+              <p className="text-[#b8860b] text-xs font-semibold tracking-[0.22em] uppercase mb-3">Expectations</p>
+              <h2
+                id="why-book-heading"
+                className="font-serif text-3xl sm:text-[2.125rem] font-semibold text-[#1a1a1a] tracking-tight leading-tight mb-5"
+              >
+                The standard behind your stay
+              </h2>
+              <p className="text-[#5c5852] leading-relaxed text-[15px] sm:text-base">
+                No clutter — just what matters after you&apos;ve picked a place on the map: safe payments, fair
+                cancellation rules, human support, and reviews tied to completed visits.
+              </p>
+            </div>
+            <div className="lg:col-span-8 border-y border-[#e8e4dd] divide-y divide-[#e8e4dd]">
+              {TRUST_BADGES.map((badge, i) => {
+                const Icon = badge.icon;
+                return (
+                  <div
+                    key={badge.label}
+                    className="grid grid-cols-[2.75rem_1fr] gap-4 sm:grid-cols-[3.25rem_1fr] sm:gap-6 py-8 first:pt-6 sm:first:pt-8 last:pb-6 sm:last:pb-8"
+                  >
+                    <span
+                      className="font-serif text-xl sm:text-2xl text-[#b8860b]/90 tabular-nums leading-none pt-0.5"
+                      aria-hidden
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:gap-5">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#e8e4dd] bg-[#faf8f5] text-[#1a1a1a]">
+                        <Icon className="h-5 w-5" strokeWidth={1.5} aria-hidden />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-[#1a1a1a] text-base sm:text-lg mb-2 tracking-tight">
+                          {badge.label}
+                        </h3>
+                        <p className="text-sm sm:text-[15px] text-[#5c5852] leading-relaxed">{badge.description}</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-[#1a1a1a] mb-2">{badge.label}</h3>
-                  <p className="text-sm text-[#5c5852] leading-relaxed">{badge.description}</p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -417,63 +492,100 @@ export default function Home() {
           )}
         </section>
 
-        {/* Testimonials */}
+        {/* Testimonials — dark editorial band */}
         <section
           aria-labelledby="testimonials-heading"
-          className="py-14 sm:py-20 bg-gradient-to-br from-[#f5f2ed] to-[#faf8f5] rounded-3xl border border-[#e8e4dd] px-6 sm:px-10"
+          className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#1a1a1a] px-6 sm:px-10 lg:px-16 py-16 sm:py-20 text-white shadow-[0_24px_60px_rgb(26_26_26_/0.35)]"
         >
-          <h2 id="testimonials-heading" className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1a1a] mb-2 text-center">
-            What guests say
-          </h2>
-          <p className="text-[#5c5852] mb-12 text-center max-w-xl mx-auto leading-relaxed">
-            Real experiences from travelers who booked with us.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {TESTIMONIALS.map((t) => (
-              <blockquote
-                key={t.author}
-                className="bg-white rounded-2xl p-6 sm:p-8 shadow-[0_4px_12px_rgb(26_26_26_/0.04)] border border-[#e8e4dd]"
-              >
-                <Quote className="w-10 h-10 text-[#b8860b]/60 mb-4" />
-                <p className="text-[#45423d] leading-relaxed mb-4">&ldquo;{t.quote}&rdquo;</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#f9edd1] flex items-center justify-center">
-                    <Star className="w-5 h-5 text-[#b8860b]" />
-                  </div>
-                  <div>
-                    <cite className="font-semibold text-[#1a1a1a] not-italic">{t.author}</cite>
-                    <p className="text-sm text-[#5c5852]">{t.trip}</p>
-                  </div>
-                </div>
-              </blockquote>
-            ))}
+          <div
+            className="pointer-events-none absolute -right-20 top-0 h-80 w-80 rounded-full bg-[#b8860b]/15 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-white/[0.04] blur-3xl"
+            aria-hidden
+          />
+          <div className="relative">
+            <p className="text-[#c9a227] text-xs font-semibold tracking-[0.28em] uppercase mb-4">Guest correspondence</p>
+            <h2
+              id="testimonials-heading"
+              className="font-serif text-3xl sm:text-4xl lg:text-[2.75rem] font-semibold text-white tracking-tight leading-[1.15] mb-4 max-w-3xl"
+            >
+              Stays worth remembering
+            </h2>
+            <p className="text-[#a39e94] text-base sm:text-lg leading-relaxed mb-12 sm:mb-14 max-w-2xl">
+              Notes from travelers who found their hotel through us — unedited, uncompensated, in their own words.
+            </p>
+            <div className="grid gap-6 md:grid-cols-3 md:gap-7">
+              {TESTIMONIALS.map((t) => (
+                <blockquote
+                  key={t.author}
+                  className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.045] p-6 sm:p-7 backdrop-blur-md transition-colors duration-300 hover:border-[#b8860b]/25 hover:bg-white/[0.07]"
+                >
+                  <Quote className="mb-5 h-9 w-9 shrink-0 text-[#b8860b]" strokeWidth={1.25} aria-hidden />
+                  <p className="flex-1 text-[15px] sm:text-base leading-relaxed text-[#e8e4dd]">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <footer className="mt-8 border-t border-white/10 pt-6">
+                    <cite className="block font-semibold not-italic text-white">{t.author}</cite>
+                    <p className="mt-1 text-sm text-[#a39e94]">{t.trip}</p>
+                  </footer>
+                </blockquote>
+              ))}
+            </div>
           </div>
         </section>
+      </div>
 
-        {/* Map search CTA */}
-        <section className="text-center py-16 sm:py-24 bg-white rounded-3xl border border-[#e8e4dd] overflow-hidden relative w-full shadow-[0_4px_12px_rgb(26_26_26_/0.04)]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(184,134,11,0.06),transparent)]" />
-          <div className="relative">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#f9edd1] text-[#b8860b] mb-6">
-              <MapPin className="w-8 h-8" />
+      {/* Map search CTA — full viewport width, split content + live map */}
+      <section
+        aria-labelledby="map-search-heading"
+        className="relative w-screen max-w-none left-1/2 -translate-x-1/2 border-y border-[#e8e4dd] bg-[#faf8f5] overflow-hidden shadow-[inset_0_1px_0_rgb(255_255_255/0.6)]"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[min(520px,70vh)]">
+          <div className="flex flex-col justify-center px-6 sm:px-10 lg:pl-12 xl:pl-20 2xl:pl-28 py-14 sm:py-16 lg:py-20 order-2 lg:order-1">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#f9edd1] text-[#b8860b] mb-6">
+              <MapPin className="w-7 h-7" />
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1a1a] mb-3">
+            <h2
+              id="map-search-heading"
+              className="font-serif text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#1a1a1a] mb-4 text-left"
+            >
               Search hotels on the map
             </h2>
-            <p className="text-[#5c5852] max-w-md mx-auto mb-8 leading-relaxed">
+            <p className="text-[#5c5852] max-w-lg mb-10 leading-relaxed text-left text-base sm:text-lg">
               Pick a location, set your radius, and discover hotels in that area. Perfect for finding stays near
               landmarks or neighborhoods.
             </p>
             <Link
               to="/hotels/map"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-[#1a1a1a] text-white font-semibold hover:bg-[#2d2a28] transition-colors"
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-xl bg-[#1a1a1a] text-white font-semibold hover:bg-[#2d2a28] transition-colors shadow-[0_8px_24px_rgb(26_26_26_/0.2)]"
             >
-              <MapPin className="w-5 h-5" />
+              <MapPin className="w-5 h-5 shrink-0" />
               Open map search
             </Link>
           </div>
-        </section>
+          <div className="relative min-h-[280px] sm:min-h-[340px] lg:min-h-0 h-[320px] lg:h-auto order-1 lg:order-2 border-b lg:border-b-0 lg:border-l border-[#e8e4dd]">
+            <iframe
+              title="Map preview — Italy and surrounding region"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=6.5%2C35.5%2C19.5%2C47.5&amp;layer=mapnik"
+              className="absolute inset-0 w-full h-full border-0 grayscale-[0.15] contrast-[1.02]"
+              loading="lazy"
+            />
+            <div
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#faf8f5]/90 via-transparent to-transparent lg:bg-gradient-to-r lg:from-[#faf8f5] lg:via-[#faf8f5]/20 lg:to-transparent lg:from-0% lg:via-15% lg:to-60%"
+              aria-hidden
+            />
+            <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-2 text-[10px] sm:text-xs text-[#5c5852]">
+              <span className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md border border-[#e8e4dd] shadow-sm">
+                © OpenStreetMap contributors
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pt-16 sm:pt-20 pb-20 sm:pb-28">
         {/* Newsletter */}
         <section className="py-16 sm:py-20 bg-[#1a1a1a] rounded-3xl px-4 sm:px-6 lg:px-8 xl:px-12 text-center w-full">
             <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-white mb-2">

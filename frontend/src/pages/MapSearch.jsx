@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Search, SlidersHorizontal, X, ChevronRight } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useWishlist } from '../hooks/useWishlist';
 import { HotelCard } from '../components/HotelCard';
 import { HotelListSkeleton } from '../components/Skeleton';
 import ErrorMessage from '../components/ErrorMessage';
+import { parseHotelSearchResponse } from '../lib/hotelSearch';
 import 'leaflet/dist/leaflet.css';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -17,6 +18,35 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+/** Search area center — ring + dot (distinct from hotel markers) */
+const searchAreaIcon = L.divIcon({
+  className: 'map-marker-custom map-marker-search-area',
+  html: `
+    <div style="width:32px;height:32px;border-radius:50%;background:#fff;border:3px solid #b8860b;box-shadow:0 4px 14px rgba(26,26,26,0.22);display:flex;align-items:center;justify-content:center;">
+      <div style="width:10px;height:10px;border-radius:50%;background:#b8860b;"></div>
+    </div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -12],
+});
+
+/** Hotel — dark pin with gold accent + building glyph */
+const hotelMapIcon = L.divIcon({
+  className: 'map-marker-custom map-marker-hotel',
+  html: `
+    <div style="width:40px;height:48px;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 10px rgba(26,26,26,0.35));">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(165deg,#2d2a28 0%,#1a1a1a 100%);border:2px solid #b8860b;display:flex;align-items:center;justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#faf8f5" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/>
+        </svg>
+      </div>
+      <div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid #1a1a1a;margin-top:-2px;"></div>
+    </div>`,
+  iconSize: [40, 48],
+  iconAnchor: [20, 48],
+  popupAnchor: [0, -44],
 });
 
 const DEFAULT_CENTER = [41.9, 12.5]; // Rome
@@ -89,7 +119,7 @@ export default function MapSearch() {
   const [marker, setMarker] = useState(
     latParam && lngParam ? [parseFloat(latParam), parseFloat(lngParam)] : null
   );
-  const [radius, setRadius] = useState(radiusParam ? parseInt(radiusParam, 10) : 25);
+  const [radius, setRadius] = useState(radiusParam ? parseInt(radiusParam, 10) : 50);
   const [searchText, setSearchText] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -124,6 +154,17 @@ export default function MapSearch() {
     setSuggestionsOpen(true);
   };
 
+  const applySearchFromCoords = (lat, lng, radiusKm) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('latitude', String(lat));
+    next.set('longitude', String(lng));
+    next.set('radius_km', String(radiusKm));
+    next.set('page', '1');
+    if (checkIn) next.set('check_in', checkIn);
+    if (checkOut) next.set('check_out', checkOut);
+    setSearchParams(next);
+  };
+
   const selectSuggestion = (f) => {
     const p = f.properties || {};
     const lat = p.lat ?? f.lat;
@@ -133,6 +174,7 @@ export default function MapSearch() {
       setMarker([lat, lon]);
       setZoom(14);
       setSearchText(p.formatted || p.address_line1 || '');
+      applySearchFromCoords(lat, lon, radius);
     }
     setSuggestionsOpen(false);
   };
@@ -140,22 +182,16 @@ export default function MapSearch() {
   const handleMapClick = (lat, lng) => {
     setMarker([lat, lng]);
     setCenter([lat, lng]);
+    applySearchFromCoords(lat, lng, radius);
   };
 
   const applySearch = () => {
     if (!marker) return;
     const [lat, lng] = marker;
-    const next = new URLSearchParams(searchParams);
-    next.set('latitude', lat);
-    next.set('longitude', lng);
-    next.set('radius_km', radius);
-    next.set('page', '1');
-    if (checkIn) next.set('check_in', checkIn);
-    if (checkOut) next.set('check_out', checkOut);
-    setSearchParams(next);
+    applySearchFromCoords(lat, lng, radius);
   };
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, isFetching, error } = useQuery({
     queryKey: ['hotels', 'map', latParam, lngParam, radiusParam, checkIn, checkOut],
     queryFn: async () => {
       const params = { latitude: latParam, longitude: lngParam, radius_km: radiusParam, per_page: 24 };
@@ -166,12 +202,10 @@ export default function MapSearch() {
       return res.data;
     },
     enabled: !!hasSearched,
+    placeholderData: keepPreviousData,
   });
 
-  const rawData = data?.data;
-  const hotels = Array.isArray(rawData) ? rawData : (rawData?.data ?? []);
-  const meta = data?.meta ?? {};
-  const total = meta.total ?? 0;
+  const { hotels, total } = useMemo(() => parseHotelSearchResponse(data), [data]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
@@ -235,16 +269,47 @@ export default function MapSearch() {
             </div>
           </div>
           <p className="mt-2 text-sm text-stone-500">
-            Click on the map to pick a location, or search for a city. Then click &quot;Search hotels&quot; to find properties in that area.
+            Click the map or choose a place from search to find hotels (default radius 50 km). Adjust radius and click &quot;Search hotels&quot; to refresh.
           </p>
+          {hasSearched && (
+            <div
+              className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-stone-200/80 bg-stone-50/90 px-4 py-3 text-sm"
+              aria-live="polite"
+            >
+              {isLoading && !data ? (
+                <span className="inline-block h-5 w-48 max-w-full rounded-md bg-stone-200 animate-pulse" />
+              ) : (
+                <>
+                  <span className="font-semibold text-stone-900">
+                    {total} {total === 1 ? 'hotel' : 'hotels'} match this search
+                  </span>
+                  <span className="text-stone-300" aria-hidden>
+                    ·
+                  </span>
+                  <span className="text-stone-600">
+                    {radiusParam} km radius
+                    {checkIn && checkOut && (
+                      <span className="text-stone-500">
+                        {' '}
+                        · dates applied
+                      </span>
+                    )}
+                  </span>
+                  {isFetching && !isLoading && (
+                    <span className="text-xs font-medium text-amber-600">Refreshing…</span>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Map + Results — full viewport below header */}
-      <div className="flex-1 flex flex-col lg:flex-row min-h-[400px] overflow-hidden">
+      {/* Map + Results — padded card layout */}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-[400px] overflow-hidden px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 pt-2 gap-4 sm:gap-5">
         {/* Map — takes half on desktop, explicit height required for Leaflet */}
-        <div className="lg:w-1/2 shrink-0 h-[400px] sm:h-[500px] lg:h-[calc(100vh-10rem)] min-h-[350px]">
-          <div className="w-full h-full">
+        <div className="lg:w-1/2 shrink-0 h-[400px] sm:h-[500px] lg:h-[calc(100vh-10rem)] min-h-[350px] p-1 sm:p-1.5">
+          <div className="w-full h-full rounded-2xl overflow-hidden border border-stone-200/90 bg-stone-100 shadow-[0_4px_24px_rgba(26,26,26,0.06)] ring-1 ring-stone-200/50">
             <MapContainer
               center={center}
               zoom={zoom}
@@ -257,12 +322,12 @@ export default function MapSearch() {
             />
             <LocationPicker onPick={handleMapClick} />
             {marker && (
-              <Marker position={marker}>
-                <Popup>Search area center. Click &quot;Search hotels&quot; to find properties.</Popup>
+              <Marker position={marker} icon={searchAreaIcon}>
+                <Popup>Search area center. Results update automatically when you click the map.</Popup>
               </Marker>
             )}
             {hasSearched && hotels.filter((h) => h.latitude != null && h.longitude != null).map((h) => (
-              <Marker key={h.id} position={[h.latitude, h.longitude]}>
+              <Marker key={h.id} position={[h.latitude, h.longitude]} icon={hotelMapIcon}>
                 <Popup>
                   <Link to={`/hotels/${h.id}`} className="font-medium text-amber-600 hover:underline">
                     {h.name}
@@ -277,8 +342,9 @@ export default function MapSearch() {
         </div>
 
         {/* Results panel */}
-        <div className="lg:w-1/2 flex flex-col bg-stone-50 overflow-y-auto min-h-0">
-          <div className="p-4 sm:p-6">
+        <div className="lg:w-1/2 flex flex-col min-h-0 p-1 sm:p-1.5">
+          <div className="flex flex-col flex-1 bg-stone-50 rounded-2xl border border-stone-200/90 overflow-y-auto min-h-[280px] lg:min-h-0 shadow-[0_4px_24px_rgba(26,26,26,0.06)] ring-1 ring-stone-200/50">
+          <div className="p-4 sm:p-6 lg:p-8">
             <nav className="text-sm text-stone-600 mb-4">
               <Link to="/" className="hover:text-amber-600">Home</Link>
               <span className="mx-1">›</span>
@@ -294,7 +360,7 @@ export default function MapSearch() {
                 </div>
                 <h2 className="text-xl font-semibold text-stone-900 mb-2">Pick a location on the map</h2>
                 <p className="text-stone-600 max-w-sm mx-auto mb-6">
-                  Search for a city or click anywhere on the map to set your search area. Then click &quot;Search hotels&quot; to find properties nearby.
+                  Search for a city or click anywhere on the map — hotels load automatically (50 km radius by default). Change radius and use Search hotels to refresh.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <button
@@ -330,10 +396,18 @@ export default function MapSearch() {
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-stone-900">
-                    {total} Hotel{total === 1 ? '' : 's'} in this area
-                  </h2>
+                <div className="flex items-center justify-between mb-6 gap-3">
+                  <div className="min-w-0">
+                    <h2 className="text-xl font-bold text-stone-900">
+                      {total} {total === 1 ? 'hotel' : 'hotels'} in this area
+                    </h2>
+                    <p className="mt-1 text-sm text-stone-500">
+                      {radiusParam} km radius
+                      {isFetching && !isLoading && (
+                        <span className="ml-2 text-xs font-medium text-amber-600">Updating…</span>
+                      )}
+                    </p>
+                  </div>
                   <Link
                     to={`/hotels?latitude=${latParam}&longitude=${lngParam}&radius_km=${radiusParam}${checkIn ? `&check_in=${checkIn}&check_out=${checkOut}` : ''}`}
                     className="text-sm font-medium text-amber-600 hover:text-amber-700 flex items-center gap-1"
@@ -357,6 +431,7 @@ export default function MapSearch() {
                 </div>
               </>
             )}
+          </div>
           </div>
         </div>
       </div>

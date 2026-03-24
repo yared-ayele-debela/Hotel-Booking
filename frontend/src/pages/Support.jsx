@@ -29,7 +29,7 @@ function SupportContent() {
 
   if (isLoading) {
     return (
-      <div className="py-6 sm:py-8">
+      <div className="w-full py-6 sm:py-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-2">Support</h1>
         <p className="text-stone-600 mb-8">Create a ticket for billing, booking, or technical help.</p>
         <div className="space-y-4">
@@ -42,7 +42,7 @@ function SupportContent() {
   }
   if (isError) {
     return (
-      <div className="py-6 sm:py-8">
+      <div className="w-full py-6 sm:py-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-6">Support</h1>
         <ErrorMessage message={error?.response?.data?.message || error?.message || 'Could not load tickets'} onRetry={() => refetch()} />
       </div>
@@ -50,8 +50,8 @@ function SupportContent() {
   }
 
   return (
-    <div className="py-6 sm:py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div className="w-full py-6 sm:py-8">
+      <div className="flex flex-row sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">Support</h1>
           <p className="text-stone-600 mt-1 max-w-2xl">Create a ticket for billing, booking, or technical help. We&apos;ll reply here and email you.</p>
@@ -83,12 +83,12 @@ function SupportContent() {
           </Link>
         </div>
       ) : (
-        <ul className="space-y-4">
+        <ul className="w-full list-none space-y-4 p-0 m-0">
           {tickets.map((t) => (
-            <li key={t.id}>
+            <li key={t.id} className="w-full min-w-0">
               <Link
                 to={`/support/${t.id}`}
-                className="block rounded-2xl border border-stone-200/80 bg-white shadow-sm p-5 sm:p-6 hover:shadow-xl hover:border-amber-200/60 transition-all duration-300"
+                className="block w-full min-w-0 rounded-2xl border border-stone-200/80 bg-white shadow-sm p-5 sm:p-6 hover:shadow-xl hover:border-amber-200/60 transition-all duration-300"
               >
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="font-semibold text-stone-900">{t.subject}</span>

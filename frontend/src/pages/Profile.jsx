@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Pencil, X, Loader2, User, CalendarCheck } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import ErrorMessage from '../components/ErrorMessage';
+import UserAvatar from '../components/UserAvatar';
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -14,6 +15,18 @@ export default function Profile() {
   const [editPassword, setEditPassword] = useState('');
   const [editPasswordConfirm, setEditPasswordConfirm] = useState('');
   const [editErrors, setEditErrors] = useState({});
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+
+  const avatarPreviewUrl = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : null),
+    [avatarFile]
+  );
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+    };
+  }, [avatarPreviewUrl]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (payload) => {
@@ -28,6 +41,8 @@ export default function Profile() {
       setEditEmail('');
       setEditPassword('');
       setEditPasswordConfirm('');
+      setAvatarFile(null);
+      setRemoveAvatar(false);
       setEditErrors({});
     },
     onError: (err) => {
@@ -41,6 +56,8 @@ export default function Profile() {
     setEditEmail(user?.email ?? '');
     setEditPassword('');
     setEditPasswordConfirm('');
+    setAvatarFile(null);
+    setRemoveAvatar(false);
     setEditErrors({});
     setEditModalOpen(true);
   };
@@ -50,6 +67,20 @@ export default function Profile() {
     setEditErrors({});
     if (editPassword.trim() && editPassword !== editPasswordConfirm) {
       setEditErrors({ password: ['Passwords do not match.'] });
+      return;
+    }
+    const useMultipart = Boolean(avatarFile || removeAvatar);
+    if (useMultipart) {
+      const fd = new FormData();
+      fd.append('name', editName.trim());
+      fd.append('email', editEmail.trim());
+      if (editPassword.trim()) {
+        fd.append('password', editPassword);
+        fd.append('password_confirmation', editPasswordConfirm);
+      }
+      if (avatarFile) fd.append('avatar', avatarFile);
+      if (removeAvatar) fd.append('remove_avatar', '1');
+      updateProfileMutation.mutate(fd);
       return;
     }
     const payload = { name: editName.trim(), email: editEmail.trim() };
@@ -94,11 +125,7 @@ export default function Profile() {
           <div className="p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
               <div className="flex items-center gap-4 shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-                  <span className="text-2xl sm:text-3xl font-bold text-amber-800">
-                    {(user.name || 'U').charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <UserAvatar user={user} size={80} className="ring-2 ring-stone-100 shadow-sm" />
                 <div className="sm:hidden">
                   <h2 className="text-lg font-semibold text-stone-900">{user.name}</h2>
                   <p className="text-sm text-stone-600 truncate max-w-[200px]">{user.email}</p>
@@ -166,6 +193,51 @@ export default function Profile() {
               </button>
             </div>
             <form onSubmit={handleEditSubmit} className="p-6 space-y-5">
+              <div className="flex flex-col items-center gap-3 pb-2 border-b border-stone-100">
+                <div className="ring-1 ring-stone-200 rounded-full overflow-hidden">
+                  {avatarFile && avatarPreviewUrl ? (
+                    <img src={avatarPreviewUrl} alt="" className="w-20 h-20 object-cover" width={80} height={80} />
+                  ) : removeAvatar ? (
+                    <div className="w-20 h-20 bg-stone-100 flex items-center justify-center text-stone-400 text-xs text-center px-2">
+                      No photo
+                    </div>
+                  ) : (
+                    <UserAvatar user={user} size={80} />
+                  )}
+                </div>
+                <div className="w-full">
+                  <label htmlFor="edit-avatar" className="block text-sm font-medium text-stone-700 mb-1.5">
+                    Profile photo
+                  </label>
+                  <input
+                    id="edit-avatar"
+                    type="file"
+                    accept="image/*"
+                    className="w-full text-sm text-stone-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-900"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      setAvatarFile(f || null);
+                      if (f) setRemoveAvatar(false);
+                    }}
+                  />
+                  {user?.avatar_url && (
+                    <label className="mt-2 flex items-center gap-2 text-sm text-stone-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={removeAvatar}
+                        onChange={(e) => {
+                          setRemoveAvatar(e.target.checked);
+                          if (e.target.checked) setAvatarFile(null);
+                        }}
+                      />
+                      Remove current photo
+                    </label>
+                  )}
+                  {editErrors.avatar && (
+                    <p className="text-sm text-red-600 mt-1">{editErrors.avatar[0]}</p>
+                  )}
+                </div>
+              </div>
               <div>
                 <label htmlFor="edit-name" className="block text-sm font-medium text-stone-700 mb-1.5">
                   Name

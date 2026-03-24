@@ -90,7 +90,7 @@ export default function SupportTicketDetail() {
   const replies = ticket.replies || [];
 
   return (
-    <div className="py-6 sm:py-8 max-w-2xl">
+    <div className="w-full max-w-none py-6 sm:py-8">
       <Link
         to="/support"
         className="inline-flex items-center gap-2 text-stone-600 hover:text-amber-600 font-medium mb-6 transition-colors"
@@ -112,8 +112,8 @@ export default function SupportTicketDetail() {
         </div>
         <div className="p-5 sm:p-6">
           <h2 className="font-semibold text-stone-900 mb-4">Messages</h2>
-          <ul className="space-y-4">
-            <li className="pl-4 border-l-2 border-amber-400 rounded-r-lg py-2">
+          <ul className="w-full list-none space-y-4 p-0 m-0">
+            <li className="w-full min-w-0 pl-4 border-l-2 border-amber-400 rounded-r-lg py-2">
               <p className="text-sm text-stone-600 mb-1">
                 <span className="font-medium text-stone-800">{user?.name ?? 'You'}</span>
                 {' · '}
@@ -122,7 +122,7 @@ export default function SupportTicketDetail() {
               <div className="text-stone-800 whitespace-pre-wrap">{ticket.body}</div>
             </li>
             {replies.map((r) => (
-              <li key={r.id} className="pl-4 border-l-2 border-stone-300 rounded-r-lg py-2">
+              <li key={r.id} className="w-full min-w-0 pl-4 border-l-2 border-stone-300 rounded-r-lg py-2">
                 <p className="text-sm text-stone-600 mb-1">
                   <span className="font-medium text-stone-800">{r.user?.name ?? 'Support'}</span>
                   {' · '}

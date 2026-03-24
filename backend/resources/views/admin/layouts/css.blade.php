@@ -8,7 +8,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>@yield('title', 'Dashboard') | {{ $adminSiteName }}</title>
+    <title>@hasSection('title')@yield('title')@else{{ $authPageTitle ?? 'Dashboard' }}@endif | {{ $adminSiteName }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="{{ \App\Services\WebsiteSettingsService::getMetaDescription() }}" name="description">
     <!-- App favicon -->

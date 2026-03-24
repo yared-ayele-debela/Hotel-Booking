@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Hotel;
 use App\Models\User;
+use App\Models\VendorProfile;
 use App\Services\CommissionService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -51,8 +53,49 @@ class DashboardController extends Controller
         $bookingsByStatus = $this->bookingsByStatusData();
         $bookingsTrendChart = $this->bookingsTrendChartData();
         $topVendorsChart = $isSuperAdmin ? $this->topVendorsByRevenueData() : [];
+        $recentVendorDocuments = $isSuperAdmin ? $this->recentVendorBusinessDocuments(8) : [];
 
-        return view('admin.dashboard', compact('kpis', 'vendors', 'commissionRate', 'revenueChart', 'bookingsByStatus', 'bookingsTrendChart', 'topVendorsChart', 'isSuperAdmin'));
+        return view('admin.dashboard', compact('kpis', 'vendors', 'commissionRate', 'revenueChart', 'bookingsByStatus', 'bookingsTrendChart', 'topVendorsChart', 'isSuperAdmin', 'recentVendorDocuments'));
+    }
+
+    /**
+     * Latest business document uploads across vendors (for admin dashboard).
+     *
+     * @return array<int, array{vendor_id: int, vendor_name: string, file_name: string, document_id: string, uploaded_at: ?Carbon}>
+     */
+    protected function recentVendorBusinessDocuments(int $limit = 8): array
+    {
+        $rows = [];
+        foreach (VendorProfile::query()->with('user')->get() as $profile) {
+            foreach ($profile->documents ?? [] as $doc) {
+                if (! is_array($doc) || empty($doc['id']) || empty($doc['path'])) {
+                    continue;
+                }
+                $uploaded = null;
+                if (! empty($doc['uploaded_at'])) {
+                    try {
+                        $uploaded = Carbon::parse($doc['uploaded_at']);
+                    } catch (\Throwable) {
+                        $uploaded = null;
+                    }
+                }
+                $rows[] = [
+                    'vendor_id' => $profile->user_id,
+                    'vendor_name' => $profile->user?->name ?? '—',
+                    'file_name' => $doc['original_name'] ?? basename($doc['path']),
+                    'document_id' => $doc['id'],
+                    'uploaded_at' => $uploaded,
+                ];
+            }
+        }
+        usort($rows, function ($a, $b) {
+            $ta = $a['uploaded_at'] instanceof Carbon ? $a['uploaded_at']->timestamp : 0;
+            $tb = $b['uploaded_at'] instanceof Carbon ? $b['uploaded_at']->timestamp : 0;
+
+            return $tb <=> $ta;
+        });
+
+        return array_slice($rows, 0, $limit);
     }
 
     /**
@@ -76,6 +119,7 @@ class DashboardController extends Controller
             $labels[] = now()->subMonths($i)->format('M Y');
             $data[] = (float) ($rows[$month] ?? 0);
         }
+
         return ['labels' => $labels, 'data' => $data];
     }
 
@@ -96,6 +140,7 @@ class DashboardController extends Controller
         foreach ($statuses as $s) {
             $data[] = (int) ($rows[$s] ?? 0);
         }
+
         return ['labels' => $labels, 'data' => $data];
     }
 
@@ -119,6 +164,7 @@ class DashboardController extends Controller
             $labels[] = now()->subMonths($i)->format('M Y');
             $data[] = (int) ($rows[$month] ?? 0);
         }
+
         return ['labels' => $labels, 'data' => $data];
     }
 

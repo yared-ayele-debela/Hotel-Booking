@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  AlertTriangle,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -72,6 +73,12 @@ export default function MyBookings() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [disputeModalUuid, setDisputeModalUuid] = useState(null);
+  const [disputeNotes, setDisputeNotes] = useState('');
+  const [disputeContactName, setDisputeContactName] = useState('');
+  const [disputeContactEmail, setDisputeContactEmail] = useState('');
+  const [disputeContactPhone, setDisputeContactPhone] = useState('');
+  const [disputeFormError, setDisputeFormError] = useState(null);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['bookings', page],
@@ -88,6 +95,55 @@ export default function MyBookings() {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
     },
   });
+
+  const disputeMutation = useMutation({
+    mutationFn: ({ uuid, body }) => api.post(`/bookings/${uuid}/dispute`, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      setDisputeModalUuid(null);
+      setDisputeNotes('');
+      setDisputeContactName('');
+      setDisputeContactEmail('');
+      setDisputeContactPhone('');
+      setDisputeFormError(null);
+    },
+  });
+
+  const openDisputeModal = (b) => {
+    setDisputeModalUuid(b.uuid);
+    setDisputeNotes('');
+    setDisputeContactName(user?.name || '');
+    setDisputeContactEmail(user?.email || '');
+    setDisputeContactPhone('');
+    setDisputeFormError(null);
+  };
+
+  const submitDispute = async (e) => {
+    e.preventDefault();
+    if (!disputeModalUuid || disputeNotes.trim().length < 20) {
+      setDisputeFormError('Please describe the issue in at least 20 characters.');
+      return;
+    }
+    setDisputeFormError(null);
+    try {
+      await disputeMutation.mutateAsync({
+        uuid: disputeModalUuid,
+        body: {
+          customer_notes: disputeNotes.trim(),
+          contact_name: disputeContactName.trim() || undefined,
+          contact_email: disputeContactEmail.trim() || undefined,
+          contact_phone: disputeContactPhone.trim() || undefined,
+        },
+      });
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.customer_notes?.[0] ||
+        err?.message ||
+        'Could not submit dispute';
+      setDisputeFormError(msg);
+    }
+  };
 
   const payload = data?.data ?? {};
   const bookings = Array.isArray(payload?.data) ? payload.data : (Array.isArray(data?.data) ? data.data : []);
@@ -216,6 +272,11 @@ export default function MyBookings() {
                         {b.uuid && (
                           <p className="text-xs text-stone-500 mt-1 font-mono">#{b.uuid}</p>
                         )}
+                        {b.dispute && (
+                          <p className="text-xs text-amber-800 mt-2 font-medium">
+                            Dispute: {b.dispute.status?.replace(/_/g, ' ')}
+                          </p>
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-2 shrink-0">
                         <Link
@@ -233,6 +294,16 @@ export default function MyBookings() {
                           <FileDown className="w-4 h-4" />
                           Invoice
                         </button>
+                        {b.can_open_dispute && (
+                          <button
+                            type="button"
+                            onClick={() => openDisputeModal(b)}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-200 bg-amber-50/80 hover:bg-amber-100 text-sm font-medium text-amber-900 transition-colors min-h-[44px]"
+                          >
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            Report issue
+                          </button>
+                        )}
                         {CANCELLABLE_STATUSES.includes(b.status) && (
                           <button
                             type="button"
@@ -282,6 +353,80 @@ export default function MyBookings() {
               </nav>
             )}
           </>
+        )}
+
+        {disputeModalUuid && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dispute-modal-title"
+          >
+            <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 border border-stone-200">
+              <h2 id="dispute-modal-title" className="text-lg font-semibold text-stone-900 mb-2">
+                Report an issue
+              </h2>
+              <p className="text-sm text-stone-600 mb-4">
+                Describe what went wrong. Our support team will review your case and reply by email.
+              </p>
+              <form onSubmit={submitDispute} className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-stone-800 mb-1">Name (optional)</label>
+                  <input
+                    value={disputeContactName}
+                    onChange={(e) => setDisputeContactName(e.target.value)}
+                    className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-800 mb-1">Email (optional)</label>
+                  <input
+                    type="email"
+                    value={disputeContactEmail}
+                    onChange={(e) => setDisputeContactEmail(e.target.value)}
+                    className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-800 mb-1">Phone (optional)</label>
+                  <input
+                    value={disputeContactPhone}
+                    onChange={(e) => setDisputeContactPhone(e.target.value)}
+                    className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-800 mb-1">Details</label>
+                  <textarea
+                    required
+                    minLength={20}
+                    rows={5}
+                    value={disputeNotes}
+                    onChange={(e) => setDisputeNotes(e.target.value)}
+                    className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"
+                    placeholder="At least 20 characters…"
+                  />
+                </div>
+                {disputeFormError && <p className="text-sm text-red-600">{disputeFormError}</p>}
+                <div className="flex gap-2 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDisputeModalUuid(null)}
+                    className="px-4 py-2 rounded-xl border border-stone-300 text-sm font-medium text-stone-700"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={disputeMutation.isPending}
+                    className="px-4 py-2 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 disabled:opacity-60"
+                  >
+                    {disputeMutation.isPending ? 'Submitting…' : 'Submit dispute'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     </div>

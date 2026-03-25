@@ -113,6 +113,7 @@ export default function Booking() {
           state: {
             booking,
             guestCheckoutUrl: payload?.guest_checkout_url,
+            guestDisputeUrl: payload?.guest_dispute_url,
           },
         });
       } else {

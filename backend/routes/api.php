@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AiController;
 use App\Http\Controllers\Api\V1\AmenityController;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\HotelSearchController;
 use App\Http\Controllers\Api\V1\LocationController;
@@ -37,7 +38,19 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
 
     // Hotel search & single hotel (no auth)
     Route::get('/hotels', [HotelSearchController::class, 'index'])->name('hotels.index');
+    Route::get('/hotels/{id}/review-sentiment', [AiController::class, 'reviewSentiment'])
+        ->whereNumber('id')
+        ->middleware('throttle:40,1')
+        ->name('hotels.review-sentiment');
     Route::get('/hotels/{id}', [HotelSearchController::class, 'show'])->name('hotels.show');
+
+    // AI features (optional auth on recommendations via Bearer token)
+    Route::get('/ai/recommendations', [AiController::class, 'recommendations'])
+        ->middleware(['auth.optional', 'throttle:30,1'])
+        ->name('ai.recommendations');
+    Route::post('/ai/chat', [AiController::class, 'chat'])
+        ->middleware('throttle:20,1')
+        ->name('ai.chat');
 
     // Geocode autocomplete for map search (throttled)
     Route::get('/geocode/autocomplete', [\App\Http\Controllers\Api\V1\GeocodeController::class, 'autocomplete'])

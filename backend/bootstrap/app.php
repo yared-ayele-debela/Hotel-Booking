@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'super_admin' => \App\Http\Middleware\SuperAdminMiddleware::class,
             'vendor' => \App\Http\Middleware\VendorMiddleware::class,
             'customer' => \App\Http\Middleware\CustomerMiddleware::class,
+            'auth.optional' => \App\Http\Middleware\OptionalSanctumAuth::class,
         ]);
     })
     ->withProviders([

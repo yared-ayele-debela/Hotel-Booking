@@ -174,9 +174,20 @@ export default function Home() {
     },
   });
 
+  const { data: recPayload, isLoading: recLoading } = useQuery({
+    queryKey: ['ai', 'recommendations'],
+    queryFn: async () => {
+      const res = await api.get('/ai/recommendations');
+      if (!res.data?.success) throw new Error('Failed to load');
+      return res.data.data ?? res.data;
+    },
+  });
+
   const cities = Array.isArray(citiesData) ? citiesData : [];
   const countries = Array.isArray(countriesData) ? countriesData : [];
   const hotels = Array.isArray(hotelsData) ? hotelsData : [];
+  const recItems = Array.isArray(recPayload?.data) ? recPayload.data : [];
+  const recTagline = recPayload?.tagline;
 
   const locationOptions = useMemo(() => {
     const items = [];
@@ -444,6 +455,53 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* AI recommendations */}
+        {(recLoading || recItems.length > 0) && (
+          <section aria-labelledby="ai-rec-heading">
+            <div className="flex flex-wrap items-end justify-between gap-4 mb-10">
+              <div>
+                <p className="text-[#b8860b] text-xs font-semibold tracking-[0.22em] uppercase mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" aria-hidden />
+                  AI picks
+                </p>
+                <h2 id="ai-rec-heading" className="font-serif text-2xl sm:text-3xl font-semibold text-[#1a1a1a]">
+                  Recommended for you
+                </h2>
+                <p className="text-[#5c5852] mt-2 leading-relaxed max-w-2xl">
+                  {recTagline ||
+                    'Hotels matched to your taste — from wishlist, past stays, and top-rated places.'}
+                </p>
+              </div>
+            </div>
+            {recLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="rounded-2xl overflow-hidden border border-[#e8e4dd] bg-white">
+                    <Skeleton className="aspect-[4/3] w-full" />
+                    <div className="p-5 space-y-2">
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                {recItems.map((item) => (
+                  <HotelCard key={item.hotel?.id ?? item.hotel?.uuid} hotel={item.hotel} nights={2}>
+                    {item.reason && (
+                      <p className="text-sm text-[#5c5852] mt-2 leading-snug border-t border-[#e8e4dd]/80 pt-2">
+                        <span className="text-[#b8860b] font-medium">Why: </span>
+                        {item.reason}
+                      </p>
+                    )}
+                  </HotelCard>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Featured Hotels */}
         <section aria-labelledby="featured-hotels-heading">

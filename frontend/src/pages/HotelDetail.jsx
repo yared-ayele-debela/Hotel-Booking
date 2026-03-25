@@ -1,7 +1,7 @@
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import { MapPin, Calendar, Users, X, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { MapPin, Calendar, Users, X, ChevronLeft, ChevronRight, Star, Sparkles } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../hooks/useWishlist';
@@ -114,6 +114,16 @@ export default function HotelDetail() {
       return res.data;
     },
     enabled: !!id,
+  });
+
+  const { data: sentimentData } = useQuery({
+    queryKey: ['review-sentiment', id],
+    queryFn: async () => {
+      const res = await api.get(`/hotels/${id}/review-sentiment`);
+      if (!res.data?.success) throw new Error(res.data?.message || 'Failed');
+      return res.data.data ?? res.data;
+    },
+    enabled: !!id && activeTab === 'Reviews',
   });
 
   const hotel = data?.data ?? data;
@@ -390,6 +400,31 @@ export default function HotelDetail() {
 
           {activeTab === 'Reviews' && (
             <section className="space-y-6">
+              {sentimentData && sentimentData.review_count > 0 && (
+                <div className="rounded-2xl border border-[#e8e4dd] bg-gradient-to-br from-[#f9edd1]/35 to-white p-5 sm:p-6 shadow-sm">
+                  <h3 className="font-semibold text-[#1a1a1a] mb-2 flex flex-wrap items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#b8860b] shrink-0" aria-hidden />
+                    Review sentiment summary
+                    {sentimentData.ai_enabled && (
+                      <span className="text-xs font-normal text-[#7a756d]">AI-assisted</span>
+                    )}
+                  </h3>
+                  <p className="text-[#45423d] text-sm leading-relaxed">{sentimentData.summary}</p>
+                  {sentimentData.bullets?.length > 0 && (
+                    <ul className="mt-3 list-disc list-inside text-sm text-[#5c5852] space-y-1">
+                      {sentimentData.bullets.map((b, i) => (
+                        <li key={i}>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {sentimentData.review_count > 0 && (
+                    <p className="text-xs text-[#7a756d] mt-3">
+                      Based on {sentimentData.review_count} verified review
+                      {sentimentData.review_count === 1 ? '' : 's'} · avg {Number(sentimentData.avg_rating).toFixed(1)}/5
+                    </p>
+                  )}
+                </div>
+              )}
               {reviews.length === 0 ? (
                 <p className="text-[#5c5852]">No reviews yet.</p>
               ) : (

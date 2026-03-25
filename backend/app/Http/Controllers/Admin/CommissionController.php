@@ -18,13 +18,15 @@ class CommissionController extends Controller
     public function index(): View
     {
         $rate = $this->commissionService->getCommissionRate();
-        $report = $this->commissionService->reportByVendor();
+        $report = $this->commissionService->reportByVendorWithDetails();
+
         return view('admin.commission.index', compact('rate', 'report'));
     }
 
     public function edit(): View
     {
         $rate = $this->commissionService->getCommissionRate();
+
         return view('admin.commission.edit', compact('rate'));
     }
 
@@ -35,6 +37,7 @@ class CommissionController extends Controller
         ]);
         $rate = (float) $request->commission_rate / 100;
         PlatformSetting::set(CommissionService::COMMISSION_RATE_KEY, (string) $rate);
+
         return redirect()->route('admin.commission.index')->with('success', 'Commission rate updated.');
     }
 }

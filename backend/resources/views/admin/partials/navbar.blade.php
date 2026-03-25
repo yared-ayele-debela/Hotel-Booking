@@ -53,14 +53,6 @@
             <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
                 <i class="fa fa-fw fa-bars"></i>
             </button>
-
-            <!-- App Search-->
-{{--            <form class="app-search d-none d-lg-block">--}}
-{{--                <div class="position-relative">--}}
-{{--                    <input type="text" class="form-control" placeholder="Search...">--}}
-{{--                    <button class="btn btn-primary" type="button"><i class="bx bx-search-alt align-middle"></i></button>--}}
-{{--                </div>--}}
-{{--            </form>--}}
         </div>
 
         <div class="d-flex">
@@ -110,8 +102,8 @@
             <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item bg-light-subtle border-start border-end" id="page-header-user-dropdown"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="header-profile-user d-inline-block align-middle" style="line-height: 0;">
-                        @include('admin.partials.user-avatar', ['user' => $authUser, 'size' => 32, 'class' => 'header-profile-user'])
+                    <span class=" d-inline-block align-middle" style="line-height: 0;">
+                        @include('admin.partials.user-avatar', ['user' => $authUser, 'size' => 32, 'class' => ''])
                     </span>
                     <span class="d-none d-xl-inline-block ms-1 fw-medium text-start align-middle">
                         {{ $authUser->name }}
@@ -122,7 +114,7 @@
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="mdi mdi-face-man font-size-16 align-middle me-1"></i> Profile</a>
+                    <a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="mdi mdi-account font-size-16 align-middle me-1"></i> Profile</a>
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf

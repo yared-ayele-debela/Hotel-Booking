@@ -53,5 +53,16 @@ class BookingPolicy
     {
         return $this->view($user, $booking);
     }
-}
 
+    /**
+     * Logged-in customer: open a dispute on their own booking.
+     */
+    public function dispute(User $user, Booking $booking): bool
+    {
+        if ($user->role !== Role::CUSTOMER) {
+            return false;
+        }
+
+        return (int) $booking->customer_id === (int) $user->id;
+    }
+}

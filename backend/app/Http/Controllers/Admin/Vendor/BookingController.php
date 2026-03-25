@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Hotel;
+use App\Support\BookingInvoice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -34,6 +35,7 @@ class BookingController extends Controller
 
         $bookings = $query->latest()->paginate(15)->withQueryString();
         $hotels = Hotel::where('vendor_id', auth()->id())->orderBy('name')->get();
+
         return view('admin.vendor.bookings.index', compact('bookings', 'hotels'));
     }
 
@@ -59,6 +61,7 @@ class BookingController extends Controller
 
         $bookings = $query->latest()->paginate(15)->withQueryString();
         $hotels = Hotel::where('vendor_id', auth()->id())->orderBy('name')->get();
+
         return view('admin.vendor.bookings.old', compact('bookings', 'hotels'));
     }
 
@@ -104,11 +107,7 @@ class BookingController extends Controller
         $nights = $booking->check_in->diffInDays($booking->check_out);
         $subtotal = (float) $booking->total_price - (float) ($booking->tax_amount ?? 0) + (float) ($booking->discount_amount ?? 0);
 
-        $html = view('invoice.booking', [
-            'booking' => $booking,
-            'nights' => $nights,
-            'subtotal' => round($subtotal, 2),
-        ])->render();
+        $html = view('invoice.booking', BookingInvoice::viewData($booking, $nights, round($subtotal, 2)))->render();
 
         return response($html, 200, [
             'Content-Type' => 'text/html; charset=UTF-8',

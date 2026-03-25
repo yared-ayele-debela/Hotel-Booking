@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\BookingDisputeCreated;
 use App\Events\PaymentConfirmed;
 use App\Events\SupportTicketReplyCreated;
 use App\Listeners\SendBookingConfirmationNotification;
+use App\Listeners\SendBookingDisputeAdminNotification;
 use App\Listeners\SendSupportTicketReplyNotification;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
@@ -29,5 +31,6 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(SupportTicketReplyCreated::class, SendSupportTicketReplyNotification::class);
         Event::listen(PaymentConfirmed::class, SendBookingConfirmationNotification::class);
+        Event::listen(BookingDisputeCreated::class, SendBookingDisputeAdminNotification::class);
     }
 }

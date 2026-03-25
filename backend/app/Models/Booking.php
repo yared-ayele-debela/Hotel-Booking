@@ -89,6 +89,18 @@ class Booking extends Model implements Payable
     }
 
     /**
+     * Whether the customer may open a new dispute (API / guest flow).
+     */
+    public function canOpenDispute(): bool
+    {
+        if ($this->status === BookingStatus::PENDING_PAYMENT->value) {
+            return false;
+        }
+
+        return ! $this->dispute()->exists();
+    }
+
+    /**
      * Mark booking as paid (called from laravel-smart-stripe webhook).
      */
     public function markAsPaid(?string $sessionId = null, ?string $paymentIntentId = null): void
@@ -115,4 +127,3 @@ class Booking extends Model implements Payable
         return $this->status === BookingStatus::CONFIRMED->value;
     }
 }
-

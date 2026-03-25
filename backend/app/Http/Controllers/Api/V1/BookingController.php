@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Events\BookingDisputeCreated;
 use App\Http\Requests\Api\CreateBookingRequest;
 use App\Http\Requests\Api\CreateGuestBookingRequest;
+use App\Http\Requests\Api\StoreBookingDisputeRequest;
+use App\Http\Resources\BookingDisputeResource;
 use App\Http\Resources\BookingResource;
 use App\Models\Booking;
+use App\Models\BookingDispute;
 use App\Services\BookingService;
 use App\Services\CancellationPolicyService;
 use App\Services\PaymentService;
 use App\Services\PricingService;
+use App\Support\BookingInvoice;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\URL;
 
 class BookingController extends BaseApiController
 {
@@ -108,7 +115,7 @@ class BookingController extends BaseApiController
         }
 
         return $this->success([
-            'booking' => new BookingResource($booking->load(['hotel', 'bookingRooms.room', 'coupon'])),
+            'booking' => new BookingResource($booking->load(['hotel', 'bookingRooms.room', 'coupon', 'dispute'])),
         ], 201);
     }
 
@@ -203,9 +210,12 @@ class BookingController extends BaseApiController
         }
 
         return $this->success([
-            'booking' => new BookingResource($booking->load(['hotel', 'bookingRooms.room', 'coupon'])),
+            'booking' => new BookingResource($booking->load(['hotel', 'bookingRooms.room', 'coupon', 'dispute'])),
             'view_booking_url' => $this->signedGuestBookingUrl($booking),
             'guest_checkout_url' => $this->signedGuestCheckoutUrl($booking),
+            'guest_dispute_url' => $booking->canOpenDispute()
+                ? $this->signedGuestDisputeUrl($booking)
+                : null,
         ], 201);
     }
 
@@ -230,6 +240,7 @@ class BookingController extends BaseApiController
 
         try {
             $result = $this->paymentService->createCheckoutSession($booking);
+
             return $this->success($result);
         } catch (\RuntimeException $e) {
             return $this->error($e->getMessage(), 500, 'CHECKOUT_FAILED');
@@ -254,6 +265,7 @@ class BookingController extends BaseApiController
         }
         try {
             $result = $this->paymentService->createCheckoutSession($booking);
+
             return $this->success($result);
         } catch (\RuntimeException $e) {
             return $this->error($e->getMessage(), 500, 'CHECKOUT_FAILED');
@@ -272,11 +284,18 @@ class BookingController extends BaseApiController
         if (! $uuid) {
             return $this->error('Missing booking reference.', 422, 'MISSING_UUID');
         }
-        $booking = Booking::where('uuid', $uuid)->with(['hotel', 'bookingRooms.room', 'coupon'])->first();
+        $booking = Booking::where('uuid', $uuid)->with(['hotel', 'bookingRooms.room', 'coupon', 'dispute'])->first();
         if (! $booking || ! $booking->isGuest()) {
             return $this->error('Booking not found or not a guest booking.', 404, 'NOT_FOUND');
         }
-        return $this->success(new BookingResource($booking));
+
+        return $this->success(
+            (new BookingResource($booking))->additional([
+                'guest_dispute_url' => $booking->canOpenDispute()
+                    ? $this->signedGuestDisputeUrl($booking)
+                    : null,
+            ])
+        );
     }
 
     /**
@@ -296,12 +315,83 @@ class BookingController extends BaseApiController
             return $this->error('You can only claim bookings made with your email address.', 403, 'EMAIL_MISMATCH');
         }
         $booking->update(['customer_id' => $user->id, 'guest_email' => null, 'guest_name' => null]);
-        return $this->success(new BookingResource($booking->fresh()->load(['hotel', 'bookingRooms.room', 'coupon'])));
+
+        return $this->success(new BookingResource($booking->fresh()->load(['hotel', 'bookingRooms.room', 'coupon', 'dispute'])));
+    }
+
+    /**
+     * Customer: open a dispute (logged-in, owns booking).
+     */
+    public function storeDispute(StoreBookingDisputeRequest $request, string $uuid): JsonResponse
+    {
+        $booking = Booking::where('uuid', $uuid)->with('dispute')->firstOrFail();
+        $this->authorize('dispute', $booking);
+
+        return $this->createDisputeAndRespond($request, $booking);
+    }
+
+    /**
+     * Guest: open a dispute via signed URL (POST with signature in query).
+     */
+    public function guestStoreDispute(StoreBookingDisputeRequest $request): JsonResponse
+    {
+        $uuid = $request->query('uuid');
+        if (! $uuid) {
+            return $this->error('Missing booking reference.', 422, 'MISSING_UUID');
+        }
+        $booking = Booking::where('uuid', $uuid)->with('dispute')->first();
+        if (! $booking || ! $booking->isGuest()) {
+            return $this->error('Booking not found or not a guest booking.', 404, 'NOT_FOUND');
+        }
+
+        return $this->createDisputeAndRespond($request, $booking);
+    }
+
+    private function createDisputeAndRespond(StoreBookingDisputeRequest $request, Booking $booking): JsonResponse
+    {
+        if (! $booking->canOpenDispute()) {
+            if ($booking->status === \App\Enums\BookingStatus::PENDING_PAYMENT->value) {
+                return $this->error('Disputes are available after payment is completed.', 422, 'INVALID_STATUS');
+            }
+
+            return $this->error('A dispute already exists for this booking.', 422, 'DISPUTE_EXISTS');
+        }
+
+        $user = $request->user();
+        $contactName = $request->input('contact_name') ?: ($user?->name ?? $booking->guest_name);
+        $contactEmail = $request->input('contact_email') ?: ($user?->email ?? $booking->guest_email);
+        if (empty($contactEmail)) {
+            return $this->error('Contact email is required.', 422, 'MISSING_CONTACT');
+        }
+        if (empty($contactName)) {
+            $contactName = 'Guest';
+        }
+
+        try {
+            $dispute = BookingDispute::create([
+                'booking_id' => $booking->id,
+                'status' => 'open',
+                'contact_name' => $contactName,
+                'contact_email' => $contactEmail,
+                'contact_phone' => $request->input('contact_phone'),
+                'customer_notes' => $request->input('customer_notes'),
+            ]);
+        } catch (QueryException $e) {
+            if (str_contains($e->getMessage(), 'booking_disputes_booking_id_unique')
+                || str_contains($e->getMessage(), 'UNIQUE constraint failed: booking_disputes.booking_id')) {
+                return $this->error('A dispute already exists for this booking.', 422, 'DISPUTE_EXISTS');
+            }
+            throw $e;
+        }
+
+        event(new BookingDisputeCreated($dispute));
+
+        return $this->success(new BookingDisputeResource($dispute), 201);
     }
 
     private function signedGuestBookingUrl(Booking $booking): string
     {
-        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        return URL::temporarySignedRoute(
             'api.v1.bookings.guest-view',
             now()->addDays(30),
             ['uuid' => $booking->uuid]
@@ -310,11 +400,20 @@ class BookingController extends BaseApiController
 
     private function signedGuestCheckoutUrl(Booking $booking): string
     {
-        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+        return URL::temporarySignedRoute(
             'api.v1.bookings.guest-checkout-session',
             now()->addDays(30),
             ['uuid' => $booking->uuid],
             true
+        );
+    }
+
+    private function signedGuestDisputeUrl(Booking $booking): string
+    {
+        return URL::temporarySignedRoute(
+            'api.v1.bookings.guest-dispute',
+            now()->addDays(90),
+            ['uuid' => $booking->uuid]
         );
     }
 
@@ -334,11 +433,7 @@ class BookingController extends BaseApiController
         $nights = $booking->check_in->diffInDays($booking->check_out);
         $subtotal = (float) $booking->total_price - (float) ($booking->tax_amount ?? 0) + (float) ($booking->discount_amount ?? 0);
 
-        $html = view('invoice.booking', [
-            'booking' => $booking,
-            'nights' => $nights,
-            'subtotal' => round($subtotal, 2),
-        ])->render();
+        $html = view('invoice.booking', BookingInvoice::viewData($booking, $nights, round($subtotal, 2)))->render();
 
         return response($html, 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
@@ -364,11 +459,8 @@ class BookingController extends BaseApiController
         }
         $nights = $booking->check_in->diffInDays($booking->check_out);
         $subtotal = (float) $booking->total_price - (float) ($booking->tax_amount ?? 0) + (float) ($booking->discount_amount ?? 0);
-        $html = view('invoice.booking', [
-            'booking' => $booking,
-            'nights' => $nights,
-            'subtotal' => round($subtotal, 2),
-        ])->render();
+        $html = view('invoice.booking', BookingInvoice::viewData($booking, $nights, round($subtotal, 2)))->render();
+
         return response($html, 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
             'Content-Disposition' => 'inline; filename="invoice-'.$booking->uuid.'.html"',
@@ -380,12 +472,13 @@ class BookingController extends BaseApiController
      */
     public function show(Request $request, string $uuid): JsonResponse
     {
-        $booking = Booking::where('uuid', $uuid)->with(['hotel', 'bookingRooms.room', 'review', 'coupon'])->firstOrFail();
+        $booking = Booking::where('uuid', $uuid)->with(['hotel', 'bookingRooms.room', 'review', 'coupon', 'dispute'])->firstOrFail();
         $user = $request->user();
         $isOwner = $booking->customer_id !== null && (int) $booking->customer_id === (int) $user->id;
         if (! $isOwner) {
             return $this->error('You do not have access to this booking.', 403, 'FORBIDDEN');
         }
+
         return $this->success(new BookingResource($booking));
     }
 
@@ -420,7 +513,8 @@ class BookingController extends BaseApiController
         } catch (\Throwable $e) {
             return $this->error($e->getMessage(), 422, 'CANCEL_FAILED');
         }
-        return $this->success(new BookingResource($booking->fresh()->load(['hotel', 'bookingRooms.room', 'coupon'])));
+
+        return $this->success(new BookingResource($booking->fresh()->load(['hotel', 'bookingRooms.room', 'coupon', 'dispute'])));
     }
 
     /**
@@ -430,7 +524,7 @@ class BookingController extends BaseApiController
     {
         $perPage = (int) $request->input('per_page', 15);
         $paginator = Booking::where('customer_id', $request->user()->id)
-            ->with(['hotel', 'bookingRooms.room', 'coupon'])
+            ->with(['hotel', 'bookingRooms.room', 'coupon', 'dispute'])
             ->latest()
             ->paginate($perPage);
 

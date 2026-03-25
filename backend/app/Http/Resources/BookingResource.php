@@ -32,6 +32,14 @@ class BookingResource extends JsonResource
             'hotel' => new HotelResource($this->whenLoaded('hotel')),
             'booking_rooms' => BookingRoomResource::collection($this->whenLoaded('bookingRooms')),
             'review' => new ReviewResource($this->whenLoaded('review')),
+            'dispute' => $this->when(
+                $this->relationLoaded('dispute'),
+                fn () => $this->dispute ? new BookingDisputeResource($this->dispute) : null
+            ),
+            'can_open_dispute' => $this->when(
+                $this->resource->exists,
+                fn () => $this->resource->canOpenDispute()
+            ),
             'cancellation_policy_summary' => $this->when(
                 $this->resource->exists,
                 fn () => app(\App\Services\CancellationPolicyService::class)->getSummaryForBooking($this->resource)
